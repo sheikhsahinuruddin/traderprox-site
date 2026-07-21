@@ -2470,7 +2470,7 @@ body.intro-locked { overflow: hidden; }
       </div>
 
       <p style="font-size:12px;color:var(--paper-faint);margin-top:24px;text-align:center;">
-        Demo mode: data is stored only in this browser (localStorage). This will switch to a real database once a backend is connected.
+        Your account, progress and premium status are stored securely online, so they follow you across devices.
       </p>
     </div>
   </section>
@@ -2502,10 +2502,32 @@ body.intro-locked { overflow: hidden; }
       <div id="loggedInBox" hidden>
         <p style="font-size:13.5px;color:var(--paper-dim);margin-bottom:16px;">Logged in as <span id="userEmail" class="mono" style="color:var(--paper);"></span></p>
         <button class="btn btn-primary btn-block" id="payBtn">Subscribe — ₹159/month</button>
+        <a href="#" data-nav="unlock" style="display:block;text-align:center;font-size:13px;color:var(--paper-faint);margin-top:16px;">Have an access code? Unlock instantly →</a>
         <p style="font-size:12px;color:var(--paper-faint);margin-top:14px;text-align:center;">
           In demo mode this button doesn't take a real payment — it simply unlocks access so the rest of the site can be tested.
         </p>
       </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ===================== VIEW: UNLOCK PREMIUM (ACCESS CODE) ===================== -->
+<div class="view" id="view-unlock">
+  <section style="min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:48px 20px;">
+    <div class="card" style="max-width:440px;width:100%;padding:40px 36px;">
+
+      <p class="eyebrow">Unlock Premium</p>
+      <h1 style="font-size:24px;margin-top:14px;">Have an access code?</h1>
+      <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">Enter it below to unlock Premium instantly — no payment needed.</p>
+
+      <div id="unlockError" class="auth-error" hidden></div>
+      <div id="unlockSuccess" class="auth-error" style="background:var(--up-soft);color:var(--up);" hidden></div>
+
+      <label class="field-label" style="margin-top:24px;">Access code</label>
+      <input type="text" id="unlockCodeInput" class="field mono" placeholder="TPX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;">
+      <button class="btn btn-primary btn-block" style="margin-top:20px;" id="unlockSubmitBtn">Unlock</button>
+      <a href="#" data-nav="checkout" style="display:block;text-align:center;font-size:13px;color:var(--paper-faint);margin-top:18px;">← Back to subscribe options</a>
 
     </div>
   </section>
@@ -2748,39 +2770,104 @@ body.intro-locked { overflow: hidden; }
     <div class="wrap" style="max-width:1000px;">
       <p class="eyebrow">Admin</p>
       <h1 style="font-size:clamp(24px,3.6vw,32px);margin-top:14px;">Admin Panel</h1>
-      <p style="color:var(--paper-dim);margin-top:8px;">Manage TraderProX users, premium access, and roles.</p>
+      <p style="color:var(--paper-dim);margin-top:8px;">Manage TraderProX users, premium access, and access codes.</p>
 
-      <div class="adm-stats-grid" style="margin-top:28px;">
-        <div class="adm-stat">
-          <div class="adm-stat-label">Total users</div>
-          <div class="adm-stat-value" id="admTotalUsers">—</div>
+      <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;">
+        <button type="button" class="bt-chip bt-chip-selected" id="admTabUsersBtn" style="padding:9px 18px;">Users</button>
+        <button type="button" class="bt-chip" id="admTabCodesBtn" style="padding:9px 18px;">Access Codes</button>
+      </div>
+
+      <!-- ---------- USERS PANEL ---------- -->
+      <div id="admUsersPanel">
+        <div class="adm-stats-grid" style="margin-top:28px;">
+          <div class="adm-stat">
+            <div class="adm-stat-label">Total users</div>
+            <div class="adm-stat-value" id="admTotalUsers">—</div>
+          </div>
+          <div class="adm-stat">
+            <div class="adm-stat-label">Premium users</div>
+            <div class="adm-stat-value" id="admPremiumUsers">—</div>
+          </div>
+          <div class="adm-stat">
+            <div class="adm-stat-label">Free users</div>
+            <div class="adm-stat-value" id="admFreeUsers">—</div>
+          </div>
         </div>
-        <div class="adm-stat">
-          <div class="adm-stat-label">Premium users</div>
-          <div class="adm-stat-value" id="admPremiumUsers">—</div>
+
+        <div style="margin-top:28px;">
+          <p class="bt-field-label">Recently registered</p>
+          <div id="admRecentUsers" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div>
         </div>
+
+        <div style="margin-top:28px;">
+          <input type="text" id="admSearchInput" class="adm-search" placeholder="Search by email..." />
+        </div>
+
+        <div class="adm-table-wrap" style="margin-top:16px;">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Premium</th>
+                <th>Signed up</th>
+              </tr>
+            </thead>
+            <tbody id="admUserTableBody">
+              <tr><td colspan="4" style="text-align:center;color:var(--paper-faint);">Loading users...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="bt-hint" id="admListError" style="color:var(--down);margin-top:10px;" hidden></p>
       </div>
 
-      <div style="margin-top:28px;">
-        <input type="text" id="admSearchInput" class="adm-search" placeholder="Search by email..." />
-      </div>
+      <!-- ---------- ACCESS CODES PANEL ---------- -->
+      <div id="admCodesPanel" hidden style="margin-top:28px;">
+        <div class="card" style="padding:22px;">
+          <p class="bt-field-label">Generate access code</p>
+          <div class="bt-tf-grid" id="admCodeDurationGrid" style="margin-top:8px;">
+            <button type="button" class="bt-chip bt-chip-selected" data-plan="30_days">30 Days</button>
+            <button type="button" class="bt-chip" data-plan="90_days">90 Days</button>
+            <button type="button" class="bt-chip" data-plan="lifetime">Lifetime</button>
+          </div>
+          <button class="btn btn-primary" id="admGenerateCodeBtn" style="margin-top:18px;">Generate Code</button>
+          <div id="admGeneratedCodeBox" hidden style="margin-top:16px;padding:14px 16px;background:var(--signal-soft);border:1px solid var(--ink-line);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <span class="mono" id="admGeneratedCodeText" style="font-size:15px;color:var(--signal);"></span>
+            <button type="button" class="btn btn-ghost" id="admCopyCodeBtn" style="padding:7px 14px;font-size:12.5px;">Copy</button>
+          </div>
+          <p class="bt-hint" id="admGenerateError" style="color:var(--down);" hidden></p>
+        </div>
 
-      <div class="adm-table-wrap" style="margin-top:16px;">
-        <table class="adm-table">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Premium</th>
-              <th>Signed up</th>
-            </tr>
-          </thead>
-          <tbody id="admUserTableBody">
-            <tr><td colspan="4" style="text-align:center;color:var(--paper-faint);">Loading users...</td></tr>
-          </tbody>
-        </table>
+        <div style="display:flex;gap:10px;margin-top:24px;flex-wrap:wrap;">
+          <button type="button" class="bt-chip bt-chip-selected" data-code-filter="all">All Codes</button>
+          <button type="button" class="bt-chip" data-code-filter="unused">Unused</button>
+          <button type="button" class="bt-chip" data-code-filter="used">Used</button>
+        </div>
+
+        <div style="margin-top:16px;">
+          <input type="text" id="admCodeSearchInput" class="adm-search" placeholder="Search by code..." />
+        </div>
+
+        <div class="adm-table-wrap" style="margin-top:16px;">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Plan</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th>Used by</th>
+                <th>Used date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="admCodeTableBody">
+              <tr><td colspan="7" style="text-align:center;color:var(--paper-faint);">Loading codes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="bt-hint" id="admCodeListError" style="color:var(--down);margin-top:10px;" hidden></p>
       </div>
-      <p class="bt-hint" id="admListError" style="color:var(--down);margin-top:10px;" hidden></p>
     </div>
   </section>
 </div>
@@ -2982,11 +3069,19 @@ const Auth = (() => {
 
   function _mapUser(supaUser, profile) {
     if (!supaUser) return null;
+    // premium_expiry === null means lifetime access; a past date means the
+    // membership lapsed, so hasPaid must go back to false even though the
+    // `premium` column itself is only flipped by an admin/redemption action,
+    // never automatically — this is what "membership expiry calculated from
+    // Supabase" means in practice for every read in the app.
+    const premiumExpiry = profile && profile.premium_expiry;
+    const isExpired = !!premiumExpiry && new Date(premiumExpiry).getTime() < Date.now();
     return {
       id: supaUser.id,
       email: supaUser.email,
       name: (profile && profile.full_name) || (supaUser.email ? supaUser.email.split('@')[0] : 'Trader'),
-      hasPaid: !!(profile && profile.premium),
+      hasPaid: !!(profile && profile.premium) && !isExpired,
+      premiumExpiry: premiumExpiry || null,
       role: (profile && profile.role) || 'user',
       isAdmin: !!(profile && profile.role === 'admin'),
       isOwner: false
@@ -3081,6 +3176,145 @@ const Auth = (() => {
   }
 
   return { signup, login, logout, currentUser, markPaid, resetPasswordForEmail, updatePassword };
+})();
+
+/* ===========================================================
+   PROGRESS.JS — Quiz scores, chapter completion & streak,
+   backed by Supabase (replaces the old localStorage-only layer)
+   -----------------------------------------------------------
+   One row per user in a `user_progress` table (see
+   supabase_setup_progress.sql), scoped by RLS to the signed-in
+   user, so progress follows an account across devices/browsers.
+
+   Reads throughout the app (renderQuizHTML, renderDashboard,
+   wireQuiz, etc.) are synchronous, so this module hydrates an
+   in-memory cache once per signed-in user via ensureLoaded(),
+   then serves getters from that cache. Writes update the cache
+   immediately (so the UI feels instant) and persist to Supabase
+   in the background; a failed write is logged and surfaced via
+   hadError(), and never silently falls back to localStorage.
+   =========================================================== */
+const Progress = (function () {
+  let _userId = null;
+  let _loaded = false;
+  let _loading = null;
+  let _lastError = null;
+  let _quizScores = {};
+  let _chaptersDone = [];
+  let _streak = { count: 0, lastDate: '' };
+
+  function _resetState() {
+    _userId = null;
+    _loaded = false;
+    _loading = null;
+    _lastError = null;
+    _quizScores = {};
+    _chaptersDone = [];
+    _streak = { count: 0, lastDate: '' };
+  }
+
+  async function ensureLoaded(userId) {
+    if (!userId) { _resetState(); return; }
+    if (_userId === userId && _loaded) return;
+    if (_userId === userId && _loading) return _loading;
+
+    _userId = userId;
+    _loaded = false;
+    _loading = (async () => {
+      try {
+        const { data, error } = await supabaseClient
+          .from('user_progress')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+        if (error) throw error;
+
+        if (data) {
+          _quizScores = data.quiz_scores || {};
+          _chaptersDone = data.chapters_done || [];
+          _streak = { count: data.streak_count || 0, lastDate: data.streak_last_date || '' };
+        } else {
+          _quizScores = {};
+          _chaptersDone = [];
+          _streak = { count: 0, lastDate: '' };
+          // First visit for this account — create the row so future
+          // upserts have something to match on.
+          const { error: insErr } = await supabaseClient.from('user_progress').insert({
+            user_id: userId, quiz_scores: {}, chapters_done: [], streak_count: 0, streak_last_date: ''
+          });
+          if (insErr) console.warn('[Progress] Could not create initial progress row:', insErr.message || insErr);
+        }
+        _lastError = null;
+      } catch (err) {
+        console.error('[Progress] Failed to load progress from Supabase:', (err && err.message) || err);
+        _lastError = err;
+        // Fail closed to a fresh, empty state — never read stale data
+        // from localStorage as a substitute for the online record.
+        _quizScores = {};
+        _chaptersDone = [];
+        _streak = { count: 0, lastDate: '' };
+      } finally {
+        _loaded = true;
+        _loading = null;
+      }
+    })();
+    return _loading;
+  }
+
+  async function _persist() {
+    if (!_userId) return;
+    try {
+      const { error } = await supabaseClient
+        .from('user_progress')
+        .upsert({
+          user_id: _userId,
+          quiz_scores: _quizScores,
+          chapters_done: _chaptersDone,
+          streak_count: _streak.count,
+          streak_last_date: _streak.lastDate,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
+      if (error) throw error;
+      _lastError = null;
+    } catch (err) {
+      console.error('[Progress] Failed to save progress to Supabase:', (err && err.message) || err);
+      _lastError = err;
+    }
+  }
+
+  function getQuizScore() {
+    return _quizScores;
+  }
+  function saveQuizResult(chapterKey, isCorrect) {
+    _quizScores = Object.assign({}, _quizScores, { [chapterKey]: isCorrect });
+    _persist();
+  }
+  function getChaptersDone() {
+    return _chaptersDone.slice();
+  }
+  function markChapterDone(idx) {
+    if (!_chaptersDone.includes(idx)) {
+      _chaptersDone = _chaptersDone.concat([idx]);
+    }
+    const today = new Date().toDateString();
+    if (_streak.lastDate !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      const nextCount = _streak.lastDate === yesterday ? _streak.count + 1 : 1;
+      _streak = { count: nextCount, lastDate: today };
+    }
+    _persist();
+  }
+  function getStreak() {
+    return _streak.count || 0;
+  }
+  function isLoaded() { return _loaded; }
+  function hadError() { return !!_lastError; }
+  function reset() { _resetState(); }
+
+  return {
+    ensureLoaded, getQuizScore, saveQuizResult, getChaptersDone,
+    markChapterDone, getStreak, isLoaded, hadError, reset
+  };
 })();
 
 /* ===========================================================
@@ -3324,6 +3558,7 @@ async function goTo(viewName, opts) {
   }
   if (viewName === 'login') renderLoginGuard();
   if (viewName === 'checkout') await renderCheckout();
+  if (viewName === 'unlock') await renderUnlock();
   if (viewName === 'dashboard') await renderDashboard();
   if (viewName === 'course') await renderCourse(opts.part);
   if (viewName === 'game') initGame();
@@ -3357,6 +3592,11 @@ async function guardedGoTo(target, opts) {
   // limited daily allowance handled inside the view itself (see the
   // BACKTEST SIMULATOR section), matching the free-vs-premium spec.
   if (target === 'backtest') {
+    if (!user) return goTo('login');
+  }
+  // Unlock Premium (access code redemption): login required, but NOT
+  // premium — this is precisely how a free user becomes premium.
+  if (target === 'unlock') {
     if (!user) return goTo('login');
   }
   // Admin Panel: login required AND role === 'admin'. This client-side
@@ -3415,6 +3655,7 @@ async function renderNavAuthState() {
     document.getElementById('logoutBtn').addEventListener('click', async (e) => {
       e.preventDefault();
       await Auth.logout();
+      Progress.reset();
       goTo('home');
     });
   } else {
@@ -3699,10 +3940,81 @@ async function renderCheckout() {
 // a view rather than the nav/hero/pricing sections.
 document.getElementById('payBtn').addEventListener('click', handlePremiumAccessClick);
 
+/* ---------- UNLOCK PREMIUM (ACCESS CODE) VIEW ---------- */
+async function renderUnlock() {
+  const user = await Auth.currentUser();
+  if (!user) return guardedGoTo('login');
+  document.getElementById('unlockError').hidden = true;
+  document.getElementById('unlockSuccess').hidden = true;
+  document.getElementById('unlockCodeInput').value = '';
+  document.getElementById('unlockSubmitBtn').disabled = false;
+  document.getElementById('unlockSubmitBtn').textContent = 'Unlock';
+}
+
+function showUnlockMessage(elId, msg) {
+  const el = document.getElementById(elId);
+  const other = elId === 'unlockError' ? 'unlockSuccess' : 'unlockError';
+  document.getElementById(other).hidden = true;
+  el.textContent = msg;
+  el.hidden = false;
+}
+
+async function submitAccessCode() {
+  const input = document.getElementById('unlockCodeInput');
+  const btn = document.getElementById('unlockSubmitBtn');
+  const code = input.value.trim();
+  if (!code) {
+    showUnlockMessage('unlockError', 'Please enter an access code.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+
+  try {
+    // All validation (exists / already used / expiry calculation) happens
+    // server-side inside redeem_access_code — the client never reads or
+    // trusts anything about the code locally, and the function itself
+    // enforces one-time use with a row lock, so two simultaneous
+    // redemption attempts on the same code can't both succeed.
+    const { data, error } = await supabaseClient.rpc('redeem_access_code', { code_input: code });
+    if (error) throw error;
+
+    if (!data || !data.ok) {
+      const reason = data && data.error;
+      if (reason === 'already_used') {
+        showUnlockMessage('unlockError', 'This access code has already been used.');
+      } else if (reason === 'not_authenticated') {
+        guardedGoTo('login');
+      } else {
+        showUnlockMessage('unlockError', 'Invalid Access Code');
+      }
+      btn.disabled = false;
+      btn.textContent = 'Unlock';
+      return;
+    }
+
+    showUnlockMessage('unlockSuccess', 'Premium unlocked! Redirecting...');
+    btn.textContent = 'Unlocked ✓';
+    setTimeout(() => guardedGoTo('dashboard'), 1200);
+  } catch (err) {
+    console.error('[Unlock] Failed to redeem access code:', err);
+    showUnlockMessage('unlockError', 'Could not reach the server. Please check your connection and try again.');
+    btn.disabled = false;
+    btn.textContent = 'Unlock';
+  }
+}
+
+document.getElementById('unlockSubmitBtn').addEventListener('click', submitAccessCode);
+document.getElementById('unlockCodeInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') submitAccessCode();
+});
+
 /* ---------- DASHBOARD VIEW ---------- */
 async function renderDashboard() {
   const user = await Auth.currentUser();
   if (!user) return guardedGoTo('login');
+  await Progress.ensureLoaded(user.id);
   document.getElementById('greeting').textContent = `Welcome back, ${user.name.split(' ')[0]}`;
 
   // --- Parts grid ---
@@ -3768,6 +4080,8 @@ COURSE.forEach((part, pi) => part.chapters.forEach((ch, ci) => FLAT.push({ pi, c
 let currentIndex = 0;
 
 async function renderCourse(requestedPart) {
+  const user = await Auth.currentUser();
+  if (user) await Progress.ensureLoaded(user.id);
   if (requestedPart) {
     const pi = COURSE.findIndex(p => p.id === requestedPart);
     if (pi > -1) currentIndex = FLAT.findIndex(f => f.pi === pi);
@@ -3833,16 +4147,17 @@ function renderChapter() {
   if (chapter.quiz) wireQuiz();
 }
 
-/* ---------- Quiz block: practice question at the end of a chapter ---------- */
-const QUIZ_SCORE_KEY = 'tb_quiz_score';
+/* ---------- Quiz block: practice question at the end of a chapter ----------
+   Backed by Supabase via the Progress module (see PROGRESS.JS above).
+   Progress.ensureLoaded(user.id) is awaited before these are read (in
+   renderCourse/renderDashboard), so these stay synchronous for every
+   existing call site. ---------- */
 
 function getQuizScore() {
-  return JSON.parse(localStorage.getItem(QUIZ_SCORE_KEY) || '{}');
+  return Progress.getQuizScore();
 }
 function saveQuizResult(chapterKey, isCorrect) {
-  const scores = getQuizScore();
-  scores[chapterKey] = isCorrect;
-  localStorage.setItem(QUIZ_SCORE_KEY, JSON.stringify(scores));
+  Progress.saveQuizResult(chapterKey, isCorrect);
 }
 function getScoreSummary() {
   const scores = getQuizScore();
@@ -4642,34 +4957,19 @@ function revealGameResult(choice, lastVisible, nextCandle) {
 
 document.getElementById('gameRestartBtn')?.addEventListener('click', initGame);
 
-/* ---------- Chapter completion tracking ---------- */
-const CHAPTERS_DONE_KEY = 'tb_chapters_done';
-const STREAK_KEY = 'tb_streak';
+/* ---------- Chapter completion tracking ----------
+   Backed by Supabase via the Progress module (see PROGRESS.JS above). ---------- */
 
 function markChapterDone(idx) {
-  const done = JSON.parse(localStorage.getItem(CHAPTERS_DONE_KEY) || '[]');
-  if (!done.includes(idx)) {
-    done.push(idx);
-    localStorage.setItem(CHAPTERS_DONE_KEY, JSON.stringify(done));
-  }
-  // Update streak
-  const today = new Date().toDateString();
-  let streak = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"count":0,"lastDate":""}');
-  if (streak.lastDate !== today) {
-    const yesterday = new Date(Date.now() - 86400000).toDateString();
-    streak.count = streak.lastDate === yesterday ? streak.count + 1 : 1;
-    streak.lastDate = today;
-    localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
-  }
+  Progress.markChapterDone(idx);
 }
 
 function getChaptersDone() {
-  return JSON.parse(localStorage.getItem(CHAPTERS_DONE_KEY) || '[]');
+  return Progress.getChaptersDone();
 }
 
 function getStreak() {
-  const streak = JSON.parse(localStorage.getItem(STREAK_KEY) || '{"count":0,"lastDate":""}');
-  return streak.count || 0;
+  return Progress.getStreak();
 }
 
 document.getElementById('prevBtn').addEventListener('click', () => {
@@ -5122,10 +5422,9 @@ supabaseClient.auth.onAuthStateChange((event, _session) => {
    PERSISTENCE: the free daily session count is stored in a
    `backtest_sessions` Supabase table (see
    supabase_setup_backtest.sql) with RLS scoping it to the
-   signed-in user. If that table hasn't been created yet, or a
-   query fails for any reason, it falls back to a per-user
-   localStorage counter so the feature still works — just
-   without server-side enforcement until the table exists.
+   signed-in user. This is the single source of truth — there is
+   no localStorage fallback, so callers must handle a failed
+   read/write explicitly (see renderBacktest/startBacktestSession).
    ------------------------------------------------------------ */
 
 const BT_SYMBOLS = [
@@ -5221,51 +5520,38 @@ function btToday() { return new Date().toISOString().slice(0, 10); }
 
 async function getBacktestSessionCount(userId) {
   const today = btToday();
-  try {
-    const { data, error } = await supabaseClient
-      .from('backtest_sessions')
-      .select('count')
-      .eq('user_id', userId)
-      .eq('session_date', today)
-      .maybeSingle();
-    if (error) throw error;
-    return (data && data.count) || 0;
-  } catch (err) {
-    console.warn('[Backtest] Reading session count locally — run supabase_setup_backtest.sql to persist this server-side.', err && err.message || err);
-    return Number(localStorage.getItem(`tpx_bt_count_${userId}_${today}`) || 0);
-  }
+  const { data, error } = await supabaseClient
+    .from('backtest_sessions')
+    .select('count')
+    .eq('user_id', userId)
+    .eq('session_date', today)
+    .maybeSingle();
+  if (error) throw error;
+  return (data && data.count) || 0;
 }
 
 async function incrementBacktestSessionCount(userId) {
   const today = btToday();
-  try {
-    const { data: existing, error: selErr } = await supabaseClient
+  const { data: existing, error: selErr } = await supabaseClient
+    .from('backtest_sessions')
+    .select('id, count')
+    .eq('user_id', userId)
+    .eq('session_date', today)
+    .maybeSingle();
+  if (selErr) throw selErr;
+  if (existing) {
+    const { error: updErr } = await supabaseClient
       .from('backtest_sessions')
-      .select('id, count')
-      .eq('user_id', userId)
-      .eq('session_date', today)
-      .maybeSingle();
-    if (selErr) throw selErr;
-    if (existing) {
-      const { error: updErr } = await supabaseClient
-        .from('backtest_sessions')
-        .update({ count: existing.count + 1 })
-        .eq('id', existing.id);
-      if (updErr) throw updErr;
-      return existing.count + 1;
-    }
-    const { error: insErr } = await supabaseClient
-      .from('backtest_sessions')
-      .insert({ user_id: userId, session_date: today, count: 1 });
-    if (insErr) throw insErr;
-    return 1;
-  } catch (err) {
-    console.warn('[Backtest] Writing session count locally — run supabase_setup_backtest.sql to persist this server-side.', err && err.message || err);
-    const key = `tpx_bt_count_${userId}_${today}`;
-    const next = Number(localStorage.getItem(key) || 0) + 1;
-    localStorage.setItem(key, String(next));
-    return next;
+      .update({ count: existing.count + 1 })
+      .eq('id', existing.id);
+    if (updErr) throw updErr;
+    return existing.count + 1;
   }
+  const { error: insErr } = await supabaseClient
+    .from('backtest_sessions')
+    .insert({ user_id: userId, session_date: today, count: 1 });
+  if (insErr) throw insErr;
+  return 1;
 }
 
 /* ---------- Setup panel ---------- */
@@ -5281,7 +5567,16 @@ async function renderBacktest() {
   document.getElementById('btLockOverlay').hidden = true;
 
   if (!isPremium) {
-    const used = await getBacktestSessionCount(user.id);
+    let used;
+    try {
+      used = await getBacktestSessionCount(user.id);
+    } catch (err) {
+      console.error('[Backtest] Could not verify today\'s session count:', err);
+      const errEl = document.getElementById('btSetupError');
+      errEl.textContent = 'Could not reach the server to check today\'s usage. Please check your connection and try again.';
+      errEl.hidden = false;
+      return;
+    }
     if (used >= BT_FREE_DAILY_LIMIT) {
       document.getElementById('btSetupPanel').classList.add('bt-blurred');
       document.getElementById('btLockOverlay').hidden = false;
@@ -5373,7 +5668,15 @@ async function startBacktestSession() {
   const isPremium = !!user.hasPaid;
 
   if (!isPremium) {
-    const used = await getBacktestSessionCount(user.id);
+    let used;
+    try {
+      used = await getBacktestSessionCount(user.id);
+    } catch (err) {
+      console.error('[Backtest] Could not verify today\'s session count:', err);
+      errEl.textContent = 'Could not reach the server to check today\'s usage. Please check your connection and try again.';
+      errEl.hidden = false;
+      return;
+    }
     if (used >= BT_FREE_DAILY_LIMIT) { renderBacktest(); return; }
   }
   if (!btSelected.dateStr) {
@@ -5403,7 +5706,17 @@ async function startBacktestSession() {
     return;
   }
 
-  if (!isPremium) await incrementBacktestSessionCount(user.id);
+  if (!isPremium) {
+    try {
+      await incrementBacktestSessionCount(user.id);
+    } catch (err) {
+      // The session already loaded successfully — don't block the user's
+      // practice session over a usage-counter write failing. Logged so it's
+      // visible, but this is not a security-relevant check (premium status
+      // itself is always verified from Supabase, never client-side).
+      console.error('[Backtest] Could not record today\'s session count:', err);
+    }
+  }
 
   loadBtn.disabled = false;
   loadBtn.textContent = originalLabel;
@@ -5771,22 +6084,69 @@ document.getElementById('btRestartBtn').addEventListener('click', () => { render
 
 let admUsersCache = [];
 let admSearchDebounce = null;
+let admActiveTab = 'users';
+
+function admIsActivePremium(u) {
+  if (!u || !u.premium) return false;
+  if (!u.premium_expiry) return true; // lifetime
+  return new Date(u.premium_expiry).getTime() >= Date.now();
+}
+
+function admExpiryFromNow(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
+}
 
 async function renderAdmin() {
   document.getElementById('admListError').hidden = true;
+  admSwitchTab('users');
   await Promise.all([renderAdminStats(), loadAdminUsers('')]);
   document.getElementById('admSearchInput').value = '';
 }
 
+function admSwitchTab(tab) {
+  admActiveTab = tab;
+  document.getElementById('admUsersPanel').hidden = tab !== 'users';
+  document.getElementById('admCodesPanel').hidden = tab !== 'codes';
+  document.getElementById('admTabUsersBtn').classList.toggle('bt-chip-selected', tab === 'users');
+  document.getElementById('admTabCodesBtn').classList.toggle('bt-chip-selected', tab === 'codes');
+  if (tab === 'codes' && admCodesCache.length === 0) {
+    loadAdminCodes('');
+  }
+}
+
+document.getElementById('admTabUsersBtn').addEventListener('click', () => admSwitchTab('users'));
+document.getElementById('admTabCodesBtn').addEventListener('click', () => admSwitchTab('codes'));
+
 async function renderAdminStats() {
   const [{ count: totalCount, error: totalErr }, { count: premiumCount, error: premErr }] = await Promise.all([
     supabaseClient.from('profiles').select('*', { count: 'exact', head: true }),
+    // Counts anyone ever marked premium=true; an admin can still see the
+    // *active* premium/free split accounting for expiry in the table
+    // badges below, where each row is evaluated individually.
     supabaseClient.from('profiles').select('*', { count: 'exact', head: true }).eq('premium', true)
   ]);
   document.getElementById('admTotalUsers').textContent = totalErr ? '—' : totalCount;
   document.getElementById('admPremiumUsers').textContent = premErr ? '—' : premiumCount;
+  document.getElementById('admFreeUsers').textContent = (totalErr || premErr) ? '—' : Math.max(totalCount - premiumCount, 0);
   if (totalErr) console.error('[Admin] Failed to load total user count:', totalErr);
   if (premErr) console.error('[Admin] Failed to load premium user count:', premErr);
+}
+
+function renderAdminRecentUsers(users) {
+  const wrap = document.getElementById('admRecentUsers');
+  const recent = users.slice(0, 5);
+  if (!recent.length) {
+    wrap.innerHTML = `<p style="color:var(--paper-faint);font-size:13px;">No users yet.</p>`;
+    return;
+  }
+  wrap.innerHTML = recent.map(u => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid var(--ink-line);border-radius:var(--radius-sm);">
+      <span class="mono" style="font-size:13px;color:var(--paper);">${escapeHtml(u.email || '—')}</span>
+      <span class="mono" style="font-size:12px;color:var(--paper-faint);">${formatAdminDate(u.created_at)}</span>
+    </div>
+  `).join('');
 }
 
 async function loadAdminUsers(searchTerm) {
@@ -5809,6 +6169,7 @@ async function loadAdminUsers(searchTerm) {
 
   admUsersCache = data || [];
   renderAdminUserTable(admUsersCache);
+  if (!searchTerm) renderAdminRecentUsers(admUsersCache);
 }
 
 function renderAdminUserTable(users) {
@@ -5821,7 +6182,7 @@ function renderAdminUserTable(users) {
     <tr data-user-id="${u.id}">
       <td class="adm-email">${escapeHtml(u.email || '—')}</td>
       <td><span class="adm-badge ${u.role === 'admin' ? 'adm-badge-admin' : 'adm-badge-user'}">${u.role || 'user'}</span></td>
-      <td><span class="adm-badge ${u.premium ? 'adm-badge-premium' : 'adm-badge-free'}">${u.premium ? 'Premium' : 'Free'}</span></td>
+      <td><span class="adm-badge ${admIsActivePremium(u) ? 'adm-badge-premium' : 'adm-badge-free'}">${admIsActivePremium(u) ? 'Premium' : 'Free'}</span></td>
       <td class="mono" style="font-size:12.5px;">${formatAdminDate(u.created_at)}</td>
     </tr>
   `).join('');
@@ -5854,6 +6215,13 @@ document.getElementById('admSearchInput').addEventListener('input', (e) => {
 });
 
 /* ---------- User details drawer: grant/remove premium, change role ---------- */
+function admFormatExpiry(user) {
+  if (!user.premium) return '—';
+  if (!user.premium_expiry) return 'Lifetime';
+  const expired = new Date(user.premium_expiry).getTime() < Date.now();
+  return formatAdminDate(user.premium_expiry) + (expired ? ' (expired)' : '');
+}
+
 function openAdminUserDrawer(user) {
   closeAdminUserDrawer();
 
@@ -5866,11 +6234,23 @@ function openAdminUserDrawer(user) {
     <div class="adm-drawer">
       <h3 style="font-family:var(--display);font-size:18px;color:var(--paper);margin:0 0 16px;">User details</h3>
       <div class="adm-drawer-row"><span class="adm-drawer-label">Email</span><span class="adm-drawer-value">${escapeHtml(user.email || '—')}</span></div>
+      <div class="adm-drawer-row"><span class="adm-drawer-label">User ID</span><span class="adm-drawer-value" style="font-size:11.5px;">${escapeHtml(user.id)}</span></div>
       <div class="adm-drawer-row"><span class="adm-drawer-label">Role</span><span class="adm-drawer-value" id="admDrawerRoleValue">${user.role || 'user'}</span></div>
       <div class="adm-drawer-row"><span class="adm-drawer-label">Premium</span><span class="adm-drawer-value" id="admDrawerPremiumValue">${user.premium ? 'Yes' : 'No'}</span></div>
+      <div class="adm-drawer-row"><span class="adm-drawer-label">Premium expiry</span><span class="adm-drawer-value" id="admDrawerExpiryValue">${admFormatExpiry(user)}</span></div>
       <div class="adm-drawer-row"><span class="adm-drawer-label">Signed up</span><span class="adm-drawer-value">${formatAdminDate(user.created_at)}</span></div>
 
       <div class="adm-drawer-actions">
+        ${!user.premium ? `
+          <label>
+            <span class="bt-field-label" style="margin-top:4px;">Grant duration</span>
+            <select id="admGrantDurationSelect" class="adm-role-select">
+              <option value="30_days">30 Days</option>
+              <option value="90_days">90 Days</option>
+              <option value="lifetime">Lifetime</option>
+            </select>
+          </label>
+        ` : ''}
         <button type="button" class="btn ${user.premium ? 'btn-ghost' : 'btn-primary'}" id="admTogglePremiumBtn">
           ${user.premium ? 'Remove Premium' : 'Grant Premium'}
         </button>
@@ -5896,8 +6276,16 @@ function openAdminUserDrawer(user) {
     const btn = e.currentTarget;
     btn.disabled = true;
     const nextPremium = !user.premium;
+    const updates = { premium: nextPremium };
+    if (nextPremium) {
+      const durationSelect = document.getElementById('admGrantDurationSelect');
+      const plan = durationSelect ? durationSelect.value : 'lifetime';
+      updates.premium_expiry = plan === 'lifetime' ? null : admExpiryFromNow(plan === '90_days' ? 90 : 30);
+    } else {
+      updates.premium_expiry = null;
+    }
     const { data, error } = await supabaseClient
-      .from('profiles').update({ premium: nextPremium }).eq('id', user.id).select().maybeSingle();
+      .from('profiles').update(updates).eq('id', user.id).select().maybeSingle();
     btn.disabled = false;
     if (error) {
       console.error('[Admin] Failed to update premium status:', error);
@@ -5905,6 +6293,7 @@ function openAdminUserDrawer(user) {
       return;
     }
     user.premium = data.premium;
+    user.premium_expiry = data.premium_expiry;
     closeAdminUserDrawer();
     await renderAdminStats();
     await loadAdminUsers(document.getElementById('admSearchInput').value.trim());
@@ -5947,6 +6336,189 @@ function showAdminDrawerError(msg) {
 
 function closeAdminUserDrawer() {
   document.getElementById('admDrawerBackdrop')?.remove();
+}
+
+/* ===========================================================
+   ACCESS CODE MANAGEMENT
+   -----------------------------------------------------------
+   Codes are generated and listed directly against the
+   `access_codes` table (admin-only per RLS — see
+   supabase_setup_access_codes.sql). Redemption, however, never
+   touches this table directly from the client: it goes through
+   the redeem_access_code() Postgres function (called from the
+   Unlock Premium page), which is the only thing allowed to mark
+   a code used and grant premium, atomically and server-side.
+   ------------------------------------------------------------ */
+
+let admCodesCache = [];
+let admCodeFilter = 'all';
+let admCodeSearchDebounce = null;
+let admSelectedPlan = '30_days';
+
+const ADM_CODE_CHARSET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'; // no 0/O/1/I/L — avoids ambiguous characters
+
+function admGenerateCodeString() {
+  function group() {
+    let s = '';
+    for (let i = 0; i < 4; i++) s += ADM_CODE_CHARSET[Math.floor(Math.random() * ADM_CODE_CHARSET.length)];
+    return s;
+  }
+  return `TPX-${group()}-${group()}-${group()}`;
+}
+
+document.getElementById('admCodeDurationGrid').querySelectorAll('.bt-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    admSelectedPlan = btn.dataset.plan;
+    document.getElementById('admCodeDurationGrid').querySelectorAll('.bt-chip').forEach(b => {
+      b.classList.toggle('bt-chip-selected', b === btn);
+    });
+  });
+});
+
+document.getElementById('admGenerateCodeBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('admGenerateCodeBtn');
+  const errEl = document.getElementById('admGenerateError');
+  const box = document.getElementById('admGeneratedCodeBox');
+  errEl.hidden = true;
+  box.hidden = true;
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  try {
+    const { data: sessionData } = await supabaseClient.auth.getSession();
+    const adminId = sessionData && sessionData.session && sessionData.session.user && sessionData.session.user.id;
+    const durationDays = admSelectedPlan === 'lifetime' ? null : (admSelectedPlan === '90_days' ? 90 : 30);
+
+    let inserted = null;
+    let lastError = null;
+    // Random codes can theoretically collide with an existing one; the
+    // unique constraint on `code` catches that, so just retry with a
+    // fresh code rather than trusting client-side randomness alone.
+    for (let attempt = 0; attempt < 5 && !inserted; attempt++) {
+      const code = admGenerateCodeString();
+      const { data, error } = await supabaseClient
+        .from('access_codes')
+        .insert({ code, plan: admSelectedPlan, duration_days: durationDays, created_by: adminId })
+        .select()
+        .maybeSingle();
+      if (!error) { inserted = data; break; }
+      if (error.code !== '23505') { lastError = error; break; } // not a uniqueness conflict — stop retrying
+      lastError = error;
+    }
+
+    if (!inserted) throw lastError || new Error('Could not generate a unique code.');
+
+    document.getElementById('admGeneratedCodeText').textContent = inserted.code;
+    box.hidden = false;
+    await loadAdminCodes(document.getElementById('admCodeSearchInput').value.trim());
+  } catch (err) {
+    console.error('[Admin] Failed to generate access code:', err);
+    errEl.textContent = 'Could not generate a code. Run supabase_setup_access_codes.sql if you haven\'t already, then try again.';
+    errEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate Code';
+  }
+});
+
+document.getElementById('admCopyCodeBtn').addEventListener('click', () => {
+  const text = document.getElementById('admGeneratedCodeText').textContent;
+  navigator.clipboard?.writeText(text).then(() => {
+    const btn = document.getElementById('admCopyCodeBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }).catch(() => {});
+});
+
+document.querySelectorAll('[data-code-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    admCodeFilter = btn.dataset.codeFilter;
+    document.querySelectorAll('[data-code-filter]').forEach(b => {
+      b.classList.toggle('bt-chip-selected', b === btn);
+    });
+    loadAdminCodes(document.getElementById('admCodeSearchInput').value.trim());
+  });
+});
+
+document.getElementById('admCodeSearchInput').addEventListener('input', (e) => {
+  clearTimeout(admCodeSearchDebounce);
+  const term = e.target.value.trim();
+  admCodeSearchDebounce = setTimeout(() => loadAdminCodes(term), 300);
+});
+
+function admPlanLabel(plan) {
+  if (plan === '30_days') return '30 Days';
+  if (plan === '90_days') return '90 Days';
+  if (plan === 'lifetime') return 'Lifetime';
+  return plan || '—';
+}
+
+async function loadAdminCodes(searchTerm) {
+  const tbody = document.getElementById('admCodeTableBody');
+  const errEl = document.getElementById('admCodeListError');
+  errEl.hidden = true;
+  tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--paper-faint);">Loading codes...</td></tr>`;
+
+  let query = supabaseClient.from('access_codes').select('*').order('created_at', { ascending: false }).limit(300);
+  if (admCodeFilter === 'used') query = query.eq('used', true);
+  if (admCodeFilter === 'unused') query = query.eq('used', false);
+  if (searchTerm) query = query.ilike('code', `%${searchTerm.toUpperCase()}%`);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error('[Admin] Failed to load access codes:', error);
+    tbody.innerHTML = '';
+    errEl.textContent = 'Could not load access codes. Run supabase_setup_access_codes.sql if you haven\'t already.';
+    errEl.hidden = false;
+    return;
+  }
+
+  admCodesCache = data || [];
+
+  const usedByIds = [...new Set(admCodesCache.filter(c => c.used_by).map(c => c.used_by))];
+  let emailMap = {};
+  if (usedByIds.length) {
+    const { data: profs, error: profErr } = await supabaseClient.from('profiles').select('id, email').in('id', usedByIds);
+    if (profErr) console.error('[Admin] Failed to resolve redeemer emails:', profErr);
+    (profs || []).forEach(p => { emailMap[p.id] = p.email; });
+  }
+
+  renderAdminCodeTable(admCodesCache, emailMap);
+}
+
+function renderAdminCodeTable(codes, emailMap) {
+  const tbody = document.getElementById('admCodeTableBody');
+  if (!codes.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--paper-faint);">No codes found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = codes.map(c => `
+    <tr>
+      <td class="mono adm-email" style="font-size:12.5px;">${escapeHtml(c.code)}</td>
+      <td>${admPlanLabel(c.plan)}</td>
+      <td class="mono" style="font-size:12.5px;">${formatAdminDate(c.created_at)}</td>
+      <td><span class="adm-badge ${c.used ? 'adm-badge-free' : 'adm-badge-premium'}">${c.used ? 'Used' : 'Unused'}</span></td>
+      <td class="mono" style="font-size:12px;">${c.used_by ? escapeHtml(emailMap[c.used_by] || c.used_by) : '—'}</td>
+      <td class="mono" style="font-size:12.5px;">${c.used ? formatAdminDate(c.used_at) : '—'}</td>
+      <td>${c.used ? '' : `<button type="button" class="btn btn-ghost adm-code-delete-btn" data-code-id="${c.id}" style="padding:6px 12px;font-size:12px;">Delete</button>`}</td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('.adm-code-delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this unused access code? This cannot be undone.')) return;
+      btn.disabled = true;
+      const { error } = await supabaseClient.from('access_codes').delete().eq('id', btn.dataset.codeId).eq('used', false);
+      if (error) {
+        console.error('[Admin] Failed to delete access code:', error);
+        alert('Could not delete this code. Check the console for details.');
+        btn.disabled = false;
+        return;
+      }
+      await loadAdminCodes(document.getElementById('admCodeSearchInput').value.trim());
+    });
+  });
 }
 </script>
 
