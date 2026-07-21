@@ -963,7 +963,9 @@ h1, h2, h3, h4 {
 
 /* ===========================================================
    INTRO — opening animation (splash before the site reveals)
-   Chart-line draw + logo reveal, ~1.9s total, smooth and short.
+   Candlestick bars grow into an uptrend, a completion "ping" on
+   the final bar, then the logo snaps in. ~2.0s total, dismisses
+   with a smooth fade. Tap anywhere to skip.
    =========================================================== */
 #introOverlay {
   position: fixed;
@@ -986,63 +988,80 @@ body.intro-locked { overflow: hidden; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
+  gap: 26px;
 }
 
-.intro-svg { overflow: visible; display: block; }
-.intro-line {
-  fill: none;
-  stroke: var(--signal);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 236;
-  stroke-dashoffset: 236;
-  filter: drop-shadow(0 0 6px rgba(0, 230, 118, 0.55));
-  animation: introDraw 650ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+/* ---- Candlestick bars, growing from the baseline ---- */
+.intro-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  height: 76px;
 }
-@keyframes introDraw {
-  to { stroke-dashoffset: 0; }
+.intro-bar {
+  position: relative;
+  width: 11px;
+  border-radius: 3px 3px 1px 1px;
+  background: linear-gradient(180deg, var(--signal), var(--signal-dim));
+  filter: drop-shadow(0 0 7px rgba(0, 230, 118, 0.5));
+  transform: scaleY(0);
+  transform-origin: bottom;
+  animation: introBarGrow 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-
-.intro-dot {
-  fill: var(--signal);
-  r: 0;
-  filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.9));
-  animation: introDotPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: 600ms;
-}
-@keyframes introDotPop {
-  0% { r: 0; }
-  60% { r: 6; }
-  100% { r: 4; }
+.intro-bar:nth-child(1) { height: 30px; animation-delay: 0ms; }
+.intro-bar:nth-child(2) { height: 46px; animation-delay: 90ms; }
+.intro-bar:nth-child(3) { height: 38px; animation-delay: 180ms; }
+.intro-bar:nth-child(4) { height: 60px; animation-delay: 270ms; }
+.intro-bar:nth-child(5) { height: 76px; animation-delay: 360ms; }
+@keyframes introBarGrow {
+  to { transform: scaleY(1); }
 }
 
-.intro-ring {
-  fill: none;
-  stroke: var(--signal);
-  stroke-width: 1.5;
+/* ---- Completion "ping" on the final, tallest bar ---- */
+.intro-ping {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--signal);
   opacity: 0;
-  r: 4;
-  animation: introRingPulse 650ms ease-out forwards;
-  animation-delay: 620ms;
+  filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.9));
+  animation: introPingPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 760ms;
 }
-@keyframes introRingPulse {
-  0% { r: 4; opacity: 0.7; }
-  100% { r: 20; opacity: 0; }
+.intro-ping::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--signal);
+  animation: introPingRing 650ms ease-out forwards;
+  animation-delay: 760ms;
+}
+@keyframes introPingPop {
+  0% { opacity: 0; transform: scale(0); }
+  60% { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes introPingRing {
+  0% { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(3.2); }
 }
 
+/* ---- Logo snap-in ---- */
 .intro-logo {
   display: flex;
   align-items: center;
   gap: 10px;
   opacity: 0;
-  transform: translateY(10px);
-  animation: introLogoIn 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  animation-delay: 720ms;
+  transform: translateY(10px) scale(0.94);
+  animation: introLogoIn 420ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 880ms;
 }
 @keyframes introLogoIn {
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .intro-logo-mark {
   width: 32px;
@@ -1066,8 +1085,15 @@ body.intro-locked { overflow: hidden; }
   letter-spacing: -0.01em;
   color: var(--paper);
   white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-6px);
+  animation: introWordIn 380ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 1060ms;
 }
 .intro-logo-word span { color: var(--signal); }
+@keyframes introWordIn {
+  to { opacity: 1; transform: translateX(0); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   #introOverlay { display: none !important; }
@@ -1457,11 +1483,13 @@ body.intro-locked { overflow: hidden; }
 <!-- ===================== 3D OPENING ANIMATION ===================== -->
 <div id="introOverlay" aria-hidden="true">
   <div class="intro-content">
-    <svg class="intro-svg" viewBox="0 0 220 90" width="220" height="90">
-      <polyline class="intro-line" points="4,70 40,55 70,62 100,30 130,40 160,15 210,8" />
-      <circle class="intro-ring" cx="210" cy="8" />
-      <circle class="intro-dot" cx="210" cy="8" />
-    </svg>
+    <div class="intro-bars">
+      <div class="intro-bar"></div>
+      <div class="intro-bar"></div>
+      <div class="intro-bar"></div>
+      <div class="intro-bar"></div>
+      <div class="intro-bar"><span class="intro-ping"></span></div>
+    </div>
     <div class="intro-logo">
       <span class="intro-logo-mark">TPX</span>
       <span class="intro-logo-word">Trader<span>ProX</span></span>
@@ -3533,6 +3561,8 @@ document.querySelectorAll('.auth-tab').forEach(tab => {
 
 function showError(id, message) {
   const el = document.getElementById(id);
+  el.style.background = '';
+  el.style.color = '';
   el.textContent = message;
   el.hidden = false;
 }
@@ -5032,6 +5062,21 @@ initCountUp();
 initLiveTicker();
 renderNavAuthState();
 
+// After a successful password reset on the dedicated reset-password.html
+// page, it redirects here with ?passwordReset=success. Show the login
+// view with a confirmation message (reusing the existing #loginError
+// banner, just recolored green for this one case — no new markup added).
+if (new URLSearchParams(window.location.search).get('passwordReset') === 'success') {
+  history.replaceState(null, '', window.location.pathname);
+  goTo('login').then(() => {
+    const el = document.getElementById('loginError');
+    el.textContent = 'Your password has been updated. Please log in with your new password.';
+    el.style.background = 'var(--up-soft)';
+    el.style.color = 'var(--up)';
+    el.hidden = false;
+  });
+}
+
 // Keep the nav bar (and any open view) in sync automatically whenever
 // Supabase's auth state changes — sign in, sign out, or token refresh —
 // including changes that happen in another tab.
@@ -5913,7 +5958,7 @@ function closeAdminUserDrawer() {
   if (!overlay) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const holdMs = reduceMotion ? 0 : 1500;
+  const holdMs = reduceMotion ? 0 : 1650;
 
   function dismiss() {
     overlay.classList.add('intro-hide');
