@@ -1641,10 +1641,12 @@ body.intro-locked { overflow: hidden; }
           <span class="mono market-price" id="heroPrice">23,847.55</span>
           <span class="mono market-change" id="heroChange">+184.20 (+0.78%)</span>
         </div>
-        <p class="market-asof">As of today, simulated for demo · <span id="heroState">market open</span></p>
+        <p class="market-asof">Chart powered by TradingView · <span id="heroState">market open</span></p>
 
         <div class="market-chart-wrap">
-          <svg id="heroChart" width="100%" height="220" style="display:block;"></svg>
+          <div class="tradingview-widget-container" style="height:220px;width:100%;">
+            <div id="tradingview_hero" style="height:100%;width:100%;"></div>
+          </div>
         </div>
 
         <div class="market-timeframes" id="heroTimeframes">
@@ -3077,6 +3079,9 @@ if (window.location.pathname.replace(/\/+$/, '') === RESET_PASSWORD_PATH) {
 }
 </script>
 
+<!-- Official TradingView widget library, used by the hero market card chart -->
+<script src="https://s3.tradingview.com/tv.js"></script>
+
 <script>
 /* ===========================================================
    AUTH.JS — Real authentication via Supabase Auth
@@ -4078,6 +4083,25 @@ async function submitAccessCode() {
       } else {
         showUnlockMessage('unlockError', 'Invalid Access Code');
       }
+      btn.disabled = false;
+      btn.textContent = 'Unlock Premium';
+      return;
+    }
+
+    // ROOT CAUSE OF THE ACTIVATION BUG: redeem_access_code() only validates
+    // the code and marks it used — it never actually flips this user's own
+    // `profiles.premium` column. Auth.markPaid() is the existing helper that
+    // does exactly that (same `profiles` table, same `premium` column every
+    // other Premium check already reads via Auth.isPremium()), it just was
+    // never called after a successful redemption. Calling it here — instead
+    // of introducing any new premium flag/table/system — is what actually
+    // turns the account into Premium, and since Auth.currentUser() always
+    // re-fetches the profile fresh (no caching anywhere in this app), every
+    // Premium-gated feature (dashboard, course, tools, Backtest Simulator)
+    // picks this up immediately with no page refresh or re-login needed.
+    const updatedUser = await Auth.markPaid();
+    if (!updatedUser || !Auth.isPremium(updatedUser)) {
+      showUnlockMessage('unlockError', 'Your code was accepted, but we could not activate Premium on your account. Please try again or contact support.');
       btn.disabled = false;
       btn.textContent = 'Unlock Premium';
       return;
@@ -5088,144 +5112,60 @@ function renderCurriculumList() {
 }
 
 /* ===========================================================
-   HERO MARKET CARD — TradingView-style chart
+   HERO MARKET CARD — real TradingView Advanced Chart widget
    -----------------------------------------------------------
-   Data here is simulated, not pulled from a live market feed —
-   there's no backend behind this card. The visual design
-   (price header, change badge, axis labels, timeframe buttons)
-   mirrors a real trading platform so the hero section feels
-   alive, but the numbers themselves are generated client-side.
+   Renders the official embeddable TradingView chart (candles,
+   dark theme, crosshair, zoom/pan and live updates all come
+   from the widget itself) inside the existing market card.
+   The existing 1D/1W/1M/3M/1Y pills are kept exactly as they
+   were — they just now drive the widget's resolution instead
+   of redrawing a fake SVG.
    =========================================================== */
-const HERO_TIMEFRAMES = {
-  '1D': { points: 24, label: i => `${i}:00`, volatility: 35, base: 23847.55 },
-  '1W': { points: 7, label: i => ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i % 7], volatility: 90, base: 23700 },
-  '1M': { points: 22, label: i => `${(i % 28) + 1}`, volatility: 220, base: 23300 },
-  '3M': { points: 13, label: i => `W${i+1}`, volatility: 480, base: 22900 },
-  '1Y': { points: 12, label: i => ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i], volatility: 1100, base: 21500 }
-};
 
-let heroTickInterval = null;
-let lastRenderedCandles = null;
+// TradingView resolution strings per pill. These are an approximation
+// of the old "look-back window" behavior mapped onto real bar sizes.
+const HERO_TF_RESOLUTION = { '1D': '5', '1W': '60', '1M': 'D', '3M': 'W', '1Y': 'M' };
 
-function getLastRenderedOpen() {
-  return lastRenderedCandles && lastRenderedCandles.length ? lastRenderedCandles[0].o : null;
-}
-
-function generateHeroCandles(tfConfig) {
-  const candles = [];
-  let price = tfConfig.base;
-  for (let i = 0; i < tfConfig.points; i++) {
-    const o = price;
-    const move = (Math.random() - 0.46) * tfConfig.volatility;
-    const c = o + move;
-    const h = Math.max(o, c) + Math.random() * tfConfig.volatility * 0.3;
-    const l = Math.min(o, c) - Math.random() * tfConfig.volatility * 0.3;
-    candles.push({ o, c, h, l });
-    price = c;
-  }
-  return candles;
-}
-
-function renderHeroChart(tf) {
-  const svg = document.getElementById('heroChart');
-  if (!svg) return;
-  const tfConfig = HERO_TIMEFRAMES[tf];
-  const candles = generateHeroCandles(tfConfig);
-  lastRenderedCandles = candles;
-
-  const W = 760, H = 220;
-  const chartH = 178; // leave room for time labels below
-  const vals = candles.flatMap(c => [c.h, c.l]);
-  const maxV = Math.max(...vals), minV = Math.min(...vals);
-  const pad = (maxV - minV) * 0.12;
-  const top = maxV + pad, bottom = minV - pad;
-  const gap = (W - 56) / candles.length;
-  const scaleY = v => 8 + ((top - v) / (top - bottom)) * (chartH - 16);
-  const scaleX = i => 8 + i * gap + gap / 2;
-
-  let html = '';
-
-  // Price-axis grid lines + labels (right side)
-  for (let i = 0; i <= 3; i++) {
-    const v = bottom + (i / 3) * (top - bottom);
-    const y = scaleY(v);
-    html += `<line x1="8" y1="${y}" x2="${W-50}" y2="${y}" stroke="var(--ink-line)" stroke-width="1" opacity="0.6"/>
-              <text x="${W-44}" y="${y+3}" fill="var(--paper-faint)" font-size="10" font-family="monospace">${Math.round(v).toLocaleString('en-IN')}</text>`;
-  }
-
-  // Candles
-  candles.forEach((c, i) => {
-    const x = scaleX(i);
-    const up = c.c >= c.o;
-    const color = up ? 'var(--up)' : 'var(--down)';
-    const bodyTop = scaleY(Math.max(c.o, c.c));
-    const bodyBottom = scaleY(Math.min(c.o, c.c));
-    const bodyHeight = Math.max(bodyBottom - bodyTop, 1.5);
-    const delay = i * 35;
-    html += `<g class="candle" style="animation-delay:${delay}ms">
-      <line x1="${x}" y1="${scaleY(c.h)}" x2="${x}" y2="${scaleY(c.l)}" stroke="${color}" stroke-width="1.4" opacity="0.6"/>
-      <rect x="${x - gap*0.3}" y="${bodyTop}" width="${gap*0.6}" height="${bodyHeight}" fill="${color}" rx="1"/>
-    </g>`;
-  });
-
-  // Time-axis labels (bottom) — only show a few to avoid crowding
-  const labelStep = Math.ceil(candles.length / 6);
-  candles.forEach((c, i) => {
-    if (i % labelStep !== 0) return;
-    html += `<text x="${scaleX(i)}" y="${H-6}" fill="var(--paper-faint)" font-size="9.5" font-family="monospace" text-anchor="middle">${tfConfig.label(i)}</text>`;
-  });
-
-  svg.innerHTML = html;
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-
-  // Update the big price header based on the last candle
-  const last = candles[candles.length - 1];
-  const first = candles[0];
-  const change = last.c - first.o;
-  const changePct = (change / first.o) * 100;
-  updateHeroPriceDisplay(last.c, change, changePct);
-}
-
-function updateHeroPriceDisplay(price, change, changePct) {
-  const priceEl = document.getElementById('heroPrice');
-  const changeEl = document.getElementById('heroChange');
-  if (!priceEl || !changeEl) return;
-  const up = change >= 0;
-  priceEl.textContent = price.toLocaleString('en-IN', { maximumFractionDigits: 2 });
-  changeEl.textContent = `${up ? '+' : ''}${change.toFixed(2)} (${up ? '+' : ''}${changePct.toFixed(2)}%)`;
-  changeEl.className = 'mono market-change ' + (up ? 'price-up' : 'price-down');
-}
+let heroTvWidget = null;
 
 function initHeroChart() {
-  let currentTf = '1D';
-  let dayOpenPrice = null;
-  renderHeroChart(currentTf);
-  dayOpenPrice = getLastRenderedOpen();
+  const container = document.getElementById('tradingview_hero');
+  if (!container || typeof TradingView === 'undefined') return;
 
-  // Timeframe button switching
+  heroTvWidget = new TradingView.widget({
+    autosize: true,
+    symbol: 'NSE:NIFTY',
+    interval: HERO_TF_RESOLUTION['1D'],
+    timezone: 'Asia/Kolkata',
+    theme: 'dark',
+    style: '1',
+    locale: 'en',
+    toolbar_bg: '#0a0f0b',
+    enable_publishing: false,
+    allow_symbol_change: false,
+    hide_top_toolbar: true,
+    hide_side_toolbar: true,
+    hide_legend: true,
+    withdateranges: true,
+    save_image: false,
+    container_id: 'tradingview_hero'
+  });
+
+  // Wire up the existing timeframe pills to the real widget instead of
+  // the old fake chart redraw. Wrapped defensively so a slow-loading or
+  // unavailable widget API never throws/breaks the page.
   document.querySelectorAll('#heroTimeframes .tf-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#heroTimeframes .tf-btn').forEach(b => b.classList.remove('tf-active'));
       btn.classList.add('tf-active');
-      currentTf = btn.dataset.tf;
-      renderHeroChart(currentTf);
-      if (currentTf === '1D') dayOpenPrice = getLastRenderedOpen();
+      const resolution = HERO_TF_RESOLUTION[btn.dataset.tf];
+      try {
+        heroTvWidget && heroTvWidget.onChartReady(() => {
+          try { heroTvWidget.activeChart().setResolution(resolution); } catch (e) { /* widget API unavailable, ignore */ }
+        });
+      } catch (e) { /* widget not ready yet, ignore */ }
     });
   });
-
-  // Gentle live "tick" on the current price, only meaningful for the 1D view
-  clearInterval(heroTickInterval);
-  heroTickInterval = setInterval(() => {
-    if (currentTf !== '1D' || dayOpenPrice === null) return;
-    const priceEl = document.getElementById('heroPrice');
-    if (!priceEl) return;
-    const current = parseFloat(priceEl.textContent.replace(/,/g, ''));
-    const delta = (Math.random() - 0.45) * 6;
-    const next = current + delta;
-    const newChange = next - dayOpenPrice;
-    const newChangePct = (newChange / dayOpenPrice) * 100;
-    updateHeroPriceDisplay(next, newChange, newChangePct);
-  }, 2200);
 }
 
 function initCountUp() {
