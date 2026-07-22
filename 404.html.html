@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TraderProX</title>
+<script>
+/* ===========================================================
+   GITHUB PAGES SPA ROUTING — 404 fallback
+   -----------------------------------------------------------
+   TraderProX is a single-page app served from index.html, but
+   GitHub Pages is a static host with no server-side rewrites.
+   A direct request for any path other than / (in particular
+   /reset-password, which is where Supabase's password-reset
+   emails send the user, with the recovery token attached as
+   either #access_token=... or ?code=...) has no matching file,
+   so GitHub Pages serves this 404.html instead.
+
+   This page stashes the exact path the browser asked for —
+   including the query string and hash, so the reset token isn't
+   lost — in sessionStorage, then redirects to /index.html. The
+   restore script at the very top of index.html's <head> reads
+   it back out and rewrites the visible URL to match via
+   history.replaceState, before Supabase or the app's own
+   routing ever looks at window.location. From the app's point
+   of view, /reset-password resolves exactly as if the host had
+   routed it there directly.
+   =========================================================== */
+(function () {
+  var loc = window.location;
+  try {
+    sessionStorage.setItem('spa-redirect-path', loc.pathname + loc.search + loc.hash);
+  } catch (e) {
+    // sessionStorage can throw in locked-down contexts; fall through to a
+    // best-effort redirect (query/hash are still carried in the URL below
+    // as a fallback, just not restored to the original pathname).
+  }
+  loc.replace(loc.origin + '/index.html' + loc.search + loc.hash);
+})();
+</script>
+</head>
+<body>
+<p>Redirecting&hellip; if you are not redirected automatically, <a href="/index.html">click here</a>.</p>
+</body>
+</html>
