@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+/* ===========================================================
+   GITHUB PAGES SPA ROUTING — deep-link restore
+   -----------------------------------------------------------
+   GitHub Pages is a static host with no server-side rewrites,
+   so a direct request for a path like /reset-password (the URL
+   Supabase's password-reset emails link to) 404s before this
+   page ever loads. The matching /404.html for this site catches
+   that 404, stashes the real path + query + hash the browser was
+   asked for in sessionStorage, and redirects to /index.html.
+   This script runs first, before anything else (including the
+   Supabase SDK, which parses the URL for recovery tokens), and
+   rewrites the visible URL back to the original deep link via
+   history.replaceState — so the rest of the app, including the
+   RESET_PASSWORD_PATH check and Supabase's detectSessionInUrl,
+   sees /reset-password exactly as if the host had routed it
+   directly, with the reset token intact (works for both the
+   #access_token=... hash format and the ?code=... PKCE format).
+   =========================================================== */
+(function () {
+  try {
+    var redirectPath = sessionStorage.getItem('spa-redirect-path');
+    if (redirectPath) {
+      sessionStorage.removeItem('spa-redirect-path');
+      var current = window.location.pathname + window.location.search + window.location.hash;
+      if (redirectPath !== current) {
+        history.replaceState(null, '', redirectPath);
+      }
+    }
+  } catch (e) {
+    // sessionStorage can throw in locked-down contexts (e.g. private
+    // browsing in some browsers) — never let this block the page load.
+    console.warn('[SPA routing] could not restore deep link:', e);
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TraderProX — Learn Trading Like You're Reading a Book</title>
@@ -2900,10 +2936,12 @@ body.intro-locked { overflow: hidden; }
 const SUPABASE_URL = 'https://haeocfmatrwihvwkawap.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_WX01KDUeC8fU65e9ZvuGzQ_BoPVNtu_';
 
-// The dedicated URL password-reset emails link to. A matching Netlify
-// redirect (see _redirects) rewrites this path back to index.html so it
-// resolves on a static host — see the boot-time check further down that
-// shows the reset-password panel immediately when the app loads on this path.
+// The dedicated URL password-reset emails link to. This site is hosted on
+// GitHub Pages, which has no server-side rewrites, so /404.html (paired
+// with the deep-link-restore script at the very top of <head>) is what
+// makes this path resolve to this same index.html instead of a 404 — see
+// the boot-time check further down that shows the reset-password panel
+// immediately when the app loads on this path.
 const RESET_PASSWORD_PATH = '/reset-password';
 
 /* -----------------------------------------------------------
@@ -2982,8 +3020,9 @@ if (typeof window.supabase === 'undefined' || typeof window.supabase.createClien
 <script>
 // Boot-time route check: if the app was loaded on the dedicated
 // password-reset URL (the link in the reset email points here — see
-// RESET_PASSWORD_PATH above and _redirects for the Netlify rewrite that
-// makes this path resolve on a static host), switch straight to the
+// RESET_PASSWORD_PATH above and /404.html + the deep-link restore script
+// at the top of <head>, which make this path resolve on GitHub Pages),
+// switch straight to the
 // "set new password" panel before anything else renders. This runs
 // synchronously so there's no flash of the homepage or login form while
 // Supabase finishes exchanging the recovery link's token in the
@@ -3159,9 +3198,9 @@ const Auth = (() => {
     // A dedicated path (rather than window.location.pathname) so the
     // email link always lands on /reset-password regardless of which
     // page the user requested the reset from. RESET_PASSWORD_PATH is
-    // defined near the top of this script; a matching Netlify redirect
-    // (see _redirects) rewrites that path back to this same index.html
-    // so it resolves correctly on a static host after deployment.
+    // defined near the top of this script; /404.html plus the deep-link
+    // restore script at the top of <head> route that path back to this
+    // same index.html so it resolves correctly on GitHub Pages.
     const redirectTo = window.location.origin + RESET_PASSWORD_PATH;
     const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) return { ok: false, error: _friendlyError(error) };
@@ -5362,10 +5401,11 @@ initCountUp();
 initLiveTicker();
 renderNavAuthState();
 
-// After a successful password reset on the dedicated reset-password.html
-// page, it redirects here with ?passwordReset=success. Show the login
-// view with a confirmation message (reusing the existing #loginError
-// banner, just recolored green for this one case — no new markup added).
+// Harmless legacy hook: if anything ever redirects here with
+// ?passwordReset=success (e.g. a future standalone reset page), show the
+// login view with a confirmation message instead of a raw query string.
+// The in-page reset flow below doesn't use this — it calls goTo('login')
+// directly — but this is kept as a no-op safety net.
 if (new URLSearchParams(window.location.search).get('passwordReset') === 'success') {
   history.replaceState(null, '', window.location.pathname);
   goTo('login').then(() => {
