@@ -2269,8 +2269,9 @@ body.intro-locked { overflow: hidden; }
       return;
     }
     // Paid tools: check subscription status before showing full content
+    // (same Auth.isPremium check used by every other premium feature).
     const user = typeof Auth !== 'undefined' ? await Auth.currentUser() : null;
-    const isPaid = !!(user && user.hasPaid);
+    const isPaid = Auth.isPremium(user);
     renderToolPanel(key, !isPaid);
   }
 
@@ -3214,7 +3215,21 @@ const Auth = (() => {
     return { ok: true };
   }
 
-  return { signup, login, logout, currentUser, markPaid, resetPasswordForEmail, updatePassword };
+  // SINGLE SOURCE OF TRUTH for "is this user premium right now?" — every
+  // premium-gated feature (dashboard/course access, the technical-analysis
+  // tool tabs, the Backtest simulator, etc.) must call this instead of
+  // reading user.hasPaid inline. Access-code redemption, the admin panel's
+  // "Grant Premium" action, and the manual Telegram-purchase flow all just
+  // flip the same `profiles.premium` (+ `premium_expiry`) columns in
+  // Supabase; since currentUser() always re-fetches that profile fresh
+  // (see _fetchProfile above — no caching), any feature that calls
+  // Auth.isPremium(await Auth.currentUser()) picks up a redemption
+  // immediately, with no per-feature logic of its own required.
+  function isPremium(user) {
+    return !!(user && user.hasPaid);
+  }
+
+  return { signup, login, logout, currentUser, markPaid, resetPasswordForEmail, updatePassword, isPremium };
 })();
 
 /* ===========================================================
@@ -3625,7 +3640,7 @@ async function guardedGoTo(target, opts) {
 
   if (target === 'dashboard' || target === 'course' || target === 'game') {
     if (!user) return goTo('login');
-    if (!user.hasPaid) return goTo('checkout');
+    if (!Auth.isPremium(user)) return goTo('checkout');
   }
   // Backtest Simulator: login required, but NOT premium — free users get a
   // limited daily allowance handled inside the view itself (see the
@@ -3862,7 +3877,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
   const result = await Auth.login({ email, password });
   btn.disabled = false; btn.textContent = 'Log in';
   if (!result.ok) return showError('loginError', result.error);
-  guardedGoTo(result.user.hasPaid ? 'dashboard' : 'checkout');
+  guardedGoTo(Auth.isPremium(result.user) ? 'dashboard' : 'checkout');
 });
 
 document.getElementById('signupBtn').addEventListener('click', async () => {
@@ -3964,7 +3979,7 @@ async function renderCheckout() {
   if (!user) {
     document.getElementById('notLoggedIn').hidden = false;
     document.getElementById('loggedInBox').hidden = true;
-  } else if (user.hasPaid) {
+  } else if (Auth.isPremium(user)) {
     guardedGoTo('dashboard');
   } else {
     document.getElementById('notLoggedIn').hidden = true;
@@ -5599,7 +5614,10 @@ async function renderBacktest() {
   const user = await Auth.currentUser();
   if (!user) return guardedGoTo('login'); // defensive; guardedGoTo already checks this
 
-  const isPremium = !!user.hasPaid;
+  // Same Auth.isPremium check every other premium feature uses — this is
+  // what makes Backtest unlock immediately after an access-code redemption,
+  // with no separate logic of its own.
+  const isPremium = Auth.isPremium(user);
   document.getElementById('btReportPanel').hidden = true;
   document.getElementById('btSessionPanel').hidden = true;
   document.getElementById('btSetupPanel').hidden = false;
@@ -5705,7 +5723,7 @@ async function startBacktestSession() {
 
   const user = await Auth.currentUser();
   if (!user) return guardedGoTo('login');
-  const isPremium = !!user.hasPaid;
+  const isPremium = Auth.isPremium(user); // same check as renderBacktest and every other premium feature
 
   if (!isPremium) {
     let used;
@@ -6611,7 +6629,7 @@ function renderAdminCodeTable(codes, emailMap) {
     // hide the back button. Owner always keeps it, for testing/dev purposes.
     const authReady = typeof Auth !== 'undefined' ? Auth.currentUser() : Promise.resolve(null);
     Promise.resolve(authReady).then((user) => {
-      const hideForPaidUser = !!(user && user.hasPaid && !user.isOwner);
+      const hideForPaidUser = Auth.isPremium(user) && !user.isOwner;
       btn.style.display = hideForPaidUser ? 'none' : 'inline-flex';
     }).catch(() => {
       btn.style.display = 'inline-flex';
