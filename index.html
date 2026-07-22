@@ -4119,7 +4119,17 @@ async function submitAccessCode() {
     setTimeout(() => guardedGoTo('dashboard'), 1200);
   } catch (err) {
     console.error('[Unlock] Failed to redeem access code:', err);
-    showUnlockMessage('unlockError', 'Could not reach the server. Please check your connection and try again.');
+    console.error('[Unlock] err.message:', err && err.message);
+    console.error('[Unlock] err.code:', err && err.code);
+    console.error('[Unlock] err.details:', err && err.details);
+    console.error('[Unlock] err.hint:', err && err.hint);
+    const parts = [
+      err && err.message,
+      err && err.code ? `code: ${err.code}` : null,
+      err && err.details,
+      err && err.hint ? `hint: ${err.hint}` : null
+    ].filter(Boolean);
+    showUnlockMessage('unlockError', parts.length ? parts.join(' — ') : String(err));
     btn.disabled = false;
     btn.textContent = 'Unlock Premium';
   }
