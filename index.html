@@ -2513,58 +2513,92 @@ body.intro-locked { overflow: hidden; }
   </section>
 </div>
 
-<!-- ===================== VIEW: CHECKOUT ===================== -->
+<!-- ===================== VIEW: CHECKOUT (Premium Subscription) ===================== -->
 <div class="view" id="view-checkout">
   <section style="min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:48px 20px;">
-    <div class="card" style="max-width:440px;width:100%;padding:40px 36px;">
+    <div class="card" style="max-width:480px;width:100%;padding:40px 36px;">
 
       <p class="eyebrow">Step 2 of 2</p>
-      <h1 style="font-size:24px;margin-top:14px;">Unlock the course</h1>
-      <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">Subscribe monthly · Cancel anytime.</p>
+      <h1 style="font-size:24px;margin-top:14px;">Unlock TraderProX Premium</h1>
+      <p style="margin-top:16px;">
+        <span class="mono" style="font-size:28px;color:var(--signal);">₹159</span><span style="font-size:14.5px;color:var(--paper-dim);">/month</span>
+      </p>
+      <p style="color:var(--paper-dim);font-size:14.5px;margin-top:6px;">Get unlimited access to the complete TraderProX learning experience.</p>
 
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin:28px 0;padding:18px 0;border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line);">
-        <span style="font-size:14.5px;color:var(--paper-dim);">Full course — 10 parts</span>
-        <span style="text-align:right;">
-          <span class="price-old mono" style="font-size:14px;display:block;">₹599/mo</span>
-          <span class="mono" style="font-size:22px;color:var(--signal);">₹159/mo</span>
-        </span>
-      </div>
-      <p style="font-size:12px;color:var(--signal);margin-top:-22px;margin-bottom:18px;">🔥 Limited launch offer — 73% off</p>
+      <ul style="list-style:none;margin:24px 0 0;padding:18px 0;border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line);display:flex;flex-direction:column;gap:11px;">
+        <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Full Trading Course</li>
+        <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Premium Trading Tools</li>
+        <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Future Course Updates</li>
+        <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Priority Support</li>
+      </ul>
 
-      <div id="notLoggedIn" hidden>
-        <p style="font-size:13.5px;color:var(--down);margin-bottom:16px;">Log in or sign up first, then payment will continue.</p>
+      <div id="notLoggedIn" hidden style="margin-top:24px;">
+        <p style="font-size:13.5px;color:var(--down);margin-bottom:16px;">Log in or sign up first, then continue on Telegram.</p>
         <a href="#" class="btn btn-primary btn-block" data-nav="login">Log in / Sign up</a>
       </div>
 
-      <div id="loggedInBox" hidden>
+      <div id="loggedInBox" hidden style="margin-top:24px;">
         <p style="font-size:13.5px;color:var(--paper-dim);margin-bottom:16px;">Logged in as <span id="userEmail" class="mono" style="color:var(--paper);"></span></p>
-        <button class="btn btn-primary btn-block" id="payBtn">Subscribe — ₹159/month</button>
-        <a href="#" data-nav="unlock" style="display:block;text-align:center;font-size:13px;color:var(--paper-faint);margin-top:16px;">Have an access code? Unlock instantly →</a>
-        <p style="font-size:12px;color:var(--paper-faint);margin-top:14px;text-align:center;">
-          In demo mode this button doesn't take a real payment — it simply unlocks access so the rest of the site can be tested.
+
+        <button class="btn btn-primary btn-block btn-glow" id="payBtn">Continue on Telegram <span class="btn-arrow">→</span></button>
+
+        <!-- How it Works -->
+        <div style="margin-top:32px;">
+          <p class="eyebrow" style="font-size:11.5px;">How it Works</p>
+          <ol style="list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:13px;">
+            <li style="display:flex;gap:12px;font-size:13.5px;color:var(--paper-dim);line-height:1.4;">
+              <span class="mono" style="color:var(--signal);flex-shrink:0;width:18px;">1</span> Tap "Continue on Telegram"
+            </li>
+            <li style="display:flex;gap:12px;font-size:13.5px;color:var(--paper-dim);line-height:1.4;">
+              <span class="mono" style="color:var(--signal);flex-shrink:0;width:18px;">2</span> Chat with our official TraderProX team
+            </li>
+            <li style="display:flex;gap:12px;font-size:13.5px;color:var(--paper-dim);line-height:1.4;">
+              <span class="mono" style="color:var(--signal);flex-shrink:0;width:18px;">3</span> Complete your monthly payment
+            </li>
+            <li style="display:flex;gap:12px;font-size:13.5px;color:var(--paper-dim);line-height:1.4;">
+              <span class="mono" style="color:var(--signal);flex-shrink:0;width:18px;">4</span> Receive your unique Premium Access Code
+            </li>
+            <li style="display:flex;gap:12px;font-size:13.5px;color:var(--paper-dim);line-height:1.4;">
+              <span class="mono" style="color:var(--signal);flex-shrink:0;width:18px;">5</span> Return to TraderProX
+            </li>
+            <li style="display:flex;gap:12px;font-size:13.5px;color:var(--paper-dim);line-height:1.4;">
+              <span class="mono" style="color:var(--signal);flex-shrink:0;width:18px;">6</span> Enter your Access Code
+            </li>
+            <li style="display:flex;gap:12px;font-size:13.5px;color:var(--paper-dim);line-height:1.4;">
+              <span class="mono" style="color:var(--signal);flex-shrink:0;width:18px;">7</span> Premium unlocks instantly
+            </li>
+          </ol>
+        </div>
+
+        <!-- Section divider -->
+        <div style="display:flex;align-items:center;gap:10px;margin:32px 0 22px;">
+          <div style="flex:1;height:1px;background:var(--ink-line);"></div>
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal);flex-shrink:0;"></span>
+          <div style="flex:1;height:1px;background:var(--ink-line);"></div>
+        </div>
+
+        <!-- Already have an Access Code -->
+        <div style="background:var(--signal-soft);border:1px solid var(--ink-line);border-radius:var(--radius);padding:22px 20px;">
+          <p class="eyebrow" style="font-size:11.5px;">Already have an Access Code?</p>
+
+          <div id="unlockError" class="auth-error" style="margin-top:16px;" hidden></div>
+          <div id="unlockSuccess" class="auth-error" style="background:var(--up-soft);color:var(--up);margin-top:16px;" hidden></div>
+
+          <input type="text" id="unlockCodeInput" class="field mono" placeholder="Enter your Premium Access Code" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;margin-top:16px;">
+          <button class="btn btn-primary btn-block" style="margin-top:14px;" id="unlockSubmitBtn">Unlock Premium</button>
+        </div>
+
+        <p style="font-size:12px;color:var(--paper-faint);margin-top:20px;text-align:center;line-height:1.6;">
+          Payments are securely handled through our official Telegram support. After payment verification, you'll receive a unique Premium Access Code that instantly unlocks your subscription.
         </p>
+
+        <!-- Trust badges -->
+        <div style="display:flex;flex-direction:column;gap:9px;margin-top:20px;padding-top:18px;border-top:1px solid var(--ink-line);">
+          <span style="font-size:12.5px;color:var(--paper-dim);display:flex;gap:8px;align-items:center;"><span style="color:var(--signal);">✓</span> Official Telegram Support</span>
+          <span style="font-size:12.5px;color:var(--paper-dim);display:flex;gap:8px;align-items:center;"><span style="color:var(--signal);">✓</span> Secure Manual Verification</span>
+          <span style="font-size:12.5px;color:var(--paper-dim);display:flex;gap:8px;align-items:center;"><span style="color:var(--signal);">✓</span> Instant Premium Activation</span>
+        </div>
       </div>
-
-    </div>
-  </section>
-</div>
-
-<!-- ===================== VIEW: UNLOCK PREMIUM (ACCESS CODE) ===================== -->
-<div class="view" id="view-unlock">
-  <section style="min-height:calc(100vh - 72px);display:flex;align-items:center;justify-content:center;padding:48px 20px;">
-    <div class="card" style="max-width:440px;width:100%;padding:40px 36px;">
-
-      <p class="eyebrow">Unlock Premium</p>
-      <h1 style="font-size:24px;margin-top:14px;">Have an access code?</h1>
-      <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">Enter it below to unlock Premium instantly — no payment needed.</p>
-
-      <div id="unlockError" class="auth-error" hidden></div>
-      <div id="unlockSuccess" class="auth-error" style="background:var(--up-soft);color:var(--up);" hidden></div>
-
-      <label class="field-label" style="margin-top:24px;">Access code</label>
-      <input type="text" id="unlockCodeInput" class="field mono" placeholder="TPX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;">
-      <button class="btn btn-primary btn-block" style="margin-top:20px;" id="unlockSubmitBtn">Unlock</button>
-      <a href="#" data-nav="checkout" style="display:block;text-align:center;font-size:13px;color:var(--paper-faint);margin-top:18px;">← Back to subscribe options</a>
 
     </div>
   </section>
@@ -3600,6 +3634,11 @@ const COURSE = [
    =========================================================== */
 async function goTo(viewName, opts) {
   opts = opts || {};
+  // The standalone Access Code view was merged into the Premium
+  // Subscription (checkout) screen — the exact same #unlockCodeInput /
+  // #unlockSubmitBtn elements and submitAccessCode() logic now live there.
+  // Any old link/target still pointing at 'unlock' lands on 'checkout'.
+  if (viewName === 'unlock') viewName = 'checkout';
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + viewName).classList.add('active');
   window.scrollTo({ top: 0 });
@@ -3612,7 +3651,6 @@ async function goTo(viewName, opts) {
   }
   if (viewName === 'login') renderLoginGuard();
   if (viewName === 'checkout') await renderCheckout();
-  if (viewName === 'unlock') await renderUnlock();
   if (viewName === 'dashboard') await renderDashboard();
   if (viewName === 'course') await renderCourse(opts.part);
   if (viewName === 'game') initGame();
@@ -3973,7 +4011,7 @@ document.addEventListener('keydown', (e) => {
   document.getElementById(loginOpen ? 'loginBtn' : 'signupBtn').click();
 });
 
-/* ---------- CHECKOUT VIEW ---------- */
+/* ---------- CHECKOUT VIEW (Premium Subscription, incl. Access Code) ---------- */
 async function renderCheckout() {
   const user = await Auth.currentUser();
   if (!user) {
@@ -3985,6 +4023,13 @@ async function renderCheckout() {
     document.getElementById('notLoggedIn').hidden = true;
     document.getElementById('loggedInBox').hidden = false;
     document.getElementById('userEmail').textContent = user.email;
+    // Reset the Access Code fields every time this screen is shown — same
+    // behavior the old standalone Unlock view used to give on its own.
+    document.getElementById('unlockError').hidden = true;
+    document.getElementById('unlockSuccess').hidden = true;
+    document.getElementById('unlockCodeInput').value = '';
+    document.getElementById('unlockSubmitBtn').disabled = false;
+    document.getElementById('unlockSubmitBtn').textContent = 'Unlock Premium';
   }
 }
 
@@ -3994,17 +4039,7 @@ async function renderCheckout() {
 // a view rather than the nav/hero/pricing sections.
 document.getElementById('payBtn').addEventListener('click', handlePremiumAccessClick);
 
-/* ---------- UNLOCK PREMIUM (ACCESS CODE) VIEW ---------- */
-async function renderUnlock() {
-  const user = await Auth.currentUser();
-  if (!user) return guardedGoTo('login');
-  document.getElementById('unlockError').hidden = true;
-  document.getElementById('unlockSuccess').hidden = true;
-  document.getElementById('unlockCodeInput').value = '';
-  document.getElementById('unlockSubmitBtn').disabled = false;
-  document.getElementById('unlockSubmitBtn').textContent = 'Unlock';
-}
-
+/* ---------- ACCESS CODE REDEMPTION (embedded in the checkout view above) ---------- */
 function showUnlockMessage(elId, msg) {
   const el = document.getElementById(elId);
   const other = elId === 'unlockError' ? 'unlockSuccess' : 'unlockError';
@@ -4044,7 +4079,7 @@ async function submitAccessCode() {
         showUnlockMessage('unlockError', 'Invalid Access Code');
       }
       btn.disabled = false;
-      btn.textContent = 'Unlock';
+      btn.textContent = 'Unlock Premium';
       return;
     }
 
@@ -4055,7 +4090,7 @@ async function submitAccessCode() {
     console.error('[Unlock] Failed to redeem access code:', err);
     showUnlockMessage('unlockError', 'Could not reach the server. Please check your connection and try again.');
     btn.disabled = false;
-    btn.textContent = 'Unlock';
+    btn.textContent = 'Unlock Premium';
   }
 }
 
