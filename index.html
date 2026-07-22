@@ -625,6 +625,11 @@ h1, h2, h3, h4 {
 }
 .market-asof span { color: var(--signal); }
 
+.market-quote-wrap {
+  margin-top: 14px;
+  min-height: 78px;
+}
+
 .market-chart-wrap {
   margin-top: 18px;
   background: var(--ink);
@@ -1637,15 +1642,20 @@ body.intro-locked { overflow: hidden; }
           <button class="market-watch-btn" type="button" aria-label="Watch">★</button>
         </div>
 
-        <div class="market-price-row">
-          <span class="mono market-price" id="heroPrice">23,847.55</span>
-          <span class="mono market-change" id="heroChange">+184.20 (+0.78%)</span>
+        <div class="market-quote-wrap" id="heroQuoteWrap">
+          <!-- Live TradingView Symbol Info widget: symbol, price, change, % change
+               and market status all render straight from TradingView here. -->
+          <div class="tradingview-widget-container" id="heroQuoteContainer">
+            <div class="tradingview-widget-container__widget"></div>
+          </div>
         </div>
-        <p class="market-asof">Chart powered by TradingView · <span id="heroState">market open</span></p>
 
         <div class="market-chart-wrap">
-          <div class="tradingview-widget-container" style="height:220px;width:100%;">
-            <div id="tradingview_hero" style="height:100%;width:100%;"></div>
+          <div class="tradingview-widget-container" style="height:220px;width:100%;" id="heroChartContainer">
+            <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
+          </div>
+          <div class="tradingview-widget-copyright" style="margin-top:6px;font-size:10.5px;color:var(--paper-faint);text-align:right;">
+            <a href="https://www.tradingview.com/symbols/NSE-NIFTY/" rel="noopener nofollow" target="_blank" style="color:var(--paper-faint) !important;">NIFTY 50 chart</a> by TradingView
           </div>
         </div>
 
@@ -3079,9 +3089,6 @@ if (window.location.pathname.replace(/\/+$/, '') === RESET_PASSWORD_PATH) {
 }
 </script>
 
-<!-- Official TradingView widget library, used by the hero market card chart -->
-<script src="https://s3.tradingview.com/tv.js"></script>
-
 <script>
 /* ===========================================================
    AUTH.JS — Real authentication via Supabase Auth
@@ -4088,20 +4095,20 @@ async function submitAccessCode() {
       return;
     }
 
-    // ROOT CAUSE OF THE ACTIVATION BUG: redeem_access_code() only validates
-    // the code and marks it used — it never actually flips this user's own
-    // `profiles.premium` column. Auth.markPaid() is the existing helper that
-    // does exactly that (same `profiles` table, same `premium` column every
-    // other Premium check already reads via Auth.isPremium()), it just was
-    // never called after a successful redemption. Calling it here — instead
-    // of introducing any new premium flag/table/system — is what actually
-    // turns the account into Premium, and since Auth.currentUser() always
-    // re-fetches the profile fresh (no caching anywhere in this app), every
-    // Premium-gated feature (dashboard, course, tools, Backtest Simulator)
-    // picks this up immediately with no page refresh or re-login needed.
-    const updatedUser = await Auth.markPaid();
+    // ATOMIC FIX: redeem_access_code() now grants Premium on this user's
+    // profile AND marks the code used inside one database transaction (see
+    // the corrected supabase_setup_access_codes.sql). If the Premium grant
+    // fails for any reason, that function raises and the entire
+    // transaction — including the "used" flag — rolls back, so a code can
+    // never be consumed without Premium actually being active. There is no
+    // separate client-side write anymore (that second, independent write
+    // was the root cause: the code was already committed as used by the
+    // RPC before this step ran, so if it failed, the account stayed Free
+    // with a burned code). We just re-read the fresh profile — 
+    // Auth.currentUser() never caches — to confirm and update the UI.
+    const updatedUser = await Auth.currentUser();
     if (!updatedUser || !Auth.isPremium(updatedUser)) {
-      showUnlockMessage('unlockError', 'Your code was accepted, but we could not activate Premium on your account. Please try again or contact support.');
+      showUnlockMessage('unlockError', 'Something went wrong activating Premium. Please try again or contact support.');
       btn.disabled = false;
       btn.textContent = 'Unlock Premium';
       return;
@@ -5112,58 +5119,89 @@ function renderCurriculumList() {
 }
 
 /* ===========================================================
-   HERO MARKET CARD — real TradingView Advanced Chart widget
+   HERO MARKET CARD — live TradingView widgets
    -----------------------------------------------------------
-   Renders the official embeddable TradingView chart (candles,
-   dark theme, crosshair, zoom/pan and live updates all come
-   from the widget itself) inside the existing market card.
-   The existing 1D/1W/1M/3M/1Y pills are kept exactly as they
-   were — they just now drive the widget's resolution instead
-   of redrawing a fake SVG.
+   Both the price strip (symbol, price, change, % change, and
+   market open/closed status) and the candle chart are rendered
+   by TradingView's own official embed widgets, pointed at the
+   same symbol (NSE:NIFTY). Nothing here is scraped or hardcoded
+   — every number and the chart itself come live from TradingView.
+
+   These are the newer self-mounting "embed-widget-*.js" scripts
+   (as opposed to the older tv.js `new TradingView.widget()`
+   constructor). Each one creates its own iframe and boots itself
+   as soon as it's inserted into the DOM — it doesn't depend on a
+   global `TradingView` object existing yet, which is what made
+   the old constructor prone to silently rendering a blank box on
+   slower connections or on mobile. Because there's no persistent
+   JS handle to an iframe-based widget, the 1D/1W/1M/3M/1Y pills
+   work by re-mounting the chart widget with a new interval.
    =========================================================== */
 
-// TradingView resolution strings per pill. These are an approximation
-// of the old "look-back window" behavior mapped onto real bar sizes.
+const HERO_SYMBOL = 'NSE:NIFTY';
+// TradingView resolution strings per pill.
 const HERO_TF_RESOLUTION = { '1D': '5', '1W': '60', '1M': 'D', '3M': 'W', '1Y': 'M' };
 
-let heroTvWidget = null;
+function mountTvWidget(container, src, config) {
+  if (!container) return;
+  container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = src;
+  script.async = true;
+  script.text = JSON.stringify(config);
+  container.appendChild(script);
+}
+
+function renderHeroChart(interval) {
+  mountTvWidget(
+    document.getElementById('heroChartContainer'),
+    'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js',
+    {
+      autosize: true,
+      symbol: HERO_SYMBOL,
+      interval: interval,
+      timezone: 'Asia/Kolkata',
+      theme: 'dark',
+      style: '1',
+      locale: 'en',
+      toolbar_bg: '#0a0f0b',
+      backgroundColor: 'rgba(5,7,5,1)',
+      enable_publishing: false,
+      allow_symbol_change: false,
+      hide_top_toolbar: true,
+      hide_side_toolbar: true,
+      hide_legend: true,
+      withdateranges: true,
+      save_image: false,
+      support_host: 'https://www.tradingview.com'
+    }
+  );
+}
+
+function renderHeroQuote() {
+  mountTvWidget(
+    document.getElementById('heroQuoteContainer'),
+    'https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js',
+    {
+      symbol: HERO_SYMBOL,
+      colorTheme: 'dark',
+      isTransparent: true,
+      locale: 'en',
+      width: '100%'
+    }
+  );
+}
 
 function initHeroChart() {
-  const container = document.getElementById('tradingview_hero');
-  if (!container || typeof TradingView === 'undefined') return;
+  renderHeroQuote();
+  renderHeroChart(HERO_TF_RESOLUTION['1D']);
 
-  heroTvWidget = new TradingView.widget({
-    autosize: true,
-    symbol: 'NSE:NIFTY',
-    interval: HERO_TF_RESOLUTION['1D'],
-    timezone: 'Asia/Kolkata',
-    theme: 'dark',
-    style: '1',
-    locale: 'en',
-    toolbar_bg: '#0a0f0b',
-    enable_publishing: false,
-    allow_symbol_change: false,
-    hide_top_toolbar: true,
-    hide_side_toolbar: true,
-    hide_legend: true,
-    withdateranges: true,
-    save_image: false,
-    container_id: 'tradingview_hero'
-  });
-
-  // Wire up the existing timeframe pills to the real widget instead of
-  // the old fake chart redraw. Wrapped defensively so a slow-loading or
-  // unavailable widget API never throws/breaks the page.
   document.querySelectorAll('#heroTimeframes .tf-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#heroTimeframes .tf-btn').forEach(b => b.classList.remove('tf-active'));
       btn.classList.add('tf-active');
-      const resolution = HERO_TF_RESOLUTION[btn.dataset.tf];
-      try {
-        heroTvWidget && heroTvWidget.onChartReady(() => {
-          try { heroTvWidget.activeChart().setResolution(resolution); } catch (e) { /* widget API unavailable, ignore */ }
-        });
-      } catch (e) { /* widget not ready yet, ignore */ }
+      renderHeroChart(HERO_TF_RESOLUTION[btn.dataset.tf]);
     });
   });
 }
