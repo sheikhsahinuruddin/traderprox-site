@@ -633,6 +633,11 @@ h1, h2, h3, h4 {
     max-width: 480px;
     margin: 0 auto;
   }
+  .hero-copy { text-align: center; }
+  .hero-copy .eyebrow { justify-content: center; }
+  .hero-copy h1,
+  .hero-copy > p { margin-left: auto; margin-right: auto; }
+  .hero-cta-row { justify-content: center; }
 }
 @media (max-width: 480px) {
   .hero-grid { gap: 32px !important; }
@@ -1557,7 +1562,7 @@ body.intro-locked { overflow: hidden; }
 
   <header class="section" style="padding-top:128px;padding-bottom:96px;">
     <div class="wrap hero-grid" style="display:grid;grid-template-columns:1.05fr 0.95fr;gap:72px;align-items:center;">
-      <div style="display:flex;flex-direction:column;justify-content:center;height:100%;">
+      <div class="hero-copy" style="display:flex;flex-direction:column;justify-content:center;height:100%;">
         <p class="eyebrow">Chapter 01 — Getting Started</p>
         <h1 style="font-size:clamp(34px,5vw,54px);line-height:1.1;margin-top:24px;">
           Learn trading like<br>you're reading a <span style="color:var(--signal);">book.</span>
@@ -1565,7 +1570,7 @@ body.intro-locked { overflow: hidden; }
         <p style="font-size:17.5px;color:var(--paper-dim);line-height:1.65;max-width:480px;margin-top:28px;">
           Starting from candlesticks, through price action, entry, exit, and hold — every topic is explained directly on real charts. Built chapter by chapter, the way a real trading desk would teach it — not a shortcut, the actual skill.
         </p>
-        <div style="display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;">
+        <div class="hero-cta-row" style="display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;">
           <a href="#" class="btn btn-primary btn-glow" data-nav="checkout">Get access — ₹159/month <span class="btn-arrow">→</span></a>
           <a href="#" class="btn btn-ghost" data-nav="home" data-scroll="curriculum">See curriculum</a>
         </div>
@@ -1629,73 +1634,61 @@ body.intro-locked { overflow: hidden; }
     </div>
   </section>
 
-  <section class="section" id="curriculum">
+  <section class="section" id="backtest-promo" style="border-top:1px solid var(--ink-line);">
     <div class="wrap">
-      <p class="eyebrow">Curriculum</p>
-      <h2 style="font-size:clamp(26px,4vw,38px);margin-top:16px;max-width:600px;">The full course, laid out like a table of contents</h2>
-      <p style="color:var(--paper-dim);margin-top:16px;max-width:560px;line-height:1.6;">This is a book — structured in chapters, each one building on the last.</p>
-
-      <div style="margin-top:48px;display:flex;flex-direction:column;border-top:1px solid var(--ink-line);" id="curriculumList"></div>
-    </div>
-  </section>
-
-  <section class="section" id="how-it-works" style="background:var(--ink-raised);border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line);">
-    <div class="wrap">
-      <p class="eyebrow">How you'll learn</p>
-      <h2 style="font-size:clamp(26px,4vw,38px);margin-top:16px;max-width:600px;">Read it, see it on the chart, test yourself, then watch it play out for real</h2>
-
-      <div class="how-it-works-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-top:48px;">
-        <div class="card" data-reveal>
-          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 1</p>
-          <h3 style="font-size:18px;margin-top:12px;">Read the concept</h3>
-          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">Every chapter explained in plain language, no unnecessary jargon.</p>
+      <div class="bt-promo-panel" data-reveal>
+        <div class="bt-promo-text">
+          <p class="eyebrow">Backtest Simulator</p>
+          <h2 style="font-size:clamp(26px,4vw,38px);margin-top:16px;">Trade the past before you risk the present.</h2>
+          <p style="color:var(--paper-dim);margin-top:16px;max-width:520px;font-size:16px;line-height:1.6;">Replay real historical market data candle by candle, with the future hidden. Practice entries, exits, stop-loss, and take-profit on setups you've never seen before — then get a full performance report so you can sharpen your risk management, not just your gut.</p>
+          <a href="#" class="btn btn-primary btn-glow" data-nav="backtest" style="margin-top:28px;display:inline-flex;">Try Backtest Simulator <span class="btn-arrow">→</span></a>
         </div>
-        <div class="card" data-reveal>
-          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 2</p>
-          <h3 style="font-size:18px;margin-top:12px;">See it on a chart</h3>
-          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">Every concept paired with a real chart annotation — where to enter, where to exit, and why.</p>
-        </div>
-        <div class="card" data-reveal>
-          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 3</p>
-          <h3 style="font-size:18px;margin-top:12px;">Test yourself</h3>
-          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">A practice question after every chapter — pick your answer, get instant feedback and the reasoning behind it.</p>
-        </div>
-        <div class="card" data-reveal>
-          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 4</p>
-          <h3 style="font-size:18px;margin-top:12px;">See it happen for real</h3>
-          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">A dedicated case study breaks down a real, verifiable market event using everything you just learned.</p>
+        <div class="bt-promo-visual">
+          <svg viewBox="0 0 260 180" style="width:100%;display:block;">
+            <line x1="0" y1="45" x2="260" y2="45" stroke="var(--ink-line)" stroke-width="1" opacity="0.6"/>
+            <line x1="0" y1="90" x2="260" y2="90" stroke="var(--ink-line)" stroke-width="1" opacity="0.6"/>
+            <line x1="0" y1="135" x2="260" y2="135" stroke="var(--ink-line)" stroke-width="1" opacity="0.6"/>
+            <g class="bt-promo-candle" style="animation-delay:0s;"><line x1="20" y1="70" x2="20" y2="110" stroke="var(--up)" stroke-width="2"/><rect x="14" y="80" width="12" height="20" fill="var(--up)" rx="1.5"/></g>
+            <g class="bt-promo-candle" style="animation-delay:0.1s;"><line x1="46" y1="60" x2="46" y2="100" stroke="var(--down)" stroke-width="2"/><rect x="40" y="65" width="12" height="22" fill="var(--down)" rx="1.5"/></g>
+            <g class="bt-promo-candle" style="animation-delay:0.2s;"><line x1="72" y1="50" x2="72" y2="95" stroke="var(--up)" stroke-width="2"/><rect x="66" y="70" width="12" height="18" fill="var(--up)" rx="1.5"/></g>
+            <g class="bt-promo-candle" style="animation-delay:0.3s;"><line x1="98" y1="40" x2="98" y2="85" stroke="var(--up)" stroke-width="2"/><rect x="92" y="50" width="12" height="24" fill="var(--up)" rx="1.5"/></g>
+            <g class="bt-promo-candle" style="animation-delay:0.4s;"><line x1="124" y1="55" x2="124" y2="100" stroke="var(--down)" stroke-width="2"/><rect x="118" y="60" width="12" height="20" fill="var(--down)" rx="1.5"/></g>
+            <line x1="144" y1="16" x2="144" y2="164" stroke="var(--signal)" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+            <rect x="158" y="60" width="12" height="70" fill="none" stroke="var(--ink-line)" stroke-width="1.5" stroke-dasharray="4 4" rx="3"/>
+            <text x="164" y="168" fill="var(--paper-faint)" font-size="12" font-family="monospace" text-anchor="middle">?</text>
+            <rect x="184" y="60" width="12" height="70" fill="none" stroke="var(--ink-line)" stroke-width="1.5" stroke-dasharray="4 4" rx="3"/>
+            <text x="190" y="168" fill="var(--paper-faint)" font-size="12" font-family="monospace" text-anchor="middle">?</text>
+            <rect x="210" y="60" width="12" height="70" fill="none" stroke="var(--ink-line)" stroke-width="1.5" stroke-dasharray="4 4" rx="3"/>
+            <text x="216" y="168" fill="var(--paper-faint)" font-size="12" font-family="monospace" text-anchor="middle">?</text>
+          </svg>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section" id="pricing">
-    <div class="wrap" style="display:flex;justify-content:center;">
-      <div class="card" data-reveal style="max-width:420px;width:100%;text-align:center;padding:48px 40px;border-color:var(--signal);position:relative;overflow:visible;">
-        <span class="offer-badge">🔥 Limited Launch Offer</span>
-        <p class="eyebrow" style="justify-content:center;margin-top:16px;">Full access</p>
-
-        <div class="price-row" style="margin-top:24px;">
-          <span class="price-old mono">₹599<span class="price-old-unit">/month</span></span>
-        </div>
-        <p class="mono" style="font-size:48px;margin:8px 0 0;color:var(--paper);">₹159<span style="font-size:18px;color:var(--paper-faint);">/month</span></p>
-        <p style="color:var(--signal);font-size:13px;margin-top:8px;font-weight:600;">Launch price — save 65%</p>
-        <p style="color:var(--paper-faint);font-size:13.5px;margin-top:4px;">Billed monthly · Cancel anytime</p>
-
-        <ul style="list-style:none;padding:0;margin:32px 0;text-align:left;display:flex;flex-direction:column;gap:16px;">
-          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> All 10 parts — basic to advanced</li>
-          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Real chart examples in every topic</li>
-          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Practice quizzes after every chapter, with scoring</li>
-          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Predict the Next Candle — live chart practice game</li>
-          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> A real, verified market case study</li>
-          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Free future updates</li>
-        </ul>
-        <a href="#" class="btn btn-primary btn-block btn-glow" data-nav="checkout">Subscribe for ₹159/month</a>
-        <p style="font-size:12px;color:var(--paper-faint);margin-top:16px;">You'll need to log in so your progress is saved.</p>
-      </div>
-    </div>
-  </section>
-
+  <style>
+    .bt-promo-panel {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 48px;
+      align-items: center;
+      background: var(--ink-raised);
+      border: 1px solid var(--ink-line);
+      border-radius: var(--radius);
+      padding: 44px;
+    }
+    .bt-promo-visual {
+      background: var(--ink);
+      border: 1px solid var(--ink-line);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+    }
+    .bt-promo-candle { animation: candleIn 0.6s ease both; }
+    @media (max-width: 760px) {
+      .bt-promo-panel { grid-template-columns: 1fr; padding: 28px; gap: 28px; }
+      .bt-promo-visual { order: -1; }
+    }
+  </style>
 
   <!-- ===================== TOOLS & INDICATORS SECTION ===================== -->
   <section class="section" id="tools" style="border-top:1px solid var(--ink-line);">
@@ -2257,66 +2250,72 @@ body.intro-locked { overflow: hidden; }
   document.addEventListener('DOMContentLoaded', () => renderToolPanel(FREE_TOOL, false));
   </script>
 
-
-
-  <section class="section" id="backtest-promo" style="border-top:1px solid var(--ink-line);">
+  <section class="section" id="curriculum">
     <div class="wrap">
-      <div class="bt-promo-panel" data-reveal>
-        <div class="bt-promo-text">
-          <p class="eyebrow">Backtest Simulator</p>
-          <h2 style="font-size:clamp(26px,4vw,38px);margin-top:16px;">Trade the past before you risk the present.</h2>
-          <p style="color:var(--paper-dim);margin-top:16px;max-width:520px;font-size:16px;line-height:1.6;">Replay real historical market data candle by candle, with the future hidden. Practice entries, exits, stop-loss, and take-profit on setups you've never seen before — then get a full performance report so you can sharpen your risk management, not just your gut.</p>
-          <a href="#" class="btn btn-primary btn-glow" data-nav="backtest" style="margin-top:28px;display:inline-flex;">Try Backtest Simulator <span class="btn-arrow">→</span></a>
+      <p class="eyebrow">Curriculum</p>
+      <h2 style="font-size:clamp(26px,4vw,38px);margin-top:16px;max-width:600px;">The full course, laid out like a table of contents</h2>
+      <p style="color:var(--paper-dim);margin-top:16px;max-width:560px;line-height:1.6;">This is a book — structured in chapters, each one building on the last.</p>
+
+      <div style="margin-top:48px;display:flex;flex-direction:column;border-top:1px solid var(--ink-line);" id="curriculumList"></div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works" style="background:var(--ink-raised);border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line);">
+    <div class="wrap">
+      <p class="eyebrow">How you'll learn</p>
+      <h2 style="font-size:clamp(26px,4vw,38px);margin-top:16px;max-width:600px;">Read it, see it on the chart, test yourself, then watch it play out for real</h2>
+
+      <div class="how-it-works-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-top:48px;">
+        <div class="card" data-reveal>
+          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 1</p>
+          <h3 style="font-size:18px;margin-top:12px;">Read the concept</h3>
+          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">Every chapter explained in plain language, no unnecessary jargon.</p>
         </div>
-        <div class="bt-promo-visual">
-          <svg viewBox="0 0 260 180" style="width:100%;display:block;">
-            <line x1="0" y1="45" x2="260" y2="45" stroke="var(--ink-line)" stroke-width="1" opacity="0.6"/>
-            <line x1="0" y1="90" x2="260" y2="90" stroke="var(--ink-line)" stroke-width="1" opacity="0.6"/>
-            <line x1="0" y1="135" x2="260" y2="135" stroke="var(--ink-line)" stroke-width="1" opacity="0.6"/>
-            <g class="bt-promo-candle" style="animation-delay:0s;"><line x1="20" y1="70" x2="20" y2="110" stroke="var(--up)" stroke-width="2"/><rect x="14" y="80" width="12" height="20" fill="var(--up)" rx="1.5"/></g>
-            <g class="bt-promo-candle" style="animation-delay:0.1s;"><line x1="46" y1="60" x2="46" y2="100" stroke="var(--down)" stroke-width="2"/><rect x="40" y="65" width="12" height="22" fill="var(--down)" rx="1.5"/></g>
-            <g class="bt-promo-candle" style="animation-delay:0.2s;"><line x1="72" y1="50" x2="72" y2="95" stroke="var(--up)" stroke-width="2"/><rect x="66" y="70" width="12" height="18" fill="var(--up)" rx="1.5"/></g>
-            <g class="bt-promo-candle" style="animation-delay:0.3s;"><line x1="98" y1="40" x2="98" y2="85" stroke="var(--up)" stroke-width="2"/><rect x="92" y="50" width="12" height="24" fill="var(--up)" rx="1.5"/></g>
-            <g class="bt-promo-candle" style="animation-delay:0.4s;"><line x1="124" y1="55" x2="124" y2="100" stroke="var(--down)" stroke-width="2"/><rect x="118" y="60" width="12" height="20" fill="var(--down)" rx="1.5"/></g>
-            <line x1="144" y1="16" x2="144" y2="164" stroke="var(--signal)" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
-            <rect x="158" y="60" width="12" height="70" fill="none" stroke="var(--ink-line)" stroke-width="1.5" stroke-dasharray="4 4" rx="3"/>
-            <text x="164" y="168" fill="var(--paper-faint)" font-size="12" font-family="monospace" text-anchor="middle">?</text>
-            <rect x="184" y="60" width="12" height="70" fill="none" stroke="var(--ink-line)" stroke-width="1.5" stroke-dasharray="4 4" rx="3"/>
-            <text x="190" y="168" fill="var(--paper-faint)" font-size="12" font-family="monospace" text-anchor="middle">?</text>
-            <rect x="210" y="60" width="12" height="70" fill="none" stroke="var(--ink-line)" stroke-width="1.5" stroke-dasharray="4 4" rx="3"/>
-            <text x="216" y="168" fill="var(--paper-faint)" font-size="12" font-family="monospace" text-anchor="middle">?</text>
-          </svg>
+        <div class="card" data-reveal>
+          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 2</p>
+          <h3 style="font-size:18px;margin-top:12px;">See it on a chart</h3>
+          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">Every concept paired with a real chart annotation — where to enter, where to exit, and why.</p>
+        </div>
+        <div class="card" data-reveal>
+          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 3</p>
+          <h3 style="font-size:18px;margin-top:12px;">Test yourself</h3>
+          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">A practice question after every chapter — pick your answer, get instant feedback and the reasoning behind it.</p>
+        </div>
+        <div class="card" data-reveal>
+          <p class="mono" style="color:var(--signal);font-size:13px;">STEP 4</p>
+          <h3 style="font-size:18px;margin-top:12px;">See it happen for real</h3>
+          <p style="color:var(--paper-dim);font-size:14.5px;margin-top:8px;">A dedicated case study breaks down a real, verifiable market event using everything you just learned.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <style>
-    .bt-promo-panel {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 48px;
-      align-items: center;
-      background: var(--ink-raised);
-      border: 1px solid var(--ink-line);
-      border-radius: var(--radius);
-      padding: 44px;
-    }
-    .bt-promo-visual {
-      background: var(--ink);
-      border: 1px solid var(--ink-line);
-      border-radius: var(--radius-sm);
-      padding: 20px;
-    }
-    .bt-promo-candle { animation: candleIn 0.6s ease both; }
-    @media (max-width: 760px) {
-      .bt-promo-panel { grid-template-columns: 1fr; padding: 28px; gap: 28px; }
-      .bt-promo-visual { order: -1; }
-    }
-  </style>
+  <section class="section" id="pricing">
+    <div class="wrap" style="display:flex;justify-content:center;">
+      <div class="card" data-reveal style="max-width:420px;width:100%;text-align:center;padding:48px 40px;border-color:var(--signal);position:relative;overflow:visible;">
+        <span class="offer-badge">🔥 Limited Launch Offer</span>
+        <p class="eyebrow" style="justify-content:center;margin-top:16px;">Full access</p>
 
+        <div class="price-row" style="margin-top:24px;">
+          <span class="price-old mono">₹599<span class="price-old-unit">/month</span></span>
+        </div>
+        <p class="mono" style="font-size:48px;margin:8px 0 0;color:var(--paper);">₹159<span style="font-size:18px;color:var(--paper-faint);">/month</span></p>
+        <p style="color:var(--signal);font-size:13px;margin-top:8px;font-weight:600;">Launch price — save 65%</p>
+        <p style="color:var(--paper-faint);font-size:13.5px;margin-top:4px;">Billed monthly · Cancel anytime</p>
 
-
+        <ul style="list-style:none;padding:0;margin:32px 0;text-align:left;display:flex;flex-direction:column;gap:16px;">
+          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> All 10 parts — basic to advanced</li>
+          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Real chart examples in every topic</li>
+          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Practice quizzes after every chapter, with scoring</li>
+          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Predict the Next Candle — live chart practice game</li>
+          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> A real, verified market case study</li>
+          <li style="display:flex;gap:10px;font-size:14.5px;color:var(--paper-dim);line-height:1.5;"><span style="color:var(--signal);">✓</span> Free future updates</li>
+        </ul>
+        <a href="#" class="btn btn-primary btn-block btn-glow" data-nav="checkout">Subscribe for ₹159/month</a>
+        <p style="font-size:12px;color:var(--paper-faint);margin-top:16px;">You'll need to log in so your progress is saved.</p>
+      </div>
+    </div>
+  </section>
 
   <section class="section" id="faq" style="border-top:1px solid var(--ink-line);">
     <div class="wrap" style="max-width:680px;margin:0 auto;">
@@ -2401,6 +2400,7 @@ body.intro-locked { overflow: hidden; }
       </div>
     </div>
   </section>
+
 
   <footer class="footer">
     <div class="wrap">
