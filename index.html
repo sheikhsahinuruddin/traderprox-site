@@ -569,7 +569,7 @@ h1, h2, h3, h4 {
 .game-result.result-neutral .game-result-title { color: var(--paper); }
 .game-result p { margin: 0; }
 
-/* ---------- Hero market card: TradingView-style chart ---------- */
+/* ---------- Hero market card ---------- */
 .market-card {
   padding: 24px 24px 24px;
 }
@@ -637,26 +637,6 @@ h1, h2, h3, h4 {
   border-radius: var(--radius-sm);
   padding: 10px 6px 4px;
 }
-
-.market-timeframes {
-  display: flex;
-  gap: 6px;
-  margin-top: 14px;
-  flex-wrap: wrap;
-}
-.tf-btn {
-  background: none;
-  border: 1px solid var(--ink-line);
-  border-radius: 6px;
-  color: var(--paper-faint);
-  font-family: var(--mono);
-  font-size: 12px;
-  padding: 6px 13px;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-}
-.tf-btn:hover { color: var(--paper); border-color: var(--paper-faint); }
-.tf-btn.tf-active { background: var(--signal-soft); color: var(--signal); border-color: var(--signal); }
 
 @media (max-width: 480px) {
   .market-price { font-size: 26px; }
@@ -1343,13 +1323,13 @@ body.intro-locked { overflow: hidden; }
   inset: 0;
   background: rgba(5, 7, 5, 0.82);
   backdrop-filter: blur(6px);
-  display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius);
   z-index: 5;
   padding: 24px;
 }
+.bt-lock-overlay:not([hidden]) { display: flex; }
 .bt-lock-box { text-align: center; max-width: 320px; }
 .bt-lock-box h3 { font-family: var(--display); font-size: 19px; color: var(--paper); margin: 14px 0 8px; }
 .bt-lock-box h4 { font-family: var(--display); font-size: 16px; color: var(--paper); margin: 12px 0 14px; }
@@ -1643,28 +1623,28 @@ body.intro-locked { overflow: hidden; }
         </div>
 
         <div class="market-quote-wrap" id="heroQuoteWrap">
-          <!-- Live TradingView Symbol Info widget: symbol, price, change, % change
-               and market status all render straight from TradingView here. -->
-          <div class="tradingview-widget-container" id="heroQuoteContainer">
-            <div class="tradingview-widget-container__widget"></div>
+          <div class="market-price-row">
+            <span class="mono market-price" id="heroPrice">—</span>
+            <span class="mono market-change" id="heroChange">—</span>
           </div>
+          <p class="market-asof">Live index data · <span id="heroState">market open</span></p>
         </div>
 
         <div class="market-chart-wrap">
-          <div class="tradingview-widget-container" style="height:220px;width:100%;" id="heroChartContainer">
-            <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);">
+            <div style="padding:16px 8px;text-align:center;border-right:1px solid var(--ink-line);">
+              <div class="mono" id="heroPrevClose" style="font-size:15px;color:var(--paper);font-weight:600;">—</div>
+              <div style="font-size:10px;color:var(--paper-faint);margin-top:5px;letter-spacing:0.04em;">PREV CLOSE</div>
+            </div>
+            <div style="padding:16px 8px;text-align:center;border-right:1px solid var(--ink-line);">
+              <div class="mono" id="heroChangeAbs" style="font-size:15px;font-weight:600;">—</div>
+              <div style="font-size:10px;color:var(--paper-faint);margin-top:5px;letter-spacing:0.04em;">CHANGE</div>
+            </div>
+            <div style="padding:16px 8px;text-align:center;">
+              <div class="mono" id="heroChangePct" style="font-size:15px;font-weight:600;">—</div>
+              <div style="font-size:10px;color:var(--paper-faint);margin-top:5px;letter-spacing:0.04em;">% CHANGE</div>
+            </div>
           </div>
-          <div class="tradingview-widget-copyright" style="margin-top:6px;font-size:10.5px;color:var(--paper-faint);text-align:right;">
-            <a href="https://www.tradingview.com/symbols/NSE-NIFTY/" rel="noopener nofollow" target="_blank" style="color:var(--paper-faint) !important;">NIFTY 50 chart</a> by TradingView
-          </div>
-        </div>
-
-        <div class="market-timeframes" id="heroTimeframes">
-          <button class="tf-btn tf-active" data-tf="1D">1D</button>
-          <button class="tf-btn" data-tf="1W">1W</button>
-          <button class="tf-btn" data-tf="1M">1M</button>
-          <button class="tf-btn" data-tf="3M">3M</button>
-          <button class="tf-btn" data-tf="1Y">1Y</button>
         </div>
 
         <p style="font-size:12.5px;color:var(--paper-faint);margin-top:16px;line-height:1.55;">
@@ -2736,18 +2716,6 @@ body.intro-locked { overflow: hidden; }
       <p class="eyebrow">Practice mode · Backtest Simulator</p>
       <h1 style="font-size:clamp(24px,3.6vw,32px);margin-top:14px;">Backtest Simulator</h1>
       <p style="color:var(--paper-dim);margin-top:8px;max-width:600px;">Trade a real historical session candle by candle, with the future hidden. Set your stop-loss and take-profit, call each move, and get a full performance report at the end.</p>
-
-      <!-- ============================================================
-           TEMPORARY DEBUG BOX — diagnostic only, not part of the product UI.
-           Shows the live values renderBacktest() actually computed.
-           Deliberately placed OUTSIDE #btRoot: .bt-lock-overlay is
-           `position:absolute; inset:0` against #btRoot (position:relative),
-           so anything placed *inside* #btRoot gets fully covered by the
-           overlay whenever it's shown. Placing this box here, above
-           #btRoot, guarantees it's never hidden behind the overlay.
-           Safe to delete once the premium-check issue is diagnosed.
-           ============================================================ -->
-      <div id="btDebugBox" style="margin-top:28px;padding:14px 16px;border:1px dashed var(--signal);border-radius:8px;background:rgba(0,230,118,0.06);font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--paper-dim);"></div>
 
       <div id="btRoot" style="margin-top:28px;position:relative;">
 
@@ -5141,91 +5109,41 @@ function renderCurriculumList() {
 }
 
 /* ===========================================================
-   HERO MARKET CARD — live TradingView widgets
+   HERO MARKET CARD
    -----------------------------------------------------------
-   Both the price strip (symbol, price, change, % change, and
-   market open/closed status) and the candle chart are rendered
-   by TradingView's own official embed widgets, pointed at the
-   same symbol (NSE:NIFTY). Nothing here is scraped or hardcoded
-   — every number and the chart itself come live from TradingView.
-
-   These are the newer self-mounting "embed-widget-*.js" scripts
-   (as opposed to the older tv.js `new TradingView.widget()`
-   constructor). Each one creates its own iframe and boots itself
-   as soon as it's inserted into the DOM — it doesn't depend on a
-   global `TradingView` object existing yet, which is what made
-   the old constructor prone to silently rendering a blank box on
-   slower connections or on mobile. Because there's no persistent
-   JS handle to an iframe-based widget, the 1D/1W/1M/3M/1Y pills
-   work by re-mounting the chart widget with a new interval.
+   The price row and the snapshot stats below it are driven by
+   the same live NSE/Yahoo/Stooq quote data that already powers
+   the ticker bar (see updateTickerDOM / pollQuotes further
+   down) — no separate fetch, no third-party chart embed.
    =========================================================== */
 
-const HERO_SYMBOL = 'NSE:NIFTY';
-// TradingView resolution strings per pill.
-const HERO_TF_RESOLUTION = { '1D': '5', '1W': '60', '1M': 'D', '3M': 'W', '1Y': 'M' };
-
-function mountTvWidget(container, src, config) {
-  if (!container) return;
-  container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
-  const script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = src;
-  script.async = true;
-  script.text = JSON.stringify(config);
-  container.appendChild(script);
-}
-
-function renderHeroChart(interval) {
-  mountTvWidget(
-    document.getElementById('heroChartContainer'),
-    'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js',
-    {
-      autosize: true,
-      symbol: HERO_SYMBOL,
-      interval: interval,
-      timezone: 'Asia/Kolkata',
-      theme: 'dark',
-      style: '1',
-      locale: 'en',
-      toolbar_bg: '#0a0f0b',
-      backgroundColor: 'rgba(5,7,5,1)',
-      enable_publishing: false,
-      allow_symbol_change: false,
-      hide_top_toolbar: true,
-      hide_side_toolbar: true,
-      hide_legend: true,
-      withdateranges: true,
-      save_image: false,
-      support_host: 'https://www.tradingview.com'
-    }
-  );
-}
-
-function renderHeroQuote() {
-  mountTvWidget(
-    document.getElementById('heroQuoteContainer'),
-    'https://s3.tradingview.com/external-embedding/embed-widget-symbol-info.js',
-    {
-      symbol: HERO_SYMBOL,
-      colorTheme: 'dark',
-      isTransparent: true,
-      locale: 'en',
-      width: '100%'
-    }
-  );
-}
-
-function initHeroChart() {
-  renderHeroQuote();
-  renderHeroChart(HERO_TF_RESOLUTION['1D']);
-
-  document.querySelectorAll('#heroTimeframes .tf-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#heroTimeframes .tf-btn').forEach(b => b.classList.remove('tf-active'));
-      btn.classList.add('tf-active');
-      renderHeroChart(HERO_TF_RESOLUTION[btn.dataset.tf]);
-    });
-  });
+function updateHeroQuoteDOM(q) {
+  const priceEl = document.getElementById('heroPrice');
+  const changeEl = document.getElementById('heroChange');
+  const prevEl = document.getElementById('heroPrevClose');
+  const changeAbsEl = document.getElementById('heroChangeAbs');
+  const changePctEl = document.getElementById('heroChangePct');
+  if (!priceEl || !q) return;
+  const up = q.change >= 0;
+  const sign = up ? '+' : '';
+  priceEl.textContent = q.price.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  if (changeEl) {
+    changeEl.textContent = `${sign}${q.change.toFixed(2)} (${sign}${q.changePercent.toFixed(2)}%)`;
+    changeEl.className = 'mono market-change ' + (up ? 'price-up' : 'price-down');
+  }
+  if (prevEl) prevEl.textContent = q.prev != null ? q.prev.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '—';
+  if (changeAbsEl) {
+    changeAbsEl.textContent = `${sign}${q.change.toFixed(2)}`;
+    changeAbsEl.className = 'mono ' + (up ? 'price-up' : 'price-down');
+    changeAbsEl.style.fontSize = '15px';
+    changeAbsEl.style.fontWeight = '600';
+  }
+  if (changePctEl) {
+    changePctEl.textContent = `${sign}${q.changePercent.toFixed(2)}%`;
+    changePctEl.className = 'mono ' + (up ? 'price-up' : 'price-down');
+    changePctEl.style.fontSize = '15px';
+    changePctEl.style.fontWeight = '600';
+  }
 }
 
 function initCountUp() {
@@ -5322,6 +5240,7 @@ function loadCachedQuotes() {
     const cached = JSON.parse(raw);
     Object.keys(cached).forEach(key => {
       updateTickerDOM(key, cached[key], true);
+      if (key === 'nifty') updateHeroQuoteDOM(cached[key]);
       lastQuotes[key] = cached[key];
     });
   } catch (e) { /* ignore */ }
@@ -5431,6 +5350,7 @@ async function pollQuotes() {
     if (!q) q = await fetchStooq(idx.stooq);
     if (q) {
       updateTickerDOM(idx.key, q);
+      if (idx.key === 'nifty') updateHeroQuoteDOM(q);
       lastQuotes[idx.key] = q;
     }
   }
@@ -5444,7 +5364,6 @@ function initLiveTicker() {
 }
 
 renderCurriculumList();
-initHeroChart();
 initScrollReveal();
 initScene3D();
 initCountUp();
@@ -5653,26 +5572,6 @@ async function renderBacktest() {
   // what makes Backtest unlock immediately after an access-code redemption,
   // with no separate logic of its own.
   const isPremium = Auth.isPremium(user);
-
-  // TEMPORARY DEBUG — diagnostic only, see #btDebugBox above. Safe to remove
-  // once the premium-check issue is diagnosed; does not affect any logic.
-  console.log('[BT-DEBUG]', {
-    userId: user.id,
-    email: user.email,
-    hasPaid: user.hasPaid,
-    premiumExpiry: user.premiumExpiry,
-    isPremium: isPremium
-  });
-  const debugBox = document.getElementById('btDebugBox');
-  if (debugBox) {
-    debugBox.innerHTML =
-      'BT-DEBUG (temporary)<br>' +
-      'user.id: ' + user.id + '<br>' +
-      'user.email: ' + user.email + '<br>' +
-      'user.hasPaid: ' + user.hasPaid + '<br>' +
-      'user.premiumExpiry: ' + user.premiumExpiry + '<br>' +
-      'isPremium: ' + isPremium;
-  }
 
   document.getElementById('btReportPanel').hidden = true;
   document.getElementById('btSessionPanel').hidden = true;
