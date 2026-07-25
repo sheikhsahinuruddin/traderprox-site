@@ -1178,6 +1178,17 @@ body.intro-locked { overflow: hidden; }
   background: #00150A;
   animation: pulse 1.6s ease-in-out infinite;
 }
+.market-live-badge-closed {
+  background: var(--paper-faint);
+  color: var(--ink);
+  box-shadow: none;
+}
+.market-live-badge-closed .market-live-dot { animation: none; background: var(--ink); }
+.market-live-badge-reconnecting {
+  background: var(--down);
+  color: #1a0000;
+}
+.market-live-badge-reconnecting .market-live-dot { background: #1a0000; }
 
 .testimonial-grid {
   margin-top: 48px;
@@ -5228,7 +5239,10 @@ document.getElementById('navToggle').addEventListener('click', () => {
    =========================================================== */
 
 let lastQuotes = {};
-let tickerInterval = null;
+let lastSuccessAt = {};       // per-index: timestamp of last real fetch that worked
+let quotesInFlight = false;   // hard guard: never let two polls run at once
+let consecutiveFailures = 0;
+let pollTimer = null;
 
 const INDICES_CONFIG = [
   { key: 'nifty',     yahoo: '%5ENSEI',    stooq: '^nsei',    label: 'NIFTY 50'   },
@@ -5237,6 +5251,56 @@ const INDICES_CONFIG = [
 ];
 
 const TICKER_CACHE_KEY = 'traderprox_ticker_cache_v1';
+const STALE_MS = 90 * 1000; // if no fresh tick lands within 90s during market hours, flag it — never pretend stale data is live
+
+/* ===========================================================
+   MARKET STATUS — real NSE/BSE trading hours (IST, Mon–Fri
+   09:15–15:30), computed from actual India timezone regardless
+   of the visitor's device clock/timezone. Runs every second so
+   the badge flips to "closed" the instant the clock hits 15:30,
+   not on some hardcoded string. (Exchange holidays aren't in
+   this table — that would need a holiday calendar — but the
+   daily open/close time itself is always exact.)
+   =========================================================== */
+function getISTParts() {
+  const parts = {};
+  new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata', hour12: false,
+    weekday: 'short', hour: '2-digit', minute: '2-digit',
+  }).formatToParts(new Date()).forEach(p => { parts[p.type] = p.value; });
+  return { weekday: parts.weekday, hour: parseInt(parts.hour, 10), minute: parseInt(parts.minute, 10) };
+}
+
+function getMarketStatus() {
+  const { weekday, hour, minute } = getISTParts();
+  const isWeekday = weekday !== 'Sat' && weekday !== 'Sun';
+  const minutesNow = hour * 60 + minute;
+  const isOpen = isWeekday && minutesNow >= (9 * 60 + 15) && minutesNow < (15 * 60 + 30);
+  return { isOpen, label: isOpen ? 'market open' : 'market closed' };
+}
+
+function updateMarketStatusDOM() {
+  const { isOpen, label } = getMarketStatus();
+  const now = Date.now();
+  const anyStale = isOpen && INDICES_CONFIG.some(idx => {
+    const t = lastSuccessAt[idx.key];
+    return !t || (now - t) > STALE_MS;
+  });
+
+  const heroState = document.getElementById('heroState');
+  if (heroState) heroState.textContent = anyStale ? 'reconnecting…' : label;
+
+  const badge = document.querySelector('.market-live-badge');
+  if (badge) {
+    badge.classList.toggle('market-live-badge-closed', !isOpen && !anyStale);
+    badge.classList.toggle('market-live-badge-reconnecting', anyStale);
+    const textNode = badge.lastChild;
+    const label2 = anyStale ? 'RECONNECTING' : (isOpen ? 'LIVE' : 'CLOSED');
+    if (textNode && textNode.nodeType === Node.TEXT_NODE) textNode.textContent = label2;
+    else badge.append(document.createTextNode(label2));
+  }
+  return isOpen;
+}
 
 function loadCachedQuotes() {
   try {
@@ -5247,6 +5311,10 @@ function loadCachedQuotes() {
       updateTickerDOM(key, cached[key], true);
       if (key === 'nifty') updateHeroQuoteDOM(cached[key]);
       lastQuotes[key] = cached[key];
+      // NOTE: intentionally do NOT set lastSuccessAt here — a cached quote
+      // loaded from a previous visit is not a "fresh tick", so the
+      // staleness check above will correctly show "reconnecting…" until
+      // a real network fetch succeeds.
     });
   } catch (e) { /* ignore */ }
 }
@@ -5271,24 +5339,37 @@ function updateTickerDOM(key, q, silent) {
   }
 }
 
-async function fetchJSON(url, timeout = 8000) {
+async function fetchJSON(url, timeout = 6000) {
   const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
-  if (!res.ok) throw new Error('bad status');
+  if (!res.ok) throw new Error('bad status ' + res.status);
   return res.json();
 }
+
+/* ---------- Sources ----------
+   BUG THAT WAS FROZEN: the old code awaited every proxy for every
+   source, one after another (NSE → Yahoo → Stooq, 4 proxies each,
+   8s timeout each) for EACH of the 3 indices, all inside a single
+   setInterval(pollQuotes, 15000) that never checked whether the
+   previous run had finished. The moment any proxy went slow/down,
+   one poll could take well over a minute — but a new one still
+   started every 15s anyway, so calls piled up endlessly until the
+   browser's connection pool jammed and every fetch just hung
+   forever. That's exactly why it froze on a 3-day-old price:
+   that was simply the last poll that ever completed.
+   Fixed below with: (1) a hard "never overlap" guard, (2) shorter
+   6s timeouts, (3) sources raced in parallel instead of chained
+   serially, (4) self-rescheduling instead of a blind setInterval,
+   with backoff when everything's failing. ---------- */
 
 async function fetchNSE() {
   const url = 'https://www.nseindia.com/api/allIndices';
   const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    `https://thingproxy.freeboard.io/fetch/${url}`,
   ];
   for (const proxy of proxies) {
     try {
-      let raw = await fetchJSON(proxy);
-      if (raw.contents) raw = JSON.parse(raw.contents);
+      const raw = await fetchJSON(proxy);
       const data = raw?.data;
       if (!Array.isArray(data)) continue;
       const r = {};
@@ -5298,27 +5379,25 @@ async function fetchNSE() {
         if (item.index === 'SENSEX' || item.index === 'S&P BSE SENSEX') r.sensex = { price: item.last, prev: item.previousClose, change: item.change, changePercent: item.percentChange };
       });
       if (Object.keys(r).length >= 2) return r;
-    } catch(e) { continue; }
+    } catch (e) { continue; }
   }
-  return null;
+  return null; // NSE's own API needs a session cookie the browser can't get through a plain proxy — it will usually miss, which is fine, Yahoo/Stooq below cover it
 }
 
 async function fetchYahoo(sym) {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1m&range=1d`;
   const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    `https://thingproxy.freeboard.io/fetch/${url}`,
   ];
   for (const proxy of proxies) {
     try {
-      let raw = await fetchJSON(proxy);
-      if (raw.contents) raw = JSON.parse(raw.contents);
+      const raw = await fetchJSON(proxy);
       const meta = raw?.chart?.result?.[0]?.meta;
       if (!meta?.regularMarketPrice) continue;
       return { price: meta.regularMarketPrice, prev: meta.chartPreviousClose, change: meta.regularMarketPrice - meta.chartPreviousClose, changePercent: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100 };
-    } catch(e) { continue; }
+    } catch (e) { continue; }
   }
   return null;
 }
@@ -5326,12 +5405,12 @@ async function fetchYahoo(sym) {
 async function fetchStooq(sym) {
   const url = `https://stooq.com/q/l/?s=${sym}&f=sd2t2ohlc&h&e=csv`;
   const proxies = [
-    `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
   ];
   for (const proxy of proxies) {
     try {
-      const res = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
+      const res = await fetch(proxy, { signal: AbortSignal.timeout(6000) });
       if (!res.ok) continue;
       const text = await res.text();
       const lines = text.trim().split('\n');
@@ -5342,30 +5421,66 @@ async function fetchStooq(sym) {
       if (!close || isNaN(close)) continue;
       const change = close - open;
       return { price: close, prev: open, change, changePercent: (change / open) * 100 };
-    } catch(e) { continue; }
+    } catch (e) { continue; }
   }
   return null;
 }
 
+// Per index: NSE result (if the batch call already has it) wins immediately;
+// otherwise Yahoo and Stooq are raced in PARALLEL (not chained), so a dead
+// proxy on one never blocks the other.
+async function fetchIndexQuote(idx, nseResult) {
+  if (nseResult?.[idx.key]) return nseResult[idx.key];
+  const [yahooRes, stooqRes] = await Promise.allSettled([fetchYahoo(idx.yahoo), fetchStooq(idx.stooq)]);
+  if (yahooRes.status === 'fulfilled' && yahooRes.value) return yahooRes.value;
+  if (stooqRes.status === 'fulfilled' && stooqRes.value) return stooqRes.value;
+  return null;
+}
+
 async function pollQuotes() {
-  const nse = await fetchNSE();
-  for (const idx of INDICES_CONFIG) {
-    let q = nse?.[idx.key];
-    if (!q) q = await fetchYahoo(idx.yahoo);
-    if (!q) q = await fetchStooq(idx.stooq);
-    if (q) {
-      updateTickerDOM(idx.key, q);
-      if (idx.key === 'nifty') updateHeroQuoteDOM(q);
-      lastQuotes[idx.key] = q;
-    }
+  if (quotesInFlight) return; // the actual fix: refuse to start a second poll while one is still running
+  quotesInFlight = true;
+  let anySuccess = false;
+  try {
+    const nse = await fetchNSE().catch(() => null);
+    const results = await Promise.all(INDICES_CONFIG.map(idx => fetchIndexQuote(idx, nse)));
+    INDICES_CONFIG.forEach((idx, i) => {
+      const q = results[i];
+      if (q && isFinite(q.price) && isFinite(q.change)) {
+        updateTickerDOM(idx.key, q);
+        if (idx.key === 'nifty') updateHeroQuoteDOM(q);
+        lastQuotes[idx.key] = q;
+        lastSuccessAt[idx.key] = Date.now();
+        anySuccess = true;
+      }
+    });
+    if (anySuccess) { saveCachedQuotes(); consecutiveFailures = 0; }
+    else { consecutiveFailures++; }
+  } finally {
+    quotesInFlight = false;
   }
-  if (Object.keys(lastQuotes).length) saveCachedQuotes();
+  updateMarketStatusDOM();
+}
+
+function scheduleNextPoll() {
+  clearTimeout(pollTimer);
+  const { isOpen } = getMarketStatus();
+  // Closed market → prices genuinely don't move, so poll gently just to
+  // catch the final settlement print. Open market → poll briskly.
+  // If sources keep failing, back off instead of hammering dead proxies.
+  const base = isOpen ? 15000 : 60000;
+  const backoff = Math.min(consecutiveFailures * 5000, 60000);
+  pollTimer = setTimeout(async () => {
+    await pollQuotes();
+    scheduleNextPoll();
+  }, base + backoff);
 }
 
 function initLiveTicker() {
   loadCachedQuotes();
-  pollQuotes();
-  setInterval(pollQuotes, 15000); // data refresh every 15s
+  updateMarketStatusDOM();
+  setInterval(updateMarketStatusDOM, 1000); // clock-accurate open/close flip + staleness check, every second
+  pollQuotes().then(scheduleNextPoll); // first fetch immediately, then self-scheduling loop (never overlapping)
 }
 
 renderCurriculumList();
