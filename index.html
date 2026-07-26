@@ -1548,7 +1548,7 @@ body.intro-locked { overflow: hidden; }
 .bt-journal-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
 .bt-journal-wrap.open .bt-journal-body { max-height: 2000px; }
 .bt-journal-table-scroll { overflow-x: auto; }
-.bt-journal-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 720px; }
+.bt-journal-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 820px; }
 .bt-journal-table th {
   text-align: left; padding: 9px 12px; color: var(--paper-faint); font-weight: 600;
   font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.03em; border-bottom: 1px solid var(--ink-line);
@@ -1637,7 +1637,7 @@ body.intro-locked { overflow: hidden; }
 @media (max-width: 640px) {
   .bt-hud-grid { grid-template-columns: repeat(2, 1fr); }
   .bt-perf-grid { grid-template-columns: repeat(2, 1fr); }
-  .bt-journal-table { min-width: 640px; }
+  .bt-journal-table { min-width: 740px; }
   .bt-replay-bar { justify-content: center; }
   .bt-replay-speed { order: 10; width: 100%; margin-left: 0; }
 }
@@ -3115,7 +3115,7 @@ body.intro-locked { overflow: hidden; }
                   <table class="bt-journal-table">
                     <thead>
                       <tr>
-                        <th>#</th><th>Side</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Hold</th><th>RR</th><th>Reason / notes</th>
+                        <th>#</th><th>Side</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Hold</th><th>RR</th><th>Reason</th><th>Notes</th>
                       </tr>
                     </thead>
                     <tbody id="btJournalBody"></tbody>
@@ -6356,6 +6356,47 @@ function btPerfCard(label, value, colorClass, sub) {
   </div>`;
 }
 
+let btCountUpSeq = 0;
+// Numeric performance card whose value actually counts up from 0 to the
+// real figure when the dashboard first renders — used for every metric
+// that's a plain finite number (profit, rates, streaks, scores, etc).
+// Text-only outcomes (the grade letter, "1 : x" RR ratios, "—" fallbacks,
+// "∞" profit factor) stay on the plain btPerfCard above instead, since
+// there's nothing meaningful to tween there.
+function btNumCard(label, target, opts) {
+  opts = opts || {};
+  const id = 'btcu' + (btCountUpSeq++);
+  const decimals = opts.decimals || 0;
+  const prefix = opts.prefix != null ? opts.prefix : '';
+  const suffix = opts.suffix || '';
+  return `<div class="bt-perf-card">
+    <div class="bt-perf-card-label">${label}</div>
+    <div class="bt-perf-card-value ${opts.colorClass || ''}"><span id="${id}" class="bt-count-up" data-target="${target}" data-decimals="${decimals}" data-prefix="${prefix}" data-suffix="${suffix}">${prefix}0${suffix}</span></div>
+    ${opts.sub ? `<div class="bt-perf-card-sub">${opts.sub}</div>` : ''}
+  </div>`;
+}
+
+function runCountUps(container) {
+  if (!container) return;
+  container.querySelectorAll('.bt-count-up').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    if (!isFinite(target)) return;
+    const decimals = parseInt(el.dataset.decimals, 10) || 0;
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const duration = 900;
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      el.textContent = prefix + (target * eased).toFixed(decimals) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = prefix + target.toFixed(decimals) + suffix;
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
 document.querySelectorAll('#btActionButtons .game-choice').forEach(btn => {
   btn.addEventListener('click', () => {
     if (!btState || btState.ended || btState.position || btState.reviewIndex != null) return;
@@ -6466,6 +6507,39 @@ document.getElementById('btZoomResetBtn').addEventListener('click', () => {
 document.getElementById('btChartWrap').addEventListener('scroll', () => {
   if (btState) btState._userScrolled = true;
 }, { passive: true });
+
+/* Two-finger pinch zoom — layered on top of the +/- buttons above. Panning
+   itself needs no extra code: .bt-chart-wrap is a plain overflow-x:auto
+   container, so one-finger drag-to-scroll already works natively on
+   mobile; this only adds the pinch gesture for zoom. */
+(function setupBtPinchZoom() {
+  const wrap = document.getElementById('btChartWrap');
+  let startDist = null;
+  let startZoom = 1;
+  function touchDist(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+  wrap.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2 && btState) {
+      startDist = touchDist(e.touches);
+      startZoom = btState.zoom || 1;
+    }
+  }, { passive: true });
+  wrap.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && startDist && btState) {
+      e.preventDefault();
+      const scale = touchDist(e.touches) / startDist;
+      btState.zoom = Math.max(0.5, Math.min(3, startZoom * scale));
+      btState._userScrolled = true;
+      renderBacktestSession();
+    }
+  }, { passive: false });
+  wrap.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) startDist = null;
+  }, { passive: true });
+})();
 
 function btParseFloatOrNull(v) {
   if (v === '' || v == null) return null;
@@ -6850,15 +6924,34 @@ function renderMistakeList(mistakes, goods) {
 }
 
 /* ---------- trade journal ---------- */
-function renderJournal(trades) {
+function renderJournal(trades, allCandles) {
   const body = document.getElementById('btJournalBody');
-  if (!trades.length) { body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--paper-faint);">No trades this session.</td></tr>`; return; }
+  if (!trades.length) { body.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--paper-faint);">No trades this session.</td></tr>`; return; }
   const reasonLabel = { 'stop-loss': 'Stop-loss hit', 'take-profit': 'Take-profit hit', 'manual': 'Manual close', 'session-end': 'Session ended' };
+  const avgHold = trades.reduce((s, t) => s + (t.exitIndex - t.entryIndex), 0) / trades.length;
   body.innerHTML = trades.map((t, i) => {
     const risk = t.sl != null ? Math.abs(t.entryPrice - t.sl) : null;
     const reward = t.tp != null ? Math.abs(t.tp - t.entryPrice) : null;
     const rr = (risk && reward) ? (reward / risk).toFixed(2) : null;
     const hold = t.exitIndex - t.entryIndex;
+
+    // per-trade note tags, mirroring the same signals detectBacktestMistakes
+    // looks at session-wide, but called out on the individual row here
+    const notes = [];
+    if (t.sl == null) notes.push('No SL');
+    if (t.reason === 'manual' && hold <= 1) notes.push('Early exit');
+    if (t.reason === 'manual' && t.pnl < 0 && hold > avgHold * 1.4) notes.push('Held losing trade');
+    if (t.reason === 'manual' && t.pnl > 0 && t.tp != null && Math.abs(t.exitPrice - t.entryPrice) < Math.abs(t.tp - t.entryPrice) * 0.35) notes.push('Cut winner early');
+    if (risk && reward && reward / risk < 1) notes.push('Risk > reward');
+    if (allCandles) {
+      let streak = 0;
+      for (let k = t.entryIndex; k > 0; k--) {
+        const up = allCandles[k].c >= allCandles[k - 1].c;
+        if (up === (t.side === 'long')) streak++; else break;
+      }
+      if (streak >= 4) notes.push('Late entry');
+    }
+
     return `<tr>
       <td>${i + 1}</td>
       <td class="bt-journal-side ${t.side === 'long' ? 'up' : 'down'}">${t.side === 'long' ? 'BUY' : 'SELL'}</td>
@@ -6867,10 +6960,8 @@ function renderJournal(trades) {
       <td class="bt-journal-side ${t.pnl >= 0 ? 'up' : 'down'}">${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</td>
       <td>${hold} candle${hold === 1 ? '' : 's'}</td>
       <td>${rr ? `1:${rr}` : '—'}</td>
-      <td>
-        <span class="bt-journal-tag ${t.reason === 'stop-loss' ? 'warn' : t.reason === 'take-profit' ? 'good' : ''}">${reasonLabel[t.reason] || t.reason}</span>
-        ${t.sl == null ? '<span class="bt-journal-tag warn">No SL</span>' : ''}
-      </td>
+      <td><span class="bt-journal-tag ${t.reason === 'stop-loss' ? 'warn' : t.reason === 'take-profit' ? 'good' : ''}">${reasonLabel[t.reason] || t.reason}</span></td>
+      <td>${notes.length ? notes.map(n => `<span class="bt-journal-tag warn">${n}</span>`).join('') : '<span class="bt-journal-tag good">Clean</span>'}</td>
     </tr>`;
   }).join('');
 }
@@ -6981,11 +7072,14 @@ function endBacktestSession() {
   });
 
   document.getElementById('btBasicStatsGrid').innerHTML = [
-    btPerfCard('Net profit', `${stats.netPnl >= 0 ? '+' : ''}${stats.netPnl.toFixed(2)}`, stats.netPnl >= 0 ? 'up' : 'down'),
-    btPerfCard('Win rate', stats.totalTrades ? `${stats.winRate.toFixed(0)}%` : '—', null, `${stats.wins}W / ${stats.losses}L`),
-    btPerfCard('Total trades', stats.totalTrades),
+    btNumCard('Net profit', stats.netPnl, { decimals: 2, prefix: stats.netPnl >= 0 ? '+' : '', colorClass: stats.netPnl >= 0 ? 'up' : 'down' }),
+    stats.totalTrades
+      ? btNumCard('Win rate', stats.winRate, { decimals: 0, suffix: '%', sub: `${stats.wins}W / ${stats.losses}L` })
+      : btPerfCard('Win rate', '—', null, `${stats.wins}W / ${stats.losses}L`),
+    btNumCard('Total trades', stats.totalTrades, { decimals: 0 }),
     btPerfCard('Overall grade', report.grade, null, `${report.score}% score`)
   ].join('');
+  runCountUps(document.getElementById('btBasicStatsGrid'));
 
   const advancedGrid = document.getElementById('btAdvancedStatsGrid');
   const advancedLock = document.getElementById('btAdvancedLock');
@@ -6994,34 +7088,36 @@ function endBacktestSession() {
     advancedGrid.style.filter = 'none';
     advancedGrid.style.pointerEvents = 'auto';
     advancedGrid.innerHTML = [
-      btPerfCard('Profit factor', isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) : '∞'),
-      btPerfCard('Expectancy', `${stats.expectancy >= 0 ? '+' : ''}${stats.expectancy.toFixed(2)}`, stats.expectancy >= 0 ? 'up' : 'down'),
-      btPerfCard('Avg win', `+${stats.avgWin.toFixed(2)}`, 'up'),
-      btPerfCard('Avg loss', `-${stats.avgLoss.toFixed(2)}`, 'down'),
+      isFinite(stats.profitFactor) ? btNumCard('Profit factor', stats.profitFactor, { decimals: 2 }) : btPerfCard('Profit factor', '∞'),
+      btNumCard('Expectancy', stats.expectancy, { decimals: 2, prefix: stats.expectancy >= 0 ? '+' : '', colorClass: stats.expectancy >= 0 ? 'up' : 'down' }),
+      btNumCard('Avg win', stats.avgWin, { decimals: 2, prefix: '+', colorClass: 'up' }),
+      btNumCard('Avg loss', stats.avgLoss, { decimals: 2, prefix: '-', colorClass: 'down' }),
       btPerfCard('Risk : reward', stats.avgRR != null ? `1 : ${stats.avgRR.toFixed(2)}` : '—'),
-      btPerfCard('Largest win', stats.bestTrade ? `+${stats.bestTrade.pnl.toFixed(2)}` : '—', 'up'),
-      btPerfCard('Largest loss', stats.worstTrade ? stats.worstTrade.pnl.toFixed(2) : '—', 'down'),
-      btPerfCard('Max drawdown', stats.maxDrawdown.toFixed(2), 'down'),
-      btPerfCard('Longest win streak', stats.longestWinStreak),
-      btPerfCard('Longest loss streak', stats.longestLoseStreak),
-      btPerfCard('Avg holding time', `${stats.avgHoldingTime.toFixed(1)} candles`),
-      btPerfCard('Accuracy', `${stats.accuracy.toFixed(0)}%`),
-      btPerfCard('Gross profit', `+${stats.grossProfit.toFixed(2)}`, 'up'),
-      btPerfCard('Gross loss', `-${stats.grossLoss.toFixed(2)}`, 'down'),
-      btPerfCard('Sharpe (basic)', stats.sharpe.toFixed(2)),
-      btPerfCard('Consistency score', `${Math.round(stats.consistency)}%`),
-      btPerfCard('Discipline score', `${Math.round(stats.discipline)}%`)
+      stats.bestTrade ? btNumCard('Largest win', stats.bestTrade.pnl, { decimals: 2, prefix: '+', colorClass: 'up' }) : btPerfCard('Largest win', '—', 'up'),
+      stats.worstTrade ? btNumCard('Largest loss', stats.worstTrade.pnl, { decimals: 2, colorClass: 'down' }) : btPerfCard('Largest loss', '—', 'down'),
+      btNumCard('Max drawdown', stats.maxDrawdown, { decimals: 2, colorClass: 'down' }),
+      btNumCard('Longest win streak', stats.longestWinStreak, { decimals: 0 }),
+      btNumCard('Longest loss streak', stats.longestLoseStreak, { decimals: 0 }),
+      btNumCard('Avg holding time', stats.avgHoldingTime, { decimals: 1, suffix: ' candles' }),
+      btNumCard('Accuracy', stats.accuracy, { decimals: 0, suffix: '%' }),
+      btNumCard('Gross profit', stats.grossProfit, { decimals: 2, prefix: '+', colorClass: 'up' }),
+      btNumCard('Gross loss', stats.grossLoss, { decimals: 2, prefix: '-', colorClass: 'down' }),
+      btNumCard('Sharpe (basic)', stats.sharpe, { decimals: 2 }),
+      btNumCard('Consistency score', Math.round(stats.consistency), { decimals: 0, suffix: '%' }),
+      btNumCard('Discipline score', Math.round(stats.discipline), { decimals: 0, suffix: '%' })
     ].join('');
+    runCountUps(advancedGrid);
 
     renderMiniLineChart(document.getElementById('btEquityChart'), stats.equityCurve, { stroke: 'var(--signal)' });
     renderMiniLineChart(document.getElementById('btDrawdownChart'), stats.drawdownCurve, { stroke: 'var(--down)' });
     renderDistributionChart(stats, btState.trades);
     const { mistakes, goods } = detectBacktestMistakes(btState.trades, btState.allCandles, btState.allCandles.length);
     renderMistakeList(mistakes, goods);
-    renderJournal(btState.trades);
+    renderJournal(btState.trades, btState.allCandles);
   } else {
     // Still render real numbers underneath — the overlay blurs them, matching
     // the same "blur simulator, show premium popup" pattern used elsewhere.
+    // Blurred + non-interactive, so plain (non-animated) cards are enough here.
     advancedGrid.innerHTML = [
       btPerfCard('Profit factor', isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) : '∞'),
       btPerfCard('Expectancy', stats.expectancy.toFixed(2)), btPerfCard('Avg win', stats.avgWin.toFixed(2)),
@@ -7042,7 +7138,7 @@ function endBacktestSession() {
     document.getElementById('btDrawdownChart').innerHTML = '';
     document.getElementById('btDistBars').innerHTML = '<p class="bt-hint">Upgrade to Premium to unlock the equity curve, drawdown chart, and trade distribution.</p>';
     document.getElementById('btMistakeList').innerHTML = '<p class="bt-hint">Upgrade to Premium to unlock personalized mistake coaching.</p>';
-    document.getElementById('btJournalBody').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--paper-faint);">Premium unlocks the full trade journal.</td></tr>`;
+    document.getElementById('btJournalBody').innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--paper-faint);">Premium unlocks the full trade journal.</td></tr>`;
   }
 
   if (report.grade === 'A+') setTimeout(launchConfetti, 900);
