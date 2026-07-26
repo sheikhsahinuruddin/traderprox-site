@@ -367,6 +367,11 @@ h1, h2, h3, h4 {
   from { opacity: 0; transform: scaleY(0.3) translateY(10px); }
   to { opacity: 1; transform: scaleY(1) translateY(0); }
 }
+.candle-settled { opacity: 1; }
+.bt-marker { animation: btMarkerPop 0.35s ease; transform-origin: center; }
+@keyframes btMarkerPop { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
+.bt-mini-line-anim { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: btLineDraw 1.1s cubic-bezier(.16,1,.3,1) forwards; }
+@keyframes btLineDraw { to { stroke-dashoffset: 0; } }
 
 [data-reveal] {
   opacity: 0;
@@ -1418,6 +1423,223 @@ body.intro-locked { overflow: hidden; }
 @media (max-width: 640px) {
   .bt-symbol-grid, .bt-tf-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); }
   .bt-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===========================================================
+   BACKTEST SIMULATOR — PREMIUM UPGRADE
+   Session header, floating position HUD, timeline, chart
+   toolbar + markers, replay transport, journal, mistake
+   coaching, and the animated result dashboard. Everything here
+   is additive to the block above — no existing class is removed.
+   =========================================================== */
+
+/* ---------- top toolbar: symbol/tf label + sound + zoom ---------- */
+.bt-session-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+}
+.bt-session-title { display: flex; flex-direction: column; gap: 2px; }
+.bt-session-title .mono { font-size: 14px; color: var(--paper); font-weight: 700; letter-spacing: 0.01em; }
+.bt-session-title .bt-session-sub { font-size: 11.5px; color: var(--paper-faint); font-family: var(--mono); }
+.bt-toolbar-actions { display: flex; align-items: center; gap: 8px; }
+.bt-icon-btn {
+  width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--ink-line); background: var(--ink); color: var(--paper-dim);
+  border-radius: 8px; cursor: pointer; font-size: 15px; transition: border-color 0.18s ease, color 0.18s ease, transform 0.15s ease, background 0.18s ease;
+}
+.bt-icon-btn:hover { border-color: var(--signal); color: var(--paper); transform: translateY(-1px); }
+.bt-icon-btn:active { transform: translateY(0) scale(0.94); }
+.bt-icon-btn.bt-icon-btn-active { border-color: var(--signal); color: var(--signal); background: var(--signal-soft); }
+.bt-zoom-group { display: flex; align-items: center; gap: 4px; background: var(--ink); border: 1px solid var(--ink-line); border-radius: 8px; padding: 3px; }
+.bt-zoom-group .bt-icon-btn { border: none; width: 30px; height: 30px; font-size: 13px; }
+
+/* ---------- session timeline ---------- */
+.bt-timeline {
+  display: flex; align-items: center; gap: 0; margin-bottom: 16px;
+  overflow-x: auto; padding-bottom: 2px; scrollbar-width: none;
+}
+.bt-timeline::-webkit-scrollbar { display: none; }
+.bt-timeline-step {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.bt-timeline-dot {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--ink-line);
+  border: 1px solid var(--ink-line); flex-shrink: 0; transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.bt-timeline-step.done .bt-timeline-dot { background: var(--signal); border-color: var(--signal); box-shadow: 0 0 8px var(--signal-soft); }
+.bt-timeline-step.active .bt-timeline-dot { background: var(--signal); border-color: var(--signal); animation: pulse 1.4s ease-in-out infinite; box-shadow: 0 0 10px var(--signal-soft); }
+.bt-timeline-label { font-family: var(--mono); font-size: 10.5px; color: var(--paper-faint); white-space: nowrap; letter-spacing: 0.02em; }
+.bt-timeline-step.done .bt-timeline-label, .bt-timeline-step.active .bt-timeline-label { color: var(--paper); }
+.bt-timeline-line { width: 22px; height: 1px; background: var(--ink-line); flex-shrink: 0; margin: 0 4px; transition: background 0.3s ease; }
+.bt-timeline-line.done { background: var(--signal); opacity: 0.5; }
+
+/* ---------- chart wrap: zoom/pan + marker overlays ---------- */
+.bt-chart-wrap { position: relative; touch-action: pan-x; }
+.bt-chart-wrap svg { transition: width 0.25s ease; }
+.bt-chart-hint {
+  position: absolute; bottom: 8px; right: 10px; font-family: var(--mono); font-size: 9.5px;
+  color: var(--paper-faint); background: rgba(5,7,5,0.6); padding: 3px 7px; border-radius: 5px; pointer-events: none;
+}
+
+/* ---------- floating position HUD (upgrade of .bt-position-bar) ---------- */
+.bt-hud {
+  background: linear-gradient(180deg, var(--ink-raised), var(--ink));
+  border: 1px solid var(--ink-line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 14px;
+  animation: btHudIn 0.3s ease;
+}
+@keyframes btHudIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.bt-hud-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.bt-hud-side {
+  font-family: var(--mono); font-weight: 800; font-size: 13px; letter-spacing: 0.03em;
+  padding: 4px 10px; border-radius: 20px;
+}
+.bt-hud-side.up { color: var(--up); background: var(--up-soft); }
+.bt-hud-side.down { color: var(--down); background: var(--down-soft); }
+.bt-hud-status { font-family: var(--mono); font-size: 10.5px; color: var(--signal); display: inline-flex; align-items: center; gap: 5px; }
+.bt-hud-status .live-dot { width: 6px; height: 6px; }
+.bt-hud-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 10px 14px;
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--ink-line);
+}
+.bt-hud-metric-label { font-size: 10px; color: var(--paper-faint); letter-spacing: 0.02em; }
+.bt-hud-metric-value { font-family: var(--mono); font-size: 14.5px; font-weight: 700; color: var(--paper); margin-top: 3px; transition: color 0.2s ease; }
+.bt-hud-metric-value.up { color: var(--up); }
+.bt-hud-metric-value.down { color: var(--down); }
+.bt-hud-pnl-row { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; }
+.bt-hud-pnl { font-family: var(--mono); font-size: 24px; font-weight: 800; transition: color 0.2s ease; }
+.bt-hud-pnl.up { color: var(--up); text-shadow: 0 0 18px var(--up-soft); }
+.bt-hud-pnl.down { color: var(--down); text-shadow: 0 0 18px var(--down-soft); }
+.bt-hud-pnl-pct { font-family: var(--mono); font-size: 13px; color: var(--paper-faint); }
+
+/* ---------- replay transport ---------- */
+.bt-replay-bar {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin-top: 14px; padding: 10px; background: var(--ink); border: 1px solid var(--ink-line); border-radius: 10px;
+}
+.bt-replay-btn {
+  min-width: 38px; height: 38px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  border: 1px solid var(--ink-line); background: var(--ink-raised); color: var(--paper-dim);
+  border-radius: 8px; cursor: pointer; font-size: 15px; font-family: var(--mono);
+  transition: border-color 0.18s ease, color 0.18s ease, transform 0.12s ease, background 0.18s ease;
+}
+.bt-replay-btn:hover:not(:disabled) { border-color: var(--signal); color: var(--paper); }
+.bt-replay-btn:active:not(:disabled) { transform: scale(0.93); }
+.bt-replay-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.bt-replay-btn.bt-replay-play { background: var(--signal); color: #00150A; border-color: var(--signal); font-weight: 700; }
+.bt-replay-btn.bt-replay-play:hover { background: var(--signal-dim); }
+.bt-replay-speed {
+  margin-left: auto; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper-dim);
+  font-family: var(--mono); font-size: 12px; border-radius: 8px; padding: 8px 10px; cursor: pointer;
+}
+@media (max-width: 560px) { .bt-replay-speed { margin-left: 0; flex: 1; } }
+
+/* ---------- trade journal ---------- */
+.bt-journal-wrap { margin-top: 16px; border: 1px solid var(--ink-line); border-radius: 10px; overflow: hidden; }
+.bt-journal-head {
+  display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+  cursor: pointer; background: var(--ink-raised); user-select: none;
+}
+.bt-journal-head h4 { font-size: 14px; margin: 0; color: var(--paper); }
+.bt-journal-chevron { transition: transform 0.25s ease; color: var(--paper-faint); font-size: 12px; }
+.bt-journal-wrap.open .bt-journal-chevron { transform: rotate(180deg); }
+.bt-journal-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+.bt-journal-wrap.open .bt-journal-body { max-height: 2000px; }
+.bt-journal-table-scroll { overflow-x: auto; }
+.bt-journal-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 720px; }
+.bt-journal-table th {
+  text-align: left; padding: 9px 12px; color: var(--paper-faint); font-weight: 600;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.03em; border-bottom: 1px solid var(--ink-line);
+  white-space: nowrap;
+}
+.bt-journal-table td { padding: 10px 12px; border-bottom: 1px solid var(--ink-line); color: var(--paper-dim); font-family: var(--mono); white-space: nowrap; }
+.bt-journal-table tr:last-child td { border-bottom: none; }
+.bt-journal-table tr:hover td { background: rgba(0,230,118,0.03); }
+.bt-journal-side { font-weight: 700; }
+.bt-journal-side.up { color: var(--up); } .bt-journal-side.down { color: var(--down); }
+.bt-journal-tag {
+  display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.03em; padding: 2px 7px; border-radius: 20px;
+  background: var(--ink-line); color: var(--paper-dim); margin: 1px 3px 1px 0; white-space: nowrap;
+}
+.bt-journal-tag.warn { background: var(--down-soft); color: var(--down); }
+.bt-journal-tag.good { background: var(--up-soft); color: var(--up); }
+
+/* ---------- mistake coaching ---------- */
+.bt-mistake-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.bt-mistake-card {
+  display: flex; gap: 12px; padding: 13px 15px; border-radius: 10px;
+  background: var(--down-soft); border: 1px solid rgba(255,82,82,0.25);
+}
+.bt-mistake-card.bt-mistake-good { background: var(--up-soft); border-color: rgba(0,230,118,0.25); }
+.bt-mistake-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+.bt-mistake-title { font-size: 13.5px; font-weight: 700; color: var(--paper); }
+.bt-mistake-desc { font-size: 12.5px; color: var(--paper-dim); margin-top: 3px; line-height: 1.5; }
+
+/* ---------- result dashboard ---------- */
+.bt-dash-header { text-align: center; padding: 8px 0 4px; }
+.bt-grade-ring-wrap { position: relative; width: 156px; height: 156px; margin: 0 auto; }
+.bt-grade-ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.bt-grade-ring-track { fill: none; stroke: var(--ink-line); stroke-width: 8; }
+.bt-grade-ring-fill {
+  fill: none; stroke: var(--signal); stroke-width: 8; stroke-linecap: round;
+  stroke-dasharray: 408; stroke-dashoffset: 408;
+  transition: stroke-dashoffset 1.1s cubic-bezier(.16,1,.3,1), stroke 0.4s ease;
+}
+.bt-grade-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.bt-grade-ring-letter {
+  font-family: var(--display); font-weight: 800; font-size: 40px; color: var(--paper); line-height: 1;
+  animation: btGradePop 0.5s cubic-bezier(.34,1.56,.64,1) 0.9s both;
+}
+@keyframes btGradePop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+.bt-grade-ring-score { font-family: var(--mono); font-size: 12px; color: var(--paper-faint); margin-top: 2px; }
+
+.bt-perf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 26px; }
+.bt-perf-card {
+  background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: 10px; padding: 14px 16px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.bt-perf-card:hover { border-color: var(--signal); transform: translateY(-2px); }
+.bt-perf-card-label { font-size: 10.5px; color: var(--paper-faint); letter-spacing: 0.02em; }
+.bt-perf-card-value { font-family: var(--mono); font-size: 19px; font-weight: 800; color: var(--paper); margin-top: 6px; }
+.bt-perf-card-value.up { color: var(--up); } .bt-perf-card-value.down { color: var(--down); }
+.bt-perf-card-sub { font-size: 10.5px; color: var(--paper-faint); margin-top: 3px; }
+
+.bt-chart-section { margin-top: 26px; }
+.bt-chart-section h4 { font-size: 13px; color: var(--paper-faint); font-weight: 600; letter-spacing: 0.02em; margin: 0 0 10px; text-transform: uppercase; }
+.bt-mini-chart-wrap { background: var(--ink); border: 1px solid var(--ink-line); border-radius: 10px; padding: 12px; overflow-x: auto; }
+.bt-mini-chart-wrap svg { display: block; }
+.bt-dist-bars { display: flex; flex-direction: column; gap: 8px; }
+.bt-dist-row { display: flex; align-items: center; gap: 10px; }
+.bt-dist-label { width: 64px; flex-shrink: 0; font-family: var(--mono); font-size: 11px; color: var(--paper-dim); text-align: right; }
+.bt-dist-track { flex: 1; height: 16px; background: var(--ink-line); border-radius: 4px; overflow: hidden; }
+.bt-dist-fill { height: 100%; border-radius: 4px; width: 0%; transition: width 1s cubic-bezier(.16,1,.3,1); }
+.bt-dist-fill.up { background: linear-gradient(90deg, var(--up-dim, var(--up)), var(--up)); }
+.bt-dist-fill.down { background: linear-gradient(90deg, var(--down), #ff8080); }
+.bt-dist-count { width: 26px; flex-shrink: 0; font-family: var(--mono); font-size: 11px; color: var(--paper-faint); }
+
+.bt-dash-actions { display: flex; gap: 12px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+
+/* count-up value driven by data-count-to, reused pattern from the hero stats */
+.bt-count-up { display: inline-block; }
+
+/* confetti (A+ only) */
+.bt-confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+.bt-confetti-piece {
+  position: absolute; top: -12px; width: 8px; height: 14px; opacity: 0.9;
+  animation: btConfettiFall linear forwards;
+}
+@keyframes btConfettiFall {
+  to { transform: translateY(112vh) rotate(720deg); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .bt-hud-grid { grid-template-columns: repeat(2, 1fr); }
+  .bt-perf-grid { grid-template-columns: repeat(2, 1fr); }
+  .bt-journal-table { min-width: 640px; }
+  .bt-replay-bar { justify-content: center; }
+  .bt-replay-speed { order: 10; width: 100%; margin-left: 0; }
 }
 
 /* ===========================================================
@@ -2758,16 +2980,30 @@ body.intro-locked { overflow: hidden; }
 
         <!-- ---------- SESSION PANEL ---------- -->
         <div id="btSessionPanel" class="card" hidden style="padding:22px;">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
-            <span class="mono" id="btSessionSymbol" style="font-size:13px;color:var(--paper-faint);"></span>
-            <span class="mono" id="btSessionMeta" style="font-size:12px;color:var(--paper-faint);"></span>
+
+          <div class="bt-session-toolbar">
+            <div class="bt-session-title">
+              <span class="mono" id="btSessionSymbol"></span>
+              <span class="bt-session-sub" id="btSessionMeta"></span>
+            </div>
+            <div class="bt-toolbar-actions">
+              <div class="bt-zoom-group">
+                <button type="button" class="bt-icon-btn" id="btZoomOutBtn" aria-label="Zoom out">−</button>
+                <button type="button" class="bt-icon-btn" id="btZoomResetBtn" aria-label="Reset zoom" style="font-size:10px;">FIT</button>
+                <button type="button" class="bt-icon-btn" id="btZoomInBtn" aria-label="Zoom in">+</button>
+              </div>
+              <button type="button" class="bt-icon-btn" id="btSoundBtn" aria-label="Toggle sound">🔇</button>
+            </div>
           </div>
 
-          <div class="bt-chart-wrap">
+          <div class="bt-timeline" id="btTimeline"></div>
+
+          <div class="bt-chart-wrap" id="btChartWrap">
             <svg id="btChartSvg" height="280" style="display:block;"></svg>
+            <span class="bt-chart-hint">pinch / scroll to pan</span>
           </div>
 
-          <div id="btPositionBar" class="bt-position-bar" hidden></div>
+          <div id="btPositionBar" class="bt-hud" hidden></div>
 
           <div id="btEntryInputs" class="bt-entry-inputs" style="margin-top:18px;">
             <label>
@@ -2792,29 +3028,53 @@ body.intro-locked { overflow: hidden; }
 
           <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
             <button class="btn btn-ghost" id="btCloseBtn" hidden>Close position</button>
-            <button class="btn btn-primary" id="btNextBtn">Next candle →</button>
             <button class="btn btn-ghost" id="btEndBtn" style="margin-left:auto;">End session</button>
           </div>
 
-          <div id="btLiveStats" class="bt-stats-grid" style="margin-top:22px;"></div>
+          <div class="bt-replay-bar">
+            <button type="button" class="bt-replay-btn" id="btPrevBtn" title="Previous candle (review)">⏮</button>
+            <button type="button" class="bt-replay-btn bt-replay-play" id="btPlayBtn" title="Auto play">▶ Auto</button>
+            <button type="button" class="bt-replay-btn" id="btNextBtn" title="Next candle">Next ⏭</button>
+            <button type="button" class="bt-replay-btn" id="btJump5Btn" title="Jump 5 candles">+5</button>
+            <button type="button" class="bt-replay-btn" id="btJump10Btn" title="Jump 10 candles">+10</button>
+            <button type="button" class="bt-replay-btn" id="btSessionRestartBtn" title="Restart this session">↺</button>
+            <select class="bt-replay-speed" id="btSpeedSelect" title="Replay speed">
+              <option value="1800">0.5×</option>
+              <option value="900" selected>1×</option>
+              <option value="450">2×</option>
+              <option value="200">4×</option>
+            </select>
+          </div>
+
+          <div id="btLiveStats" class="bt-stats-grid" style="margin-top:16px;"></div>
         </div>
 
-        <!-- ---------- REPORT PANEL ---------- -->
+        <!-- ---------- REPORT PANEL (premium result dashboard) ---------- -->
         <div id="btReportPanel" class="card" hidden style="padding:32px;">
-          <div class="bt-grade-wrap">
-            <div class="bt-grade" id="btGradeLetter">—</div>
-            <div class="bt-score" id="btGradeScore">0%</div>
+
+          <div class="bt-dash-header">
+            <p class="eyebrow" style="justify-content:center;display:flex;">Session complete</p>
+            <div class="bt-grade-ring-wrap">
+              <svg viewBox="0 0 144 144">
+                <circle class="bt-grade-ring-track" cx="72" cy="72" r="65"/>
+                <circle class="bt-grade-ring-fill" id="btGradeRingFill" cx="72" cy="72" r="65"/>
+              </svg>
+              <div class="bt-grade-ring-center">
+                <span class="bt-grade-ring-letter" id="btGradeLetter">—</span>
+                <span class="bt-grade-ring-score" id="btGradeScore">0%</span>
+              </div>
+            </div>
             <div class="bt-feedback-list" id="btFeedbackList"></div>
           </div>
 
-          <div style="margin-top:30px;">
-            <p class="bt-field-label" style="margin-bottom:10px;">Session stats</p>
-            <div class="bt-stats-grid" id="btBasicStatsGrid"></div>
+          <div style="margin-top:8px;">
+            <p class="bt-field-label" style="margin-bottom:10px;">Core results</p>
+            <div class="bt-perf-grid" id="btBasicStatsGrid"></div>
           </div>
 
           <div style="margin-top:22px;position:relative;">
             <p class="bt-field-label" style="margin-bottom:10px;">Advanced analytics</p>
-            <div class="bt-stats-grid" id="btAdvancedStatsGrid"></div>
+            <div class="bt-perf-grid" id="btAdvancedStatsGrid"></div>
             <div id="btAdvancedLock" class="bt-lock-overlay" style="position:absolute;" hidden>
               <div class="bt-lock-box">
                 <div style="font-size:26px;">🔒</div>
@@ -2824,7 +3084,48 @@ body.intro-locked { overflow: hidden; }
             </div>
           </div>
 
-          <div style="margin-top:28px;text-align:center;">
+          <div class="bt-chart-section">
+            <h4>Equity curve</h4>
+            <div class="bt-mini-chart-wrap"><svg id="btEquityChart"></svg></div>
+          </div>
+
+          <div class="bt-chart-section">
+            <h4>Drawdown</h4>
+            <div class="bt-mini-chart-wrap"><svg id="btDrawdownChart"></svg></div>
+          </div>
+
+          <div class="bt-chart-section">
+            <h4>Trade distribution</h4>
+            <div class="bt-mini-chart-wrap"><div class="bt-dist-bars" id="btDistBars"></div></div>
+          </div>
+
+          <div class="bt-chart-section" id="btMistakeSection">
+            <h4>Coaching — what to fix next time</h4>
+            <div class="bt-mistake-list" id="btMistakeList"></div>
+          </div>
+
+          <div class="bt-chart-section">
+            <div class="bt-journal-wrap" id="btJournalWrap">
+              <div class="bt-journal-head" id="btJournalToggle">
+                <h4>Trade journal</h4>
+                <span class="bt-journal-chevron">▾</span>
+              </div>
+              <div class="bt-journal-body">
+                <div class="bt-journal-table-scroll">
+                  <table class="bt-journal-table">
+                    <thead>
+                      <tr>
+                        <th>#</th><th>Side</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Hold</th><th>RR</th><th>Reason / notes</th>
+                      </tr>
+                    </thead>
+                    <tbody id="btJournalBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bt-dash-actions">
             <button class="btn btn-primary" id="btRestartBtn">Start another backtest</button>
           </div>
         </div>
@@ -3642,6 +3943,9 @@ const COURSE = [
    =========================================================== */
 async function goTo(viewName, opts) {
   opts = opts || {};
+  // Guard against the backtest replay's auto-play interval continuing to
+  // fire in the background after the person leaves the Backtest view.
+  if (viewName !== 'backtest' && typeof stopAutoplay === 'function') stopAutoplay();
   // The standalone Access Code view was merged into the Premium
   // Subscription (checkout) screen — the exact same #unlockCodeInput /
   // #unlockSubmitBtn elements and submitAccessCode() logic now live there.
@@ -5554,6 +5858,16 @@ supabaseClient.auth.onAuthStateChange((event, _session) => {
    signed-in user. This is the single source of truth — there is
    no localStorage fallback, so callers must handle a failed
    read/write explicitly (see renderBacktest/startBacktestSession).
+
+   PREMIUM UPGRADE (this pass): candle-accurate trade markers,
+   a live floating position HUD (risk/reward/RR/unrealized P&L),
+   a session timeline, zoom/pan + review scrubbing on the chart,
+   full replay transport (prev/next/autoplay/jump/restart), an
+   animated result dashboard (grade ring, equity/drawdown mini
+   charts, trade distribution, journal, mistake coaching), and
+   an optional WebAudio sound layer. Nothing here changes what
+   candles are shown or reveals future data — nextCandle is only
+   ever read one step ahead, exactly as before.
    ------------------------------------------------------------ */
 
 const BT_SYMBOLS = [
@@ -5584,6 +5898,7 @@ const BT_INITIAL_VISIBLE = 15;
 
 let btSelected = { symbolId: 'NIFTY', timeframeId: '1D', dateStr: '' };
 let btState = null; // active session state, see startBacktestSession()
+let btAutoplayTimer = null;
 
 /* ---------- Market data provider (swap-in point for a real API) ---------- */
 const CandleDataProvider = {
@@ -5683,8 +5998,52 @@ async function incrementBacktestSessionCount(userId) {
   return 1;
 }
 
+/* ---------- Sound layer (WebAudio synth beeps — no audio files needed, muted by default) ---------- */
+const btSound = { enabled: false, ctx: null };
+
+function btEnsureAudioCtx() {
+  if (!btSound.ctx) {
+    try { btSound.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* unsupported browser — sound just stays off */ }
+  }
+  return btSound.ctx;
+}
+
+function btBeep(freq, duration, type, vol) {
+  if (!btSound.enabled) return;
+  const ctx = btEnsureAudioCtx();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(vol || 0.08, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + duration);
+}
+
+function btPlaySound(kind) {
+  if (kind === 'buy') btBeep(660, 0.12, 'triangle');
+  else if (kind === 'sell') btBeep(440, 0.12, 'triangle');
+  else if (kind === 'tp') { btBeep(880, 0.16, 'sine'); setTimeout(() => btBeep(1100, 0.16, 'sine'), 90); }
+  else if (kind === 'sl') btBeep(220, 0.22, 'sawtooth', 0.06);
+  else if (kind === 'complete') { btBeep(523, 0.14, 'sine'); setTimeout(() => btBeep(659, 0.14, 'sine'), 120); setTimeout(() => btBeep(784, 0.24, 'sine'), 240); }
+}
+
+document.getElementById('btSoundBtn').addEventListener('click', () => {
+  btSound.enabled = !btSound.enabled;
+  const btn = document.getElementById('btSoundBtn');
+  btn.textContent = btSound.enabled ? '🔊' : '🔇';
+  btn.classList.toggle('bt-icon-btn-active', btSound.enabled);
+  if (btSound.enabled) { btEnsureAudioCtx(); btBeep(660, 0.08, 'sine', 0.06); }
+});
+
 /* ---------- Setup panel ---------- */
 async function renderBacktest() {
+  stopAutoplay();
   const user = await Auth.currentUser();
   if (!user) return guardedGoTo('login'); // defensive; guardedGoTo already checks this
 
@@ -5864,7 +6223,13 @@ async function startBacktestSession() {
     position: null,       // { side: 'long'|'short', entryPrice, size, sl, tp, entryIndex }
     trades: [],           // closed trades: { side, entryPrice, exitPrice, entryIndex, exitIndex, size, pnl, reason }
     decisions: [],         // every buy/sell/wait call, for the Accuracy stat: { action, correct }
-    ended: false
+    markers: [],           // chart markers for review: { index, type: 'buy'|'sell'|'sl'|'tp'|'exit', price }
+    ended: false,
+    reviewIndex: null,     // non-null while scrubbing Prev/Next through already-revealed history (view-only)
+    zoom: 1,
+    startedAt: Date.now(),
+    _lastRenderedCount: 0,
+    _userScrolled: false
   };
 
   document.getElementById('btSetupPanel').hidden = true;
@@ -5877,35 +6242,95 @@ async function startBacktestSession() {
 /* ---------- Session: chart + trading ---------- */
 function renderBacktestSession() {
   const { allCandles, visibleCount } = btState;
-  document.getElementById('btSessionMeta').textContent = `${btState.dateStr} · Candle ${visibleCount} of ${allCandles.length}`;
-  drawBacktestChart(document.getElementById('btChartSvg'), allCandles.slice(0, visibleCount), allCandles.length);
+  const reviewing = btState.reviewIndex != null;
+  const viewCount = reviewing ? btState.reviewIndex : visibleCount;
+
+  document.getElementById('btSessionMeta').textContent = reviewing
+    ? `Reviewing candle ${viewCount} of ${visibleCount} (live) — tap Next to return`
+    : `${btState.dateStr} · Candle ${visibleCount} of ${allCandles.length}`;
+
+  drawBacktestChart(document.getElementById('btChartSvg'), allCandles.slice(0, viewCount), allCandles.length);
   renderBacktestPositionBar();
   renderBacktestControls();
   renderBacktestLiveStats();
+  renderBacktestTimeline();
+
+  document.getElementById('btPrevBtn').disabled = viewCount <= BT_INITIAL_VISIBLE;
+  document.getElementById('btJump5Btn').disabled = btState.ended || reviewing;
+  document.getElementById('btJump10Btn').disabled = btState.ended || reviewing;
+}
+
+function renderBacktestTimeline() {
+  const el = document.getElementById('btTimeline');
+  if (!btState) { el.innerHTML = ''; return; }
+  const total = btState.allCandles.length;
+  const entries = btState.trades.length + (btState.position ? 1 : 0);
+  const exits = btState.trades.length;
+  const remaining = Math.max(total - btState.visibleCount, 0);
+  const steps = [
+    { label: 'Started', done: true },
+    { label: `Entries (${entries})`, done: entries > 0, active: !!btState.position },
+    { label: `Exits (${exits})`, done: exits > 0 },
+    { label: `Candle ${btState.visibleCount}/${total}`, active: !btState.ended },
+    { label: `${remaining} left`, active: !btState.ended && remaining > 0, done: btState.ended },
+    { label: 'Finished', done: btState.ended, active: btState.ended }
+  ];
+  el.innerHTML = steps.map((s, i) => `
+    <div class="bt-timeline-step ${s.done ? 'done' : ''} ${s.active ? 'active' : ''}">
+      <span class="bt-timeline-dot"></span><span class="bt-timeline-label">${s.label}</span>
+    </div>
+    ${i < steps.length - 1 ? `<span class="bt-timeline-line ${s.done ? 'done' : ''}"></span>` : ''}
+  `).join('');
 }
 
 function renderBacktestPositionBar() {
   const bar = document.getElementById('btPositionBar');
   const pos = btState.position;
-  if (!pos) { bar.hidden = true; return; }
+  if (!pos || btState.reviewIndex != null) { bar.hidden = true; return; }
   bar.hidden = false;
+
   const lastClose = btState.allCandles[btState.visibleCount - 1].c;
-  const unrealized = (lastClose - pos.entryPrice) * pos.size * (pos.side === 'long' ? 1 : -1);
+  const dir = pos.side === 'long' ? 1 : -1;
+  const unrealized = (lastClose - pos.entryPrice) * pos.size * dir;
+  const unrealizedPct = ((lastClose - pos.entryPrice) / pos.entryPrice) * 100 * dir;
+  const risk = pos.sl != null ? Math.abs(pos.entryPrice - pos.sl) * pos.size : null;
+  const reward = pos.tp != null ? Math.abs(pos.tp - pos.entryPrice) * pos.size : null;
+  const rr = (risk && reward) ? reward / risk : null;
   const sideLabel = pos.side === 'long' ? '↑ LONG' : '↓ SHORT';
   const sideClass = pos.side === 'long' ? 'up' : 'down';
+  const held = btState.visibleCount - 1 - pos.entryIndex;
+
   bar.innerHTML = `
-    <span class="${sideClass}">${sideLabel} · entry ${pos.entryPrice.toLocaleString('en-IN')}</span>
-    <span>SL ${pos.sl != null ? pos.sl.toLocaleString('en-IN') : '—'} · TP ${pos.tp != null ? pos.tp.toLocaleString('en-IN') : '—'}</span>
-    <span class="${unrealized >= 0 ? 'up' : 'down'}">Unrealized ${unrealized >= 0 ? '+' : ''}${unrealized.toFixed(2)}</span>
+    <div class="bt-hud-top">
+      <span class="bt-hud-side ${sideClass}">${sideLabel}</span>
+      <span class="bt-hud-status"><span class="live-dot"></span>OPEN POSITION</span>
+    </div>
+    <div class="bt-hud-pnl-row">
+      <span class="bt-hud-pnl ${unrealized >= 0 ? 'up' : 'down'}">${unrealized >= 0 ? '+' : ''}${unrealized.toFixed(2)}</span>
+      <span class="bt-hud-pnl-pct ${unrealized >= 0 ? 'up' : 'down'}">${unrealized >= 0 ? '+' : ''}${unrealizedPct.toFixed(2)}%</span>
+    </div>
+    <div class="bt-hud-grid">
+      <div><div class="bt-hud-metric-label">ENTRY</div><div class="bt-hud-metric-value">${pos.entryPrice.toLocaleString('en-IN')}</div></div>
+      <div><div class="bt-hud-metric-label">SIZE</div><div class="bt-hud-metric-value">${pos.size}</div></div>
+      <div><div class="bt-hud-metric-label">STOP LOSS</div><div class="bt-hud-metric-value ${pos.sl != null ? 'down' : ''}">${pos.sl != null ? pos.sl.toLocaleString('en-IN') : '—'}</div></div>
+      <div><div class="bt-hud-metric-label">TAKE PROFIT</div><div class="bt-hud-metric-value ${pos.tp != null ? 'up' : ''}">${pos.tp != null ? pos.tp.toLocaleString('en-IN') : '—'}</div></div>
+      <div><div class="bt-hud-metric-label">RISK</div><div class="bt-hud-metric-value down">${risk != null ? risk.toFixed(2) : '—'}</div></div>
+      <div><div class="bt-hud-metric-label">REWARD</div><div class="bt-hud-metric-value up">${reward != null ? reward.toFixed(2) : '—'}</div></div>
+      <div><div class="bt-hud-metric-label">RR RATIO</div><div class="bt-hud-metric-value">${rr != null ? `1 : ${rr.toFixed(2)}` : '—'}</div></div>
+      <div><div class="bt-hud-metric-label">HELD</div><div class="bt-hud-metric-value">${held} candle${held === 1 ? '' : 's'}</div></div>
+    </div>
   `;
 }
 
 function renderBacktestControls() {
   const hasPosition = !!btState.position;
-  document.getElementById('btEntryInputs').style.opacity = hasPosition ? '0.5' : '1';
-  document.getElementById('btEntryInputs').style.pointerEvents = hasPosition ? 'none' : 'auto';
-  document.getElementById('btActionButtons').style.display = hasPosition ? 'none' : 'grid';
-  document.getElementById('btCloseBtn').hidden = !hasPosition;
+  const reviewing = btState.reviewIndex != null;
+  const lock = hasPosition || reviewing;
+  document.getElementById('btEntryInputs').style.opacity = lock ? '0.5' : '1';
+  document.getElementById('btEntryInputs').style.pointerEvents = lock ? 'none' : 'auto';
+  document.getElementById('btActionButtons').style.display = lock ? 'none' : 'grid';
+  document.getElementById('btCloseBtn').hidden = !hasPosition || reviewing;
+  document.getElementById('btEndBtn').disabled = reviewing;
 }
 
 function renderBacktestLiveStats() {
@@ -5914,7 +6339,8 @@ function renderBacktestLiveStats() {
   grid.innerHTML = [
     btStatCard('Win rate', stats.totalTrades ? `${stats.winRate.toFixed(0)}%` : '—'),
     btStatCard('Total trades', stats.totalTrades),
-    btStatCard('Net P&L', `${stats.netPnl >= 0 ? '+' : ''}${stats.netPnl.toFixed(2)}`, stats.netPnl >= 0 ? 'up' : 'down')
+    btStatCard('Net P&L', `${stats.netPnl >= 0 ? '+' : ''}${stats.netPnl.toFixed(2)}`, stats.netPnl >= 0 ? 'up' : 'down'),
+    btStatCard('Discipline', stats.totalTrades ? `${Math.round(stats.discipline)}%` : '—')
   ].join('');
 }
 
@@ -5922,9 +6348,17 @@ function btStatCard(label, value, colorClass) {
   return `<div class="bt-stat"><div class="bt-stat-label">${label}</div><div class="bt-stat-value ${colorClass || ''}">${value}</div></div>`;
 }
 
+function btPerfCard(label, value, colorClass, sub) {
+  return `<div class="bt-perf-card">
+    <div class="bt-perf-card-label">${label}</div>
+    <div class="bt-perf-card-value ${colorClass || ''}">${value}</div>
+    ${sub ? `<div class="bt-perf-card-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
 document.querySelectorAll('#btActionButtons .game-choice').forEach(btn => {
   btn.addEventListener('click', () => {
-    if (!btState || btState.ended || btState.position) return;
+    if (!btState || btState.ended || btState.position || btState.reviewIndex != null) return;
     handleBacktestAction(btn.dataset.btAction);
   });
 });
@@ -5937,14 +6371,101 @@ document.getElementById('btCloseBtn').addEventListener('click', () => {
 
 document.getElementById('btNextBtn').addEventListener('click', () => {
   if (!btState || btState.ended) return;
+  if (btState.reviewIndex != null) {
+    const nxt = btState.reviewIndex + 1;
+    btState.reviewIndex = nxt >= btState.visibleCount ? null : nxt;
+    renderBacktestSession();
+    return;
+  }
   advanceBacktestCandle();
 });
 
-document.getElementById('btEndBtn').addEventListener('click', () => {
+document.getElementById('btPrevBtn').addEventListener('click', () => {
   if (!btState || btState.ended) return;
+  stopAutoplay();
+  const base = btState.reviewIndex != null ? btState.reviewIndex : btState.visibleCount;
+  btState.reviewIndex = Math.max(BT_INITIAL_VISIBLE, base - 1);
+  renderBacktestSession();
+});
+
+document.getElementById('btEndBtn').addEventListener('click', () => {
+  if (!btState || btState.ended || btState.reviewIndex != null) return;
+  stopAutoplay();
   if (btState.position) closeBacktestPosition('session-end');
   endBacktestSession();
 });
+
+function btJumpCandles(n) {
+  if (!btState || btState.ended) return;
+  stopAutoplay();
+  btState.reviewIndex = null;
+  for (let i = 0; i < n && btState && !btState.ended; i++) advanceBacktestCandle();
+}
+document.getElementById('btJump5Btn').addEventListener('click', () => btJumpCandles(5));
+document.getElementById('btJump10Btn').addEventListener('click', () => btJumpCandles(10));
+
+document.getElementById('btSessionRestartBtn').addEventListener('click', () => {
+  if (!btState) return;
+  stopAutoplay();
+  const { symbol, tf, dateStr, isPremium, allCandles } = btState;
+  btState = {
+    symbol, tf, dateStr, isPremium, allCandles,
+    visibleCount: BT_INITIAL_VISIBLE, position: null, trades: [], decisions: [], markers: [],
+    ended: false, reviewIndex: null, zoom: btState.zoom || 1, startedAt: Date.now(),
+    _lastRenderedCount: 0, _userScrolled: false
+  };
+  document.getElementById('btReportPanel').hidden = true;
+  document.getElementById('btSessionPanel').hidden = false;
+  renderBacktestSession();
+});
+
+/* ---------- replay: auto play ---------- */
+function stopAutoplay() {
+  if (btAutoplayTimer) { clearInterval(btAutoplayTimer); btAutoplayTimer = null; }
+  const btn = document.getElementById('btPlayBtn');
+  if (btn) btn.textContent = '▶ Auto';
+}
+function startAutoplay() {
+  if (!btState || btState.ended) return;
+  stopAutoplay();
+  btState.reviewIndex = null;
+  const speed = parseInt(document.getElementById('btSpeedSelect').value, 10) || 900;
+  document.getElementById('btPlayBtn').textContent = '⏸ Pause';
+  btAutoplayTimer = setInterval(() => {
+    if (!btState || btState.ended) { stopAutoplay(); return; }
+    advanceBacktestCandle();
+    if (btState.ended) stopAutoplay();
+  }, speed);
+}
+document.getElementById('btPlayBtn').addEventListener('click', () => {
+  if (btAutoplayTimer) stopAutoplay(); else startAutoplay();
+});
+document.getElementById('btSpeedSelect').addEventListener('change', () => {
+  if (btAutoplayTimer) startAutoplay();
+});
+
+/* ---------- zoom ---------- */
+document.getElementById('btZoomInBtn').addEventListener('click', () => {
+  if (!btState) return;
+  btState.zoom = Math.min((btState.zoom || 1) + 0.35, 3);
+  btState._userScrolled = false;
+  renderBacktestSession();
+});
+document.getElementById('btZoomOutBtn').addEventListener('click', () => {
+  if (!btState) return;
+  btState.zoom = Math.max((btState.zoom || 1) - 0.35, 0.5);
+  btState._userScrolled = false;
+  renderBacktestSession();
+});
+document.getElementById('btZoomResetBtn').addEventListener('click', () => {
+  if (!btState) return;
+  btState.zoom = 1;
+  btState._userScrolled = false;
+  renderBacktestSession();
+});
+document.getElementById('btChartWrap').addEventListener('scroll', () => {
+  if (btState) btState._userScrolled = true;
+}, { passive: true });
 
 function btParseFloatOrNull(v) {
   if (v === '' || v == null) return null;
@@ -5954,7 +6475,7 @@ function btParseFloatOrNull(v) {
 
 function handleBacktestAction(action) {
   const lastVisible = btState.allCandles[btState.visibleCount - 1];
-  const nextCandle = btState.allCandles[btState.visibleCount]; // may be undefined at the very last candle
+  const nextCandle = btState.allCandles[btState.visibleCount]; // may be undefined at the very last candle — never read further ahead than this
 
   if (action !== 'wait') {
     const sl = btParseFloatOrNull(document.getElementById('btSL').value);
@@ -5966,6 +6487,8 @@ function handleBacktestAction(action) {
       size, sl, tp,
       entryIndex: btState.visibleCount - 1
     };
+    btState.markers.push({ index: btState.position.entryIndex, type: action, price: lastVisible.c });
+    btPlaySound(action);
   }
 
   // Accuracy tracking: was the directional call right on the very next candle?
@@ -6020,13 +6543,18 @@ function closeBacktestPosition(reason, exitPriceOverride) {
     entryIndex: pos.entryIndex, exitIndex, size: pos.size,
     sl: pos.sl, tp: pos.tp, pnl, reason
   });
+  const markerType = reason === 'stop-loss' ? 'sl' : reason === 'take-profit' ? 'tp' : 'exit';
+  btState.markers.push({ index: exitIndex, type: markerType, price: exitPrice });
+  if (reason === 'stop-loss') btPlaySound('sl');
+  else if (reason === 'take-profit') btPlaySound('tp');
   btState.position = null;
 }
 
 /* ---------- Chart rendering (kept separate from the "Predict the Next
    Candle" game's chart so neither feature can affect the other) ---------- */
 function drawBacktestChart(svg, visibleCandles, totalCount) {
-  const CANDLE_W = 16;
+  const zoom = (btState && btState.zoom) || 1;
+  const CANDLE_W = Math.round(16 * zoom);
   const PLACEHOLDER_SLOTS = Math.min(6, totalCount - visibleCandles.length);
   const totalSlots = visibleCandles.length + PLACEHOLDER_SLOTS + 1;
   const W = Math.max(totalSlots * CANDLE_W + 60, 340);
@@ -6049,6 +6577,10 @@ function drawBacktestChart(svg, visibleCandles, totalCount) {
              <text x="10" y="${y - 3}" fill="var(--paper-faint)" font-size="9.5" font-family="monospace">${Math.round(v).toLocaleString('en-IN')}</text>`;
   }
 
+  // Only the newly-revealed tail plays the entrance animation on each
+  // re-render — previously drawn candles stay static instead of the whole
+  // chart re-flashing every step.
+  const prevRendered = (btState && btState._lastRenderedCount) || 0;
   visibleCandles.forEach((c, i) => {
     const x = scaleX(i);
     const up = c.c >= c.o;
@@ -6056,9 +6588,52 @@ function drawBacktestChart(svg, visibleCandles, totalCount) {
     const bodyTop = scaleY(Math.max(c.o, c.c));
     const bodyBottom = scaleY(Math.min(c.o, c.c));
     const bodyHeight = Math.max(bodyBottom - bodyTop, 2);
-    html += `<line x1="${x}" y1="${scaleY(c.h)}" x2="${x}" y2="${scaleY(c.l)}" stroke="${color}" stroke-width="1.5" opacity="0.7" class="candle"/>
-             <rect x="${x - CANDLE_W * 0.32}" y="${bodyTop}" width="${CANDLE_W * 0.64}" height="${bodyHeight}" fill="${color}" rx="1.5" class="candle"/>`;
+    const isNew = i >= prevRendered - 1;
+    const cls = isNew ? 'candle' : 'candle-settled';
+    const delayAttr = isNew ? ` style="animation-delay:${Math.max(0, i - (prevRendered - 1)) * 35}ms"` : '';
+    html += `<line x1="${x}" y1="${scaleY(c.h)}" x2="${x}" y2="${scaleY(c.l)}" stroke="${color}" stroke-width="1.5" opacity="0.7" class="${cls}"${delayAttr}/>
+             <rect x="${x - CANDLE_W * 0.32}" y="${bodyTop}" width="${CANDLE_W * 0.64}" height="${bodyHeight}" fill="${color}" rx="1.5" class="${cls}"${delayAttr}/>`;
   });
+  if (btState) btState._lastRenderedCount = visibleCandles.length;
+
+  // trade markers persist for the whole session, for review — never drawn
+  // beyond the candles actually revealed so far
+  ((btState && btState.markers) || []).forEach(m => {
+    if (m.index >= visibleCandles.length) return;
+    const x = scaleX(m.index);
+    const y = scaleY(m.price);
+    if (m.type === 'buy') {
+      html += `<path d="M${x - 6},${y + 12} L${x + 6},${y + 12} L${x},${y} Z" fill="var(--up)" class="bt-marker"/>`;
+    } else if (m.type === 'sell') {
+      html += `<path d="M${x - 6},${y - 12} L${x + 6},${y - 12} L${x},${y} Z" fill="var(--down)" class="bt-marker"/>`;
+    } else if (m.type === 'sl') {
+      html += `<circle cx="${x}" cy="${y}" r="4.5" fill="var(--down)" stroke="var(--ink)" stroke-width="1.5" class="bt-marker"/>
+               <text x="${x}" y="${y - 9}" fill="var(--down)" font-size="8.5" font-family="monospace" text-anchor="middle">SL</text>`;
+    } else if (m.type === 'tp') {
+      html += `<circle cx="${x}" cy="${y}" r="4.5" fill="var(--up)" stroke="var(--ink)" stroke-width="1.5" class="bt-marker"/>
+               <text x="${x}" y="${y - 9}" fill="var(--up)" font-size="8.5" font-family="monospace" text-anchor="middle">TP</text>`;
+    } else if (m.type === 'exit') {
+      html += `<circle cx="${x}" cy="${y}" r="4" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5" class="bt-marker"/>`;
+    }
+  });
+
+  // live SL/TP/entry guide lines for an open position
+  if (btState && btState.position) {
+    const pos = btState.position;
+    const entryX = scaleX(pos.entryIndex);
+    if (pos.sl != null) {
+      const y = scaleY(pos.sl);
+      html += `<line x1="${entryX}" y1="${y}" x2="${W - 8}" y2="${y}" stroke="var(--down)" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+               <text x="${W - 10}" y="${y - 3}" fill="var(--down)" font-size="9" font-family="monospace" text-anchor="end">SL ${pos.sl.toLocaleString('en-IN')}</text>`;
+    }
+    if (pos.tp != null) {
+      const y = scaleY(pos.tp);
+      html += `<line x1="${entryX}" y1="${y}" x2="${W - 8}" y2="${y}" stroke="var(--up)" stroke-width="1" stroke-dasharray="4 3" opacity="0.7"/>
+               <text x="${W - 10}" y="${y - 3}" fill="var(--up)" font-size="9" font-family="monospace" text-anchor="end">TP ${pos.tp.toLocaleString('en-IN')}</text>`;
+    }
+    const eY = scaleY(pos.entryPrice);
+    html += `<line x1="${entryX}" y1="${eY}" x2="${W - 8}" y2="${eY}" stroke="var(--paper-faint)" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>`;
+  }
 
   // Divider between revealed history and the hidden future
   const dividerX = scaleX(visibleCandles.length) - CANDLE_W / 2;
@@ -6077,6 +6652,11 @@ function drawBacktestChart(svg, visibleCandles, totalCount) {
   }
 
   svg.innerHTML = html;
+
+  // Auto-pan to the latest candle unless the person has manually scrolled
+  // the chart themselves (their scroll position is respected, not fought).
+  const wrap = document.getElementById('btChartWrap');
+  if (wrap && !(btState && btState._userScrolled)) wrap.scrollLeft = wrap.scrollWidth;
 }
 
 /* ---------- Stats + end-of-session report ---------- */
@@ -6085,9 +6665,9 @@ function computeBacktestStats(trades, decisions) {
   const wins = trades.filter(t => t.pnl > 0);
   const losses = trades.filter(t => t.pnl <= 0);
   const winRate = totalTrades ? (wins.length / totalTrades) * 100 : 0;
-  const totalProfit = wins.reduce((s, t) => s + t.pnl, 0);
-  const totalLoss = losses.reduce((s, t) => s + Math.abs(t.pnl), 0);
-  const netPnl = totalProfit - totalLoss;
+  const grossProfit = wins.reduce((s, t) => s + t.pnl, 0);
+  const grossLoss = losses.reduce((s, t) => s + Math.abs(t.pnl), 0);
+  const netPnl = grossProfit - grossLoss;
 
   const rrTrades = trades.filter(t => t.sl != null && t.tp != null);
   const avgRR = rrTrades.length
@@ -6102,24 +6682,76 @@ function computeBacktestStats(trades, decisions) {
     : 0;
 
   let equity = 0, peak = 0, maxDrawdown = 0;
+  const equityCurve = [0];
   trades.forEach(t => {
     equity += t.pnl;
     peak = Math.max(peak, equity);
     maxDrawdown = Math.max(maxDrawdown, peak - equity);
+    equityCurve.push(equity);
   });
+  let runningPeak = 0;
+  const drawdownCurve = equityCurve.map(v => { runningPeak = Math.max(runningPeak, v); return v - runningPeak; });
 
   const bestTrade = totalTrades ? trades.reduce((a, b) => (b.pnl > a.pnl ? b : a)) : null;
   const worstTrade = totalTrades ? trades.reduce((a, b) => (b.pnl < a.pnl ? b : a)) : null;
   const usedStopLossRate = totalTrades ? trades.filter(t => t.sl != null).length / totalTrades : 0;
 
-  return { totalTrades, winRate, totalProfit, totalLoss, netPnl, avgRR, accuracy, avgHoldingTime, maxDrawdown, bestTrade, worstTrade, usedStopLossRate };
+  const avgWin = wins.length ? grossProfit / wins.length : 0;
+  const avgLoss = losses.length ? grossLoss / losses.length : 0;
+  const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : (grossProfit > 0 ? Infinity : 0);
+  const expectancy = totalTrades ? netPnl / totalTrades : 0;
+
+  let curWinStreak = 0, curLoseStreak = 0, longestWinStreak = 0, longestLoseStreak = 0;
+  trades.forEach(t => {
+    if (t.pnl > 0) { curWinStreak++; curLoseStreak = 0; longestWinStreak = Math.max(longestWinStreak, curWinStreak); }
+    else { curLoseStreak++; curWinStreak = 0; longestLoseStreak = Math.max(longestLoseStreak, curLoseStreak); }
+  });
+
+  // Basic Sharpe: mean trade P&L / stdev of trade P&L. Deliberately simple —
+  // a per-trade dispersion ratio, not an annualized textbook Sharpe.
+  let sharpe = 0;
+  if (totalTrades > 1) {
+    const mean = trades.reduce((s, t) => s + t.pnl, 0) / totalTrades;
+    const variance = trades.reduce((s, t) => s + Math.pow(t.pnl - mean, 2), 0) / totalTrades;
+    const sd = Math.sqrt(variance);
+    sharpe = sd > 0 ? mean / sd : 0;
+  }
+
+  // Consistency: how tightly trade outcomes cluster around the average
+  // (lower dispersion relative to average size = higher consistency).
+  let consistency = 100;
+  if (totalTrades > 1) {
+    const mean = netPnl / totalTrades;
+    const variance = trades.reduce((s, t) => s + Math.pow(t.pnl - mean, 2), 0) / totalTrades;
+    const sd = Math.sqrt(variance);
+    const avgAbs = (trades.reduce((s, t) => s + Math.abs(t.pnl), 0) / totalTrades) || 1;
+    consistency = Math.max(0, Math.min(100, 100 - (sd / avgAbs) * 40));
+  }
+
+  // Discipline: rewards using stop-losses, letting trades develop, and not
+  // over-trading — separate from raw profitability on purpose.
+  const discipline = Math.max(0, Math.min(100, Math.round(
+    usedStopLossRate * 55 +
+    Math.min(avgHoldingTime / 3, 1) * 25 +
+    (totalTrades > 0 ? Math.min(1, 6 / totalTrades) : 1) * 20
+  )));
+
+  return {
+    totalTrades, winRate, totalProfit: grossProfit, totalLoss: grossLoss, netPnl, avgRR, accuracy, avgHoldingTime,
+    maxDrawdown, bestTrade, worstTrade, usedStopLossRate,
+    grossProfit, grossLoss, avgWin, avgLoss, profitFactor, expectancy,
+    longestWinStreak, longestLoseStreak, sharpe, consistency, discipline,
+    equityCurve, drawdownCurve, wins: wins.length, losses: losses.length
+  };
 }
 
 function computeBacktestGrade(stats) {
   let score = 0;
-  score += Math.min(stats.winRate, 100) * 0.4;
-  score += Math.min(stats.accuracy, 100) * 0.25;
-  score += stats.usedStopLossRate * 20;
+  score += Math.min(stats.winRate, 100) * 0.25;
+  score += Math.min(stats.accuracy, 100) * 0.15;
+  score += stats.usedStopLossRate * 15;
+  score += (stats.consistency / 100) * 15;
+  score += (stats.discipline / 100) * 15;
   const ddPenalty = stats.totalProfit > 0 ? Math.min((stats.maxDrawdown / (stats.totalProfit + stats.maxDrawdown || 1)) * 100, 100) : 0;
   score += Math.max(0, 15 - ddPenalty * 0.15);
   score = Math.max(0, Math.min(100, Math.round(score)));
@@ -6145,28 +6777,214 @@ function computeBacktestGrade(stats) {
     feedback.push(stats.winRate >= 55
       ? 'Solid win rate — your reads on direction are working.'
       : 'Win rate has room to grow — review the trades that went against you for a pattern.');
+    feedback.push(stats.discipline >= 70
+      ? 'Strong discipline score — your process stayed consistent through the session.'
+      : 'Discipline dipped this session — fewer, better-planned trades usually beats more trades.');
   }
-  return { score, grade, feedback: feedback.slice(0, 3) };
+  return { score, grade, feedback: feedback.slice(0, 4) };
 }
 
+/* ---------- automatic mistake detection + coaching ---------- */
+function detectBacktestMistakes(trades, allCandles, sessionLength) {
+  const mistakes = [];
+  const goods = [];
+  if (!trades.length) return { mistakes, goods };
+
+  const noSL = trades.filter(t => t.sl == null);
+  if (noSL.length) mistakes.push({ icon: '⚠️', title: 'No Stop Loss', desc: `${noSL.length} of ${trades.length} trade(s) had no stop-loss set — a single bad move could have cost far more than planned.` });
+  else goods.push({ icon: '🛡️', title: 'Stop-loss discipline', desc: 'Every trade had a stop-loss set — solid risk control.' });
+
+  const overTradeThreshold = Math.max(4, Math.round(sessionLength / 6));
+  if (trades.length > overTradeThreshold) mistakes.push({ icon: '🔁', title: 'Over Trading', desc: `${trades.length} trades in a ${sessionLength}-candle session is a lot — quality setups over quantity usually performs better.` });
+
+  let revengeCount = 0;
+  for (let i = 1; i < trades.length; i++) {
+    if (trades[i - 1].pnl < 0 && trades[i].entryIndex - trades[i - 1].exitIndex <= 1) revengeCount++;
+  }
+  if (revengeCount) mistakes.push({ icon: '😤', title: 'Revenge Trading', desc: `${revengeCount} trade(s) were opened immediately after a loss — jumping back in fast to "win it back" usually compounds the damage.` });
+
+  const avgHold = trades.reduce((s, t) => s + (t.exitIndex - t.entryIndex), 0) / trades.length;
+  const holdingLosers = trades.filter(t => t.pnl < 0 && t.reason === 'manual' && (t.exitIndex - t.entryIndex) > avgHold * 1.4);
+  if (holdingLosers.length) mistakes.push({ icon: '🩸', title: 'Holding Losers Too Long', desc: `${holdingLosers.length} losing trade(s) were held well past the average holding time before being manually closed.` });
+
+  const earlyProfits = trades.filter(t => t.reason === 'manual' && t.pnl > 0 && t.tp != null && Math.abs(t.exitPrice - t.entryPrice) < Math.abs(t.tp - t.entryPrice) * 0.35);
+  if (earlyProfits.length) mistakes.push({ icon: '✂️', title: 'Taking Profit Too Early', desc: `${earlyProfits.length} winner(s) were closed well short of the take-profit target — let the plan play out more often.` });
+  else if (trades.some(t => t.pnl > 0)) goods.push({ icon: '🎯', title: 'Letting winners run', desc: 'Winning trades were generally held close to their planned target.' });
+
+  const earlyExits = trades.filter(t => t.reason === 'manual' && (t.exitIndex - t.entryIndex) <= 1);
+  if (earlyExits.length) mistakes.push({ icon: '⏱️', title: 'Early Exit', desc: `${earlyExits.length} trade(s) were closed within a candle of entry — not enough time for the setup to actually develop.` });
+
+  const poorRR = trades.filter(t => t.sl != null && t.tp != null && (Math.abs(t.tp - t.entryPrice) / Math.max(Math.abs(t.entryPrice - t.sl), 0.0001)) < 1);
+  if (poorRR.length) mistakes.push({ icon: '⚖️', title: 'Poor Risk:Reward', desc: `${poorRR.length} trade(s) risked more than the potential reward — look for setups with at least a 1:1.5 risk-reward.` });
+
+  let lateEntryCount = 0;
+  trades.forEach(t => {
+    let streak = 0;
+    for (let i = t.entryIndex; i > 0; i--) {
+      const up = allCandles[i].c >= allCandles[i - 1].c;
+      const wantsUp = t.side === 'long';
+      if (up === wantsUp) streak++; else break;
+    }
+    if (streak >= 4) lateEntryCount++;
+  });
+  if (lateEntryCount) mistakes.push({ icon: '🐌', title: 'Late Entry', desc: `${lateEntryCount} trade(s) were entered after the move had already run 4+ candles in that direction — chasing price like this leaves less room to the target.` });
+
+  if (!mistakes.length) goods.push({ icon: '✅', title: 'Clean session', desc: 'No major process mistakes detected this session — keep this up.' });
+
+  return { mistakes, goods };
+}
+
+function renderMistakeList(mistakes, goods) {
+  const el = document.getElementById('btMistakeList');
+  const combined = [
+    ...mistakes.map(m => ({ ...m, cls: '' })),
+    ...goods.map(g => ({ ...g, cls: 'bt-mistake-good' }))
+  ];
+  if (!combined.length) { el.innerHTML = '<p class="bt-hint">Not enough trade data to generate coaching this session.</p>'; return; }
+  el.innerHTML = combined.map(m => `
+    <div class="bt-mistake-card ${m.cls}">
+      <span class="bt-mistake-icon">${m.icon}</span>
+      <div><div class="bt-mistake-title">${m.title}</div><div class="bt-mistake-desc">${m.desc}</div></div>
+    </div>
+  `).join('');
+}
+
+/* ---------- trade journal ---------- */
+function renderJournal(trades) {
+  const body = document.getElementById('btJournalBody');
+  if (!trades.length) { body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--paper-faint);">No trades this session.</td></tr>`; return; }
+  const reasonLabel = { 'stop-loss': 'Stop-loss hit', 'take-profit': 'Take-profit hit', 'manual': 'Manual close', 'session-end': 'Session ended' };
+  body.innerHTML = trades.map((t, i) => {
+    const risk = t.sl != null ? Math.abs(t.entryPrice - t.sl) : null;
+    const reward = t.tp != null ? Math.abs(t.tp - t.entryPrice) : null;
+    const rr = (risk && reward) ? (reward / risk).toFixed(2) : null;
+    const hold = t.exitIndex - t.entryIndex;
+    return `<tr>
+      <td>${i + 1}</td>
+      <td class="bt-journal-side ${t.side === 'long' ? 'up' : 'down'}">${t.side === 'long' ? 'BUY' : 'SELL'}</td>
+      <td>${t.entryPrice.toLocaleString('en-IN')}</td>
+      <td>${t.exitPrice.toLocaleString('en-IN')}</td>
+      <td class="bt-journal-side ${t.pnl >= 0 ? 'up' : 'down'}">${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}</td>
+      <td>${hold} candle${hold === 1 ? '' : 's'}</td>
+      <td>${rr ? `1:${rr}` : '—'}</td>
+      <td>
+        <span class="bt-journal-tag ${t.reason === 'stop-loss' ? 'warn' : t.reason === 'take-profit' ? 'good' : ''}">${reasonLabel[t.reason] || t.reason}</span>
+        ${t.sl == null ? '<span class="bt-journal-tag warn">No SL</span>' : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+document.getElementById('btJournalToggle').addEventListener('click', () => {
+  document.getElementById('btJournalWrap').classList.toggle('open');
+});
+
+/* ---------- mini SVG charts for the result dashboard ---------- */
+function renderMiniLineChart(svgEl, values, opts) {
+  const W = 600, H = 140, PAD = 10;
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svgEl.setAttribute('width', '100%');
+  svgEl.setAttribute('height', H);
+  if (!values || values.length < 2 || values.every(v => v === 0)) {
+    svgEl.innerHTML = `<text x="${W / 2}" y="${H / 2}" fill="var(--paper-faint)" font-size="12" text-anchor="middle" font-family="monospace">Not enough trades yet</text>`;
+    return;
+  }
+  const max = Math.max(...values, 0);
+  const min = Math.min(...values, 0);
+  const range = (max - min) || 1;
+  const scaleX = i => PAD + (i / (values.length - 1)) * (W - PAD * 2);
+  const scaleY = v => H - PAD - ((v - min) / range) * (H - PAD * 2);
+  const zeroY = scaleY(0);
+  let path = '';
+  values.forEach((v, i) => { path += (i === 0 ? 'M' : 'L') + scaleX(i).toFixed(1) + ',' + scaleY(v).toFixed(1) + ' '; });
+  const areaPath = path + `L${scaleX(values.length - 1).toFixed(1)},${zeroY.toFixed(1)} L${scaleX(0).toFixed(1)},${zeroY.toFixed(1)} Z`;
+  const color = opts.stroke || 'var(--signal)';
+  svgEl.innerHTML = `
+    <line x1="${PAD}" y1="${zeroY.toFixed(1)}" x2="${W - PAD}" y2="${zeroY.toFixed(1)}" stroke="var(--ink-line)" stroke-width="1"/>
+    <path d="${areaPath}" fill="${color}" opacity="0.12"/>
+    <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" class="bt-mini-line-anim"/>
+  `;
+}
+
+function renderDistributionChart(stats, trades) {
+  const el = document.getElementById('btDistBars');
+  if (!trades.length) { el.innerHTML = '<p class="bt-hint">No trades yet.</p>'; return; }
+  const bigWinThresh = stats.avgWin * 1.5;
+  const bigLossThresh = stats.avgLoss * 1.5;
+  const buckets = { 'Big win': 0, 'Small win': 0, 'Small loss': 0, 'Big loss': 0 };
+  trades.forEach(t => {
+    if (t.pnl > 0) { if (bigWinThresh > 0 && t.pnl >= bigWinThresh) buckets['Big win']++; else buckets['Small win']++; }
+    else { if (bigLossThresh > 0 && Math.abs(t.pnl) >= bigLossThresh) buckets['Big loss']++; else buckets['Small loss']++; }
+  });
+  const max = Math.max(...Object.values(buckets), 1);
+  el.innerHTML = Object.entries(buckets).map(([label, count]) => {
+    const isWin = label.includes('win');
+    return `<div class="bt-dist-row">
+      <span class="bt-dist-label">${label}</span>
+      <div class="bt-dist-track"><div class="bt-dist-fill ${isWin ? 'up' : 'down'}" data-w="${(count / max) * 100}"></div></div>
+      <span class="bt-dist-count">${count}</span>
+    </div>`;
+  }).join('');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.querySelectorAll('.bt-dist-fill').forEach(f => { f.style.width = f.dataset.w + '%'; });
+    });
+  });
+}
+
+/* ---------- confetti (A+ grade only) ---------- */
+function launchConfetti() {
+  const colors = ['#00E676', '#00B85F', '#F5F5F0', '#5C6B5D'];
+  const layer = document.createElement('div');
+  layer.className = 'bt-confetti-layer';
+  document.body.appendChild(layer);
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'bt-confetti-piece';
+    p.style.left = (Math.random() * 100) + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (2.2 + Math.random() * 1.6) + 's';
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    p.style.transform = `rotate(${Math.random() * 360}deg)`;
+    layer.appendChild(p);
+  }
+  setTimeout(() => layer.remove(), 4200);
+}
+
+/* ---------- session end: build the full result dashboard ---------- */
 function endBacktestSession() {
+  stopAutoplay();
   btState.ended = true;
+  btState.reviewIndex = null;
   const stats = computeBacktestStats(btState.trades, btState.decisions);
   const report = computeBacktestGrade(stats);
+  btPlaySound('complete');
 
   document.getElementById('btSessionPanel').hidden = true;
   document.getElementById('btReportPanel').hidden = false;
+  document.getElementById('btJournalWrap').classList.remove('open');
 
   document.getElementById('btGradeLetter').textContent = report.grade;
   document.getElementById('btGradeScore').textContent = `${report.score}%`;
   document.getElementById('btFeedbackList').innerHTML = report.feedback
     .map(f => `<div class="bt-feedback-item"><span>✓</span><span>${f}</span></div>`).join('');
 
+  // animated circular grade ring
+  const ring = document.getElementById('btGradeRingFill');
+  const circumference = 408;
+  const gradeColor = report.score >= 90 ? 'var(--signal)' : report.score >= 70 ? 'var(--up)' : report.score >= 45 ? '#FFC24B' : 'var(--down)';
+  ring.style.stroke = gradeColor;
+  ring.style.transition = 'none';
+  ring.style.strokeDashoffset = String(circumference);
+  requestAnimationFrame(() => {
+    ring.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(.16,1,.3,1), stroke 0.4s ease';
+    requestAnimationFrame(() => { ring.style.strokeDashoffset = String(circumference * (1 - report.score / 100)); });
+  });
+
   document.getElementById('btBasicStatsGrid').innerHTML = [
-    btStatCard('Win rate', stats.totalTrades ? `${stats.winRate.toFixed(0)}%` : '—'),
-    btStatCard('Total trades', stats.totalTrades),
-    btStatCard('Profit', `+${stats.totalProfit.toFixed(2)}`, 'up'),
-    btStatCard('Loss', `-${stats.totalLoss.toFixed(2)}`, 'down')
+    btPerfCard('Net profit', `${stats.netPnl >= 0 ? '+' : ''}${stats.netPnl.toFixed(2)}`, stats.netPnl >= 0 ? 'up' : 'down'),
+    btPerfCard('Win rate', stats.totalTrades ? `${stats.winRate.toFixed(0)}%` : '—', null, `${stats.wins}W / ${stats.losses}L`),
+    btPerfCard('Total trades', stats.totalTrades),
+    btPerfCard('Overall grade', report.grade, null, `${report.score}% score`)
   ].join('');
 
   const advancedGrid = document.getElementById('btAdvancedStatsGrid');
@@ -6176,25 +6994,58 @@ function endBacktestSession() {
     advancedGrid.style.filter = 'none';
     advancedGrid.style.pointerEvents = 'auto';
     advancedGrid.innerHTML = [
-      btStatCard('Risk : reward', stats.avgRR != null ? `1 : ${stats.avgRR.toFixed(2)}` : '—'),
-      btStatCard('Accuracy', `${stats.accuracy.toFixed(0)}%`),
-      btStatCard('Avg holding time', `${stats.avgHoldingTime.toFixed(1)} candles`),
-      btStatCard('Max drawdown', stats.maxDrawdown.toFixed(2)),
-      btStatCard('Best trade', stats.bestTrade ? `+${stats.bestTrade.pnl.toFixed(2)}` : '—', 'up'),
-      btStatCard('Worst trade', stats.worstTrade ? stats.worstTrade.pnl.toFixed(2) : '—', 'down')
+      btPerfCard('Profit factor', isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) : '∞'),
+      btPerfCard('Expectancy', `${stats.expectancy >= 0 ? '+' : ''}${stats.expectancy.toFixed(2)}`, stats.expectancy >= 0 ? 'up' : 'down'),
+      btPerfCard('Avg win', `+${stats.avgWin.toFixed(2)}`, 'up'),
+      btPerfCard('Avg loss', `-${stats.avgLoss.toFixed(2)}`, 'down'),
+      btPerfCard('Risk : reward', stats.avgRR != null ? `1 : ${stats.avgRR.toFixed(2)}` : '—'),
+      btPerfCard('Largest win', stats.bestTrade ? `+${stats.bestTrade.pnl.toFixed(2)}` : '—', 'up'),
+      btPerfCard('Largest loss', stats.worstTrade ? stats.worstTrade.pnl.toFixed(2) : '—', 'down'),
+      btPerfCard('Max drawdown', stats.maxDrawdown.toFixed(2), 'down'),
+      btPerfCard('Longest win streak', stats.longestWinStreak),
+      btPerfCard('Longest loss streak', stats.longestLoseStreak),
+      btPerfCard('Avg holding time', `${stats.avgHoldingTime.toFixed(1)} candles`),
+      btPerfCard('Accuracy', `${stats.accuracy.toFixed(0)}%`),
+      btPerfCard('Gross profit', `+${stats.grossProfit.toFixed(2)}`, 'up'),
+      btPerfCard('Gross loss', `-${stats.grossLoss.toFixed(2)}`, 'down'),
+      btPerfCard('Sharpe (basic)', stats.sharpe.toFixed(2)),
+      btPerfCard('Consistency score', `${Math.round(stats.consistency)}%`),
+      btPerfCard('Discipline score', `${Math.round(stats.discipline)}%`)
     ].join('');
+
+    renderMiniLineChart(document.getElementById('btEquityChart'), stats.equityCurve, { stroke: 'var(--signal)' });
+    renderMiniLineChart(document.getElementById('btDrawdownChart'), stats.drawdownCurve, { stroke: 'var(--down)' });
+    renderDistributionChart(stats, btState.trades);
+    const { mistakes, goods } = detectBacktestMistakes(btState.trades, btState.allCandles, btState.allCandles.length);
+    renderMistakeList(mistakes, goods);
+    renderJournal(btState.trades);
   } else {
     // Still render real numbers underneath — the overlay blurs them, matching
     // the same "blur simulator, show premium popup" pattern used elsewhere.
     advancedGrid.innerHTML = [
-      btStatCard('Risk : reward', '—'), btStatCard('Accuracy', '—'),
-      btStatCard('Avg holding time', '—'), btStatCard('Max drawdown', '—'),
-      btStatCard('Best trade', '—'), btStatCard('Worst trade', '—')
+      btPerfCard('Profit factor', isFinite(stats.profitFactor) ? stats.profitFactor.toFixed(2) : '∞'),
+      btPerfCard('Expectancy', stats.expectancy.toFixed(2)), btPerfCard('Avg win', stats.avgWin.toFixed(2)),
+      btPerfCard('Avg loss', stats.avgLoss.toFixed(2)), btPerfCard('Risk : reward', stats.avgRR != null ? `1 : ${stats.avgRR.toFixed(2)}` : '—'),
+      btPerfCard('Largest win', stats.bestTrade ? stats.bestTrade.pnl.toFixed(2) : '—'),
+      btPerfCard('Largest loss', stats.worstTrade ? stats.worstTrade.pnl.toFixed(2) : '—'),
+      btPerfCard('Max drawdown', stats.maxDrawdown.toFixed(2)),
+      btPerfCard('Longest win streak', stats.longestWinStreak), btPerfCard('Longest loss streak', stats.longestLoseStreak),
+      btPerfCard('Avg holding time', `${stats.avgHoldingTime.toFixed(1)} candles`), btPerfCard('Accuracy', `${stats.accuracy.toFixed(0)}%`),
+      btPerfCard('Gross profit', stats.grossProfit.toFixed(2)), btPerfCard('Gross loss', stats.grossLoss.toFixed(2)),
+      btPerfCard('Sharpe (basic)', stats.sharpe.toFixed(2)), btPerfCard('Discipline score', `${Math.round(stats.discipline)}%`)
     ].join('');
     advancedGrid.style.filter = 'blur(4px)';
     advancedGrid.style.pointerEvents = 'none';
     advancedLock.hidden = false;
+
+    document.getElementById('btEquityChart').innerHTML = '';
+    document.getElementById('btDrawdownChart').innerHTML = '';
+    document.getElementById('btDistBars').innerHTML = '<p class="bt-hint">Upgrade to Premium to unlock the equity curve, drawdown chart, and trade distribution.</p>';
+    document.getElementById('btMistakeList').innerHTML = '<p class="bt-hint">Upgrade to Premium to unlock personalized mistake coaching.</p>';
+    document.getElementById('btJournalBody').innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--paper-faint);">Premium unlocks the full trade journal.</td></tr>`;
   }
+
+  if (report.grade === 'A+') setTimeout(launchConfetti, 900);
 }
 
 document.getElementById('btRestartBtn').addEventListener('click', () => { renderBacktest(); });
