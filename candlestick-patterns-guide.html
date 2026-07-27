@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candlestick Patterns Explained: A Beginner's Guide to Reading Price Action | TraderProX</title>
+<meta name="description" content="Learn to read candlestick charts: what open, high, low, and close mean, key single- and multi-candle patterns like hammers, dojis, and engulfing candles, and how to use them correctly.">
+<meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow">
+<link rel="canonical" href="https://traderprox.site/articles/candlestick-patterns-guide.html">
+
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+<!-- Open Graph -->
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="TraderProX">
+<meta property="og:url" content="https://traderprox.site/articles/candlestick-patterns-guide.html">
+<meta property="og:title" content="Candlestick Patterns Explained: A Beginner's Guide to Reading Price Action | TraderProX">
+<meta property="og:description" content="Learn to read candlestick charts: what open, high, low, and close mean, key single- and multi-candle patterns like hammers, dojis, and engulfing candles, and how to use them correctly.">
+<meta property="og:image" content="https://traderprox.site/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="TraderProX">
+<meta property="og:locale" content="en_US">
+<meta property="article:section" content="Trading Education">
+<meta property="article:published_time" content="2026-07-27">
+<meta property="article:modified_time" content="2026-07-27">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Candlestick Patterns Explained: A Beginner's Guide to Reading Price Action | TraderProX">
+<meta name="twitter:description" content="Learn to read candlestick charts: what open, high, low, and close mean, key single- and multi-candle patterns like hammers, dojis, and engulfing candles, and how to use them correctly.">
+<meta name="twitter:image" content="https://traderprox.site/assets/og-image.png">
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Candlestick Patterns Explained: A Beginner's Guide to Reading Price Action",
+  "description": "Learn to read candlestick charts: what open, high, low, and close mean, key single- and multi-candle patterns like hammers, dojis, and engulfing candles, and how to use them correctly.",
+  "image": "https://traderprox.site/assets/og-image.png",
+  "author": {
+    "@type": "Organization",
+    "name": "TraderProX",
+    "url": "https://traderprox.site/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TraderProX",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://traderprox.site/assets/og-image.png"
+    }
+  },
+  "datePublished": "2026-07-27",
+  "dateModified": "2026-07-27",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://traderprox.site/articles/candlestick-patterns-guide.html"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://traderprox.site/" },
+    { "@type": "ListItem", "position": 2, "name": "Articles", "item": "https://traderprox.site/articles/" },
+    { "@type": "ListItem", "position": 3, "name": "Candlestick Patterns", "item": "https://traderprox.site/articles/candlestick-patterns-guide.html" }
+  ]
+}
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+:root {
+  --ink: #050705; --ink-raised: #0D140E; --ink-line: #1C2A1E;
+  --paper: #F5F5F0; --paper-dim: #9BA89C; --paper-faint: #5C6B5D;
+  --signal: #00E676; --signal-soft: rgba(0,230,118,0.10); --signal-dim: #00B85F;
+  --display: 'Space Grotesk', -apple-system, system-ui, sans-serif;
+  --body: 'Inter', -apple-system, system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --max: 880px; --radius: 10px;
+}
+* { box-sizing: border-box; }
+html { background: var(--ink); }
+body {
+  margin: 0; background: var(--ink); color: var(--paper);
+  font-family: var(--body); line-height: 1.7; font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+a { color: var(--signal); }
+.nav {
+  border-bottom: 1px solid var(--ink-line); padding: 20px 0;
+  position: sticky; top: 0; background: rgba(5,7,5,0.9); backdrop-filter: blur(8px); z-index: 10;
+}
+.nav .wrap { max-width: 1200px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 700; font-size: 18px; color: var(--paper); text-decoration: none; }
+.brand-mark {
+  width: 30px; height: 30px; border-radius: 7px; background: var(--signal);
+  color: #00150A; display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-weight: 700; font-size: 10.5px;
+}
+.nav-links { display: flex; gap: 28px; font-size: 14px; color: var(--paper-dim); }
+.nav-links a { color: var(--paper-dim); text-decoration: none; }
+.nav-links a:hover { color: var(--paper); }
+.breadcrumb { font-size: 13px; color: var(--paper-faint); margin: 32px 0 0; }
+.breadcrumb a { color: var(--paper-faint); text-decoration: none; }
+.breadcrumb a:hover { color: var(--signal); }
+.eyebrow {
+  font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--signal); margin-top: 18px;
+}
+article h1 {
+  font-family: var(--display); font-size: clamp(30px,5vw,44px); line-height: 1.15;
+  margin: 14px 0 12px; color: var(--paper);
+}
+.dek { font-size: 19px; color: var(--paper-dim); max-width: 680px; margin-bottom: 12px; }
+.meta-row { display: flex; gap: 16px; align-items: center; font-size: 13px; color: var(--paper-faint); margin: 20px 0 40px; font-family: var(--mono); }
+article h2 { font-family: var(--display); font-size: clamp(22px,3vw,28px); color: var(--paper); margin: 44px 0 16px; }
+article h3 { font-family: var(--display); font-size: 19px; color: var(--paper); margin: 28px 0 10px; }
+article p { color: var(--paper-dim); margin: 0 0 18px; }
+article ul, article ol { color: var(--paper-dim); margin: 0 0 20px; padding-left: 22px; }
+article li { margin-bottom: 8px; }
+article strong { color: var(--paper); }
+.callout {
+  background: var(--ink-raised); border: 1px solid var(--ink-line); border-left: 3px solid var(--signal);
+  border-radius: var(--radius); padding: 20px 24px; margin: 28px 0; font-size: 15.5px; color: var(--paper-dim);
+}
+.callout strong { color: var(--signal); }
+.disclaimer {
+  background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: var(--radius);
+  padding: 18px 22px; margin: 40px 0; font-size: 13.5px; color: var(--paper-faint);
+}
+.next-up {
+  border-top: 1px solid var(--ink-line); margin-top: 56px; padding-top: 32px;
+}
+.next-up p.eyebrow { margin-top: 0; }
+.next-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 16px; margin-top: 20px; }
+.next-card {
+  display: block; background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: var(--radius);
+  padding: 18px 20px; text-decoration: none; color: var(--paper); font-size: 14.5px; font-weight: 600;
+  transition: border-color 0.2s ease;
+}
+.next-card:hover { border-color: var(--signal); }
+.cta-panel {
+  background: var(--ink-raised); border: 1px solid var(--ink-line); border-radius: var(--radius);
+  padding: 32px; margin: 48px 0 8px; text-align: center;
+}
+.cta-panel h3 { margin-top: 0; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; background: var(--signal); color: #00150A !important;
+  font-weight: 700; font-size: 14.5px; padding: 12px 22px; border-radius: 8px; text-decoration: none; margin-top: 12px;
+}
+.footer { border-top: 1px solid var(--ink-line); padding: 40px 0; margin-top: 64px; }
+.footer .wrap { max-width: 1200px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; font-size: 13px; color: var(--paper-faint); }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { color: var(--paper-faint); text-decoration: none; }
+.footer-links a:hover { color: var(--signal); }
+main { padding-bottom: 40px; }
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="brand-mark">TPX</span>
+      TraderProX
+    </a>
+    <div class="nav-links">
+      <a href="/articles/">Learn</a>
+      <a href="/#tools">Tools</a>
+      <a href="/#backtest-promo">Backtest</a>
+      <a href="/#pricing">Pricing</a>
+    </div>
+    <a class="btn" href="/" style="margin-top:0;padding:9px 18px;font-size:13.5px;">Open App</a>
+  </div>
+</nav>
+<main>
+  <div class="wrap">
+    <p class="breadcrumb"><a href="/">Home</a> / <a href="/articles/">Articles</a> / Candlestick Patterns</p>
+    <article>
+      <p class="eyebrow">Beginner · Price Action</p>
+      <h1>Candlestick Patterns: A Beginner's Guide to Reading Price Action</h1>
+      <p class="dek">Every price chart is built from candlesticks. Learn what they show, why the wicks matter, and how to read the patterns that repeat across every market.</p>
+      <div class="meta-row"><span>6 min read</span><span>·</span><span>Updated Jul 27, 2026</span></div>
+<p>Every price chart you'll ever look at is built from the same tiny unit: a single candlestick. Learn to read one candle correctly, and the rest of technical analysis — patterns, indicators, even the backtest reports you'll run later — starts to make a lot more sense. Most beginners skip straight to indicators and pattern names without understanding what a candle is actually telling them, which is a bit like memorizing sentences in a language you can't read.</p>
+
+<h2>What a candlestick actually shows you</h2>
+<p>A candlestick represents price action over one fixed period of time — a minute, an hour, a day, whatever timeframe you've selected. It packs four numbers into one shape: the <strong>open</strong> (the first traded price in that period), the <strong>close</strong> (the last traded price), the <strong>high</strong> (the highest price reached), and the <strong>low</strong> (the lowest price reached).</p>
+<p>The thick part of the candle is called the <strong>body</strong>, and it stretches between the open and the close. The thin lines above and below the body are called <strong>wicks</strong> or <strong>shadows</strong>, and they mark the high and low. If the close is above the open, the candle is typically colored green (bullish). If the close is below the open, it's colored red (bearish). That's the entire vocabulary — everything else is built from these four numbers and two colors.</p>
+
+<h2>Why the wick matters more than beginners think</h2>
+<p>New traders tend to stare at the body and ignore the wicks, but the wicks are often the more useful part of the story. A long wick means price traveled a long way in one direction during that period and then got rejected — pushed back the other way before the candle closed. That rejection is a record of a fight between buyers and sellers, and whoever won that fight left a visible mark on the chart.</p>
+<p>A candle with a small body and a long lower wick, for example, tells you sellers pushed price down hard, but buyers stepped in before the close and dragged it back up. That's meaningfully different information than a candle with the same close but no wick at all, where sellers were simply outmatched the entire period with no pushback.</p>
+
+<h2>Single-candle patterns worth knowing</h2>
+<p>A handful of single-candle shapes show up often enough to be worth memorizing:</p>
+<ul>
+<li><strong>Doji</strong> — the open and close are almost identical, so the body is razor-thin. It signals indecision: neither buyers nor sellers won control during that period. A doji after a strong trend is often a warning that momentum is fading.</li>
+<li><strong>Hammer</strong> — a small body near the top of the candle's range with a long lower wick. Appearing after a downtrend, it suggests sellers tried to push lower, failed, and buyers took over — a potential reversal signal.</li>
+<li><strong>Shooting star</strong> — the mirror image of a hammer: a small body near the bottom with a long upper wick, appearing after an uptrend. It suggests buyers tried to push higher, failed, and sellers took control.</li>
+<li><strong>Marubozu</strong> — a candle with almost no wick at all, just a long solid body. It means one side was in complete control from open to close, with essentially no pushback the entire period.</li>
+</ul>
+<p>Note that none of these patterns mean anything in isolation. A hammer in the middle of a sideways, directionless chart is just noise. The same hammer forming after a sharp, multi-day decline and landing right on a support level is a completely different signal. Context — where the pattern shows up, and what happened just before it — always outweighs the shape of any single candle.</p>
+
+<h2>Two-candle and three-candle patterns</h2>
+<p>Some of the more reliable signals come from comparing two or three candles in sequence, because they show a shift in control rather than just a single moment of hesitation.</p>
+<h3>Bullish and bearish engulfing</h3>
+<p>An engulfing pattern happens when one candle's body completely "engulfs" the body of the candle before it. A <strong>bullish engulfing</strong> pattern is a green candle whose body fully covers the red candle that preceded it — sellers were in control, and then buyers overwhelmed them so completely that the next candle erased the entire previous move and then some. A <strong>bearish engulfing</strong> pattern is the same idea in reverse. These patterns are more meaningful at the end of an extended trend than in the middle of a choppy, range-bound market.</p>
+<h3>Morning star and evening star</h3>
+<p>These are three-candle patterns. A <strong>morning star</strong> forms after a downtrend: a long red candle, followed by a small-bodied candle (often a doji) that gaps down, followed by a strong green candle that closes well into the body of the first red candle. It reads like a story — sellers in control, then hesitation, then buyers taking over decisively. The <strong>evening star</strong> is the same story told in reverse at the top of an uptrend.</p>
+
+<h2>Where candlestick patterns fit into a real strategy</h2>
+<p>It's tempting to treat candlestick patterns as standalone buy or sell signals, but that's not really how professional traders use them. A pattern is a piece of evidence, not a trade signal by itself. The strongest setups combine a candlestick signal with a second, independent piece of context — a known support or resistance level, a trendline, or a moving average the price is testing. When a hammer forms exactly at a support level that has held multiple times before, you have two independent reasons pointing the same direction, which is a meaningfully stronger case than either signal alone.</p>
+<p>It also matters which timeframe you're reading. A hammer on a 5-minute chart reflects a few minutes of noise and is easily overwhelmed by the next few candles. A hammer on a daily or weekly chart reflects a much larger shift in sentiment among far more participants, and tends to carry more weight. Beginners often make the mistake of treating every timeframe as equally significant, when in practice higher timeframes generally deserve more trust.</p>
+
+<h2>Common mistakes to avoid</h2>
+<ul>
+<li><strong>Pattern hunting without context.</strong> Scrolling through a chart looking for any shape that resembles a hammer or engulfing pattern, regardless of where it appears, produces a lot of false signals.</li>
+<li><strong>Ignoring volume.</strong> A reversal pattern that forms on unusually low volume is a much weaker signal than the same pattern forming on a volume spike, because volume tells you how many participants were actually involved in that price move.</li>
+<li><strong>Trading the pattern instead of waiting for confirmation.</strong> Many traders enter the instant they spot a hammer, without waiting to see whether the next candle actually confirms the reversal by closing higher. That single extra candle of patience filters out a large share of false signals.</li>
+<li><strong>Forgetting the trend.</strong> Reversal patterns are, by definition, about a change in direction. Looking for them in a market that isn't trending in the first place — a flat, choppy range — usually just produces noise.</li>
+</ul>
+
+<div class="callout"><strong>Practice tip:</strong> Before you ever risk real money, pull up a chart, cover the right-hand side of the screen, and try to predict what the next candle will look like based on the pattern you're seeing. Then reveal it. This kind of blind practice — the same idea behind TraderProX's Backtest Simulator — builds pattern recognition far faster than reading about patterns alone.</div>
+
+<h2>Putting it together</h2>
+<p>Candlesticks are the alphabet of price charts. Once you can read the story a single candle or a short sequence of candles is telling — who was in control, where they lost that control, and how decisively — you're equipped to layer on the rest of technical analysis: support and resistance, indicators, and full chart patterns. None of it works in isolation, and candlesticks are no exception, but they're the foundation everything else sits on top of.</p>
+
+      <div class="cta-panel">
+        <h3 style="font-family:var(--display);font-size:22px;">Put this into practice</h3>
+        <p style="color:var(--paper-dim);max-width:520px;margin:0 auto;">TraderProX's Backtest Simulator lets you replay real historical data and test what you just learned — before you risk a single rupee.</p>
+        <a class="btn" href="/#backtest-promo">Try the Backtest Simulator →</a>
+      </div>
+
+      <div class="next-up">
+        <p class="eyebrow">Keep reading</p>
+        <div class="next-grid">
+          <a class="next-card" href="/articles/support-and-resistance-trading.html">Support and Resistance: The Foundation of Technical Analysis</a>
+          <a class="next-card" href="/articles/risk-management-position-sizing.html">Risk Management in Trading: Position Sizing and Stop-Loss Strategies</a>
+          <a class="next-card" href="/articles/moving-averages-sma-vs-ema.html">Understanding Moving Averages: SMA vs EMA and How to Use Them</a>
+        </div>
+      </div>
+
+      <div class="disclaimer">Educational content only — not investment advice. Trading involves risk, including the risk of loss. Past performance and backtested results do not guarantee future returns. Always do your own research before making investment decisions.</div>
+    </article>
+  </div>
+</main>
+<footer class="footer">
+  <div class="wrap">
+    <span>© 2026 TraderProX. Educational content only — not investment advice.</span>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/articles/">Learn</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
