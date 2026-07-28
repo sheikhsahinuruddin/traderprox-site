@@ -6429,10 +6429,63 @@ document.getElementById('btPrevBtn').addEventListener('click', () => {
   renderBacktestSession();
 });
 
+/* ---------- End Session confirmation (only prompted when a position is open) ----------
+   Styled the same way as the other overlay modals already used across the
+   app (see showAccessDeniedModal / showLoginRequiredModal above) so it
+   matches the existing design system rather than introducing a new look. ---------- */
+function showEndSessionConfirmModal(onConfirmClose, onCancel) {
+  if (document.getElementById('btEndSessionModal')) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'btEndSessionModal';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.style.cssText = `
+    position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,0.72);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  `;
+  overlay.innerHTML = `
+    <div style="
+      background:var(--ink-raised); border:1px solid var(--ink-line);
+      border-radius:var(--radius); max-width:380px; width:100%;
+      padding:28px 24px; text-align:center; font-family:var(--body);
+      box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    ">
+      <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+      <h3 style="color:var(--paper);font-family:var(--display);font-size:19px;margin:0 0 10px;">Open position</h3>
+      <p style="color:var(--paper-dim);font-size:14.5px;line-height:1.5;margin:0 0 22px;">You have an open position. Do you want to close it before ending the session?</p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button type="button" id="btEndSessionNo" class="btn btn-ghost" style="padding:9px 18px;font-size:13.5px;">No</button>
+        <button type="button" id="btEndSessionYes" class="btn btn-primary" style="padding:9px 18px;font-size:13.5px;">Yes, close it</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  function close() { overlay.remove(); }
+  document.getElementById('btEndSessionYes').addEventListener('click', () => { close(); onConfirmClose(); });
+  document.getElementById('btEndSessionNo').addEventListener('click', () => { close(); if (onCancel) onCancel(); });
+  // Clicking the backdrop cancels ending the session, same as "No" — it
+  // never silently ends the session or closes the position without an
+  // explicit choice.
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) { close(); if (onCancel) onCancel(); } });
+}
+
 document.getElementById('btEndBtn').addEventListener('click', () => {
   if (!btState || btState.ended || btState.reviewIndex != null) return;
+  if (btState.position) {
+    // Pause autoplay while the confirmation is open so candles don't keep
+    // advancing underneath the modal, but don't touch the position or the
+    // session until the user actually chooses Yes or No.
+    stopAutoplay();
+    showEndSessionConfirmModal(
+      () => { closeBacktestPosition('session-end'); endBacktestSession(); },
+      () => { /* cancelled — session stays open, position stays open */ }
+    );
+    return;
+  }
   stopAutoplay();
-  if (btState.position) closeBacktestPosition('session-end');
   endBacktestSession();
 });
 
