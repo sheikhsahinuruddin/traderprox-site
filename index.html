@@ -3019,6 +3019,7 @@ body.intro-locked { overflow: hidden; }
               <input type="number" id="btSize" class="bt-num-input" value="1" min="0.01" step="0.01" />
             </label>
           </div>
+          <p class="bt-hint" id="btEntryError" style="color:var(--down);" hidden></p>
 
           <div class="game-choices" id="btActionButtons" style="margin-top:18px;">
             <button class="game-choice" data-bt-action="buy"><span class="game-choice-icon">↑</span> Buy</button>
@@ -6236,6 +6237,8 @@ async function startBacktestSession() {
   document.getElementById('btReportPanel').hidden = true;
   document.getElementById('btSessionPanel').hidden = false;
   document.getElementById('btSessionSymbol').textContent = `${symbol.label} · ${tf.label}`;
+  const entryErrEl = document.getElementById('btEntryError');
+  if (entryErrEl) entryErrEl.hidden = true;
   renderBacktestSession();
 }
 
@@ -6510,6 +6513,8 @@ document.getElementById('btSessionRestartBtn').addEventListener('click', () => {
   };
   document.getElementById('btReportPanel').hidden = true;
   document.getElementById('btSessionPanel').hidden = false;
+  const entryErrEl2 = document.getElementById('btEntryError');
+  if (entryErrEl2) entryErrEl2.hidden = true;
   renderBacktestSession();
 });
 
@@ -6603,18 +6608,47 @@ function btParseFloatOrNull(v) {
 function handleBacktestAction(action) {
   const lastVisible = btState.allCandles[btState.visibleCount - 1];
   const nextCandle = btState.allCandles[btState.visibleCount]; // may be undefined at the very last candle — never read further ahead than this
+  const entryErrEl = document.getElementById('btEntryError');
+  if (entryErrEl) entryErrEl.hidden = true;
 
   if (action !== 'wait') {
     const sl = btParseFloatOrNull(document.getElementById('btSL').value);
     const tp = btParseFloatOrNull(document.getElementById('btTP').value);
     const size = btParseFloatOrNull(document.getElementById('btSize').value) || 1;
+    const entryPrice = lastVisible.c;
+    const side = action === 'buy' ? 'long' : 'short';
+
+    // Side-aware SL/TP validation. A Buy (long) profits when price rises, so
+    // its stop-loss must sit BELOW entry and its take-profit ABOVE entry. A
+    // Sell (short) is the mirror: stop-loss ABOVE entry, take-profit BELOW.
+    // The SL/TP fields are filled in before Buy/Sell is chosen, so without
+    // this check, entering the "SL below / TP above" values out of Buy habit
+    // and then clicking Sell would place the stop-loss on the wrong side of
+    // price. Since a short's stop-loss triggers on `next candle's high >=
+    // SL`, and almost every next candle's high sits above a below-entry
+    // value, the position would stop out almost immediately — this is
+    // exactly the "market always moves against me the instant I sell" effect
+    // that was reported, not the chart being biased.
+    let error = null;
+    if (side === 'long') {
+      if (sl != null && sl >= entryPrice) error = 'For a Buy, Stop loss must be below the entry price.';
+      else if (tp != null && tp <= entryPrice) error = 'For a Buy, Take profit must be above the entry price.';
+    } else {
+      if (sl != null && sl <= entryPrice) error = 'For a Sell, Stop loss must be above the entry price.';
+      else if (tp != null && tp >= entryPrice) error = 'For a Sell, Take profit must be below the entry price.';
+    }
+    if (error) {
+      if (entryErrEl) { entryErrEl.textContent = error; entryErrEl.hidden = false; }
+      return; // don't open the trade or advance the candle — let the user fix SL/TP first
+    }
+
     btState.position = {
-      side: action === 'buy' ? 'long' : 'short',
-      entryPrice: lastVisible.c,
+      side,
+      entryPrice,
       size, sl, tp,
       entryIndex: btState.visibleCount - 1
     };
-    btState.markers.push({ index: btState.position.entryIndex, type: action, price: lastVisible.c });
+    btState.markers.push({ index: btState.position.entryIndex, type: action, price: entryPrice });
     btPlaySound(action);
   }
 
