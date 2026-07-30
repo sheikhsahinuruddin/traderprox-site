@@ -5539,7 +5539,12 @@ document.getElementById('navToggle').addEventListener('click', () => {
    INIT
    =========================================================== */
 /* ===========================================================
-   LIVE INDEX TICKER — NSE India + Yahoo Finance fallback
+   LIVE INDEX TICKER — via the "market-quotes" Supabase Edge
+   Function (see supabase/functions/market-quotes/index.ts),
+   which fetches NIFTY 50 / BANK NIFTY / SENSEX from Stooq
+   server-side. This replaces the old client-side Yahoo Finance +
+   NSE + public-CORS-proxy approach — see the Edge Function file
+   for why NSE's own API and Yahoo were dropped in favor of Stooq.
    Live clock ticks every second. Data refreshes every 15s.
    =========================================================== */
 
@@ -5550,13 +5555,14 @@ let consecutiveFailures = 0;
 let pollTimer = null;
 
 const INDICES_CONFIG = [
-  { key: 'nifty',     yahoo: '%5ENSEI',    stooq: '^nsei',    label: 'NIFTY 50'   },
-  { key: 'banknifty', yahoo: '%5ENSEBANK', stooq: '^nsebank', label: 'BANK NIFTY' },
-  { key: 'sensex',    yahoo: '%5EBSESN',   stooq: '^bsesn',   label: 'SENSEX'     },
+  { key: 'nifty',     label: 'NIFTY 50'   },
+  { key: 'banknifty', label: 'BANK NIFTY' },
+  { key: 'sensex',    label: 'SENSEX'     },
 ];
 
 const TICKER_CACHE_KEY = 'traderprox_ticker_cache_v1';
 const STALE_MS = 90 * 1000; // if no fresh tick lands within 90s during market hours, flag it — never pretend stale data is live
+
 
 /* ===========================================================
    MARKET STATUS — real NSE/BSE trading hours (IST, Mon–Fri
@@ -5644,121 +5650,57 @@ function updateTickerDOM(key, q, silent) {
   }
 }
 
-async function fetchJSON(url, timeout = 6000) {
-  const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
-  if (!res.ok) throw new Error('bad status ' + res.status);
-  return res.json();
-}
-
-/* ---------- Sources ----------
-   BUG THAT WAS FROZEN: the old code awaited every proxy for every
-   source, one after another (NSE → Yahoo → Stooq, 4 proxies each,
-   8s timeout each) for EACH of the 3 indices, all inside a single
-   setInterval(pollQuotes, 15000) that never checked whether the
-   previous run had finished. The moment any proxy went slow/down,
-   one poll could take well over a minute — but a new one still
+/* ---------- Source: the "market-quotes" Supabase Edge Function ----------
+   HISTORY: the old code called Yahoo Finance and Stooq directly from the
+   browser through public CORS proxies (allorigins/corsproxy/codetabs), and
+   raced/chained them across up to 4 proxies per source per index, all
+   inside a single setInterval(pollQuotes, 15000) that never checked
+   whether the previous run had finished. The moment any proxy went
+   slow/down, one poll could take well over a minute — but a new one still
    started every 15s anyway, so calls piled up endlessly until the
-   browser's connection pool jammed and every fetch just hung
-   forever. That's exactly why it froze on a 3-day-old price:
-   that was simply the last poll that ever completed.
-   Fixed below with: (1) a hard "never overlap" guard, (2) shorter
-   6s timeouts, (3) sources raced in parallel instead of chained
-   serially, (4) self-rescheduling instead of a blind setInterval,
-   with backoff when everything's failing. ---------- */
+   browser's connection pool jammed and every fetch just hung forever.
+   That's exactly why it used to freeze on a stale price.
 
-async function fetchNSE() {
-  const url = 'https://www.nseindia.com/api/allIndices';
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-  ];
-  for (const proxy of proxies) {
-    try {
-      const raw = await fetchJSON(proxy);
-      const data = raw?.data;
-      if (!Array.isArray(data)) continue;
-      const r = {};
-      data.forEach(item => {
-        if (item.index === 'NIFTY 50')    r.nifty     = { price: item.last, prev: item.previousClose, change: item.change, changePercent: item.percentChange };
-        if (item.index === 'NIFTY BANK')  r.banknifty = { price: item.last, prev: item.previousClose, change: item.change, changePercent: item.percentChange };
-        if (item.index === 'SENSEX' || item.index === 'S&P BSE SENSEX') r.sensex = { price: item.last, prev: item.previousClose, change: item.change, changePercent: item.percentChange };
-      });
-      if (Object.keys(r).length >= 2) return r;
-    } catch (e) { continue; }
-  }
-  return null; // NSE's own API needs a session cookie the browser can't get through a plain proxy — it will usually miss, which is fine, Yahoo/Stooq below cover it
-}
+   FIX: all of that now lives server-side in one Supabase Edge Function
+   (supabase/functions/market-quotes/index.ts) that fetches Stooq directly
+   (no CORS proxy needed at all — the Edge Function has no browser CORS
+   restriction) and returns one small JSON payload for all three indices.
+   The browser just calls that single endpoint. This also removes the
+   dependency on third-party CORS proxies entirely, which were themselves
+   a major source of the old flakiness. The "never overlap" guard and
+   backoff scheduling below are kept as extra defense either way. ---------- */
 
-async function fetchYahoo(sym) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1m&range=1d`;
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  ];
-  for (const proxy of proxies) {
-    try {
-      const raw = await fetchJSON(proxy);
-      const meta = raw?.chart?.result?.[0]?.meta;
-      if (!meta?.regularMarketPrice) continue;
-      return { price: meta.regularMarketPrice, prev: meta.chartPreviousClose, change: meta.regularMarketPrice - meta.chartPreviousClose, changePercent: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100 };
-    } catch (e) { continue; }
-  }
-  return null;
-}
+const MARKET_QUOTES_FN_URL = `${SUPABASE_URL}/functions/v1/market-quotes`;
 
-async function fetchStooq(sym) {
-  const url = `https://stooq.com/q/l/?s=${sym}&f=sd2t2ohlc&h&e=csv`;
-  const proxies = [
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  ];
-  for (const proxy of proxies) {
-    try {
-      const res = await fetch(proxy, { signal: AbortSignal.timeout(6000) });
-      if (!res.ok) continue;
-      const text = await res.text();
-      const lines = text.trim().split('\n');
-      if (lines.length < 2) continue;
-      const cols = lines[1].split(',');
-      const close = parseFloat(cols[6]);
-      const open = parseFloat(cols[3]);
-      if (!close || isNaN(close)) continue;
-      const change = close - open;
-      return { price: close, prev: open, change, changePercent: (change / open) * 100 };
-    } catch (e) { continue; }
-  }
-  return null;
-}
-
-// Per index: NSE result (if the batch call already has it) wins immediately;
-// otherwise Yahoo and Stooq are raced in PARALLEL (not chained), so a dead
-// proxy on one never blocks the other.
-async function fetchIndexQuote(idx, nseResult) {
-  if (nseResult?.[idx.key]) return nseResult[idx.key];
-  const [yahooRes, stooqRes] = await Promise.allSettled([fetchYahoo(idx.yahoo), fetchStooq(idx.stooq)]);
-  if (yahooRes.status === 'fulfilled' && yahooRes.value) return yahooRes.value;
-  if (stooqRes.status === 'fulfilled' && stooqRes.value) return stooqRes.value;
-  return null;
+async function fetchMarketQuotes() {
+  const res = await fetch(MARKET_QUOTES_FN_URL, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error('market-quotes HTTP ' + res.status);
+  const body = await res.json();
+  if (!body || typeof body.quotes !== 'object') throw new Error('market-quotes: bad payload');
+  return body.quotes;
 }
 
 async function pollQuotes() {
-  if (quotesInFlight) return; // the actual fix: refuse to start a second poll while one is still running
+  if (quotesInFlight) return; // never let two polls run at once
   quotesInFlight = true;
   let anySuccess = false;
   try {
-    const nse = await fetchNSE().catch(() => null);
-    const results = await Promise.all(INDICES_CONFIG.map(idx => fetchIndexQuote(idx, nse)));
-    INDICES_CONFIG.forEach((idx, i) => {
-      const q = results[i];
-      if (q && isFinite(q.price) && isFinite(q.change)) {
-        updateTickerDOM(idx.key, q);
-        if (idx.key === 'nifty') updateHeroQuoteDOM(q);
-        lastQuotes[idx.key] = q;
-        lastSuccessAt[idx.key] = Date.now();
-        anySuccess = true;
-      }
-    });
+    const quotes = await fetchMarketQuotes().catch(() => null);
+    if (quotes) {
+      INDICES_CONFIG.forEach(idx => {
+        const q = quotes[idx.key];
+        if (q && isFinite(q.price) && isFinite(q.change)) {
+          updateTickerDOM(idx.key, q);
+          if (idx.key === 'nifty') updateHeroQuoteDOM(q);
+          lastQuotes[idx.key] = q;
+          lastSuccessAt[idx.key] = Date.now();
+          anySuccess = true;
+        }
+      });
+    }
     if (anySuccess) { saveCachedQuotes(); consecutiveFailures = 0; }
     else { consecutiveFailures++; }
   } finally {
@@ -5772,7 +5714,7 @@ function scheduleNextPoll() {
   const { isOpen } = getMarketStatus();
   // Closed market → prices genuinely don't move, so poll gently just to
   // catch the final settlement print. Open market → poll briskly.
-  // If sources keep failing, back off instead of hammering dead proxies.
+  // If the Edge Function keeps failing, back off instead of hammering it.
   const base = isOpen ? 15000 : 60000;
   const backoff = Math.min(consecutiveFailures * 5000, 60000);
   pollTimer = setTimeout(async () => {
