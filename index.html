@@ -207,14 +207,39 @@ h1, h2, h3, h4 {
 .ticker-track {
   display: flex;
   align-items: center;
+  width: max-content;
+  will-change: transform;
+}
+/* Animation is added via JS (as .ticker-animating) once the marquee content
+   has been measured/cloned — this avoids a jump/flash of unstyled motion
+   before the duplicate content needed for a seamless loop exists. */
+.ticker-track.ticker-animating {
+  animation-name: tickerScroll;
+  animation-duration: var(--ticker-duration, 32s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+/* Pause on hover/focus so the numbers are readable, like Bloomberg/CNBC tickers. */
+.ticker-bar:hover .ticker-track,
+.ticker-bar:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track.ticker-animating { animation: none; }
+}
+.ticker-group {
+  display: flex;
+  align-items: center;
   gap: 28px;
   padding: 6px 32px;
   font-size: 12px;
   white-space: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-shrink: 0;
 }
-.ticker-track::-webkit-scrollbar { display: none; }
 .ticker-item {
   display: inline-flex;
   align-items: baseline;
@@ -246,7 +271,7 @@ h1, h2, h3, h4 {
   flex-shrink: 0;
 }
 @media (max-width: 720px) {
-  .ticker-track { padding: 6px 20px; gap: 20px; }
+  .ticker-group { padding: 6px 20px; gap: 20px; }
   .ticker-status { display: none; }
 }
 
@@ -1779,21 +1804,23 @@ body.intro-locked { overflow: hidden; }
 <!-- ===================== SHARED NAV ===================== -->
 <div class="ticker-bar" id="tickerBar">
   <div class="ticker-track" id="tickerTrack">
-    <span class="ticker-item" data-ticker="nifty">
-      <span class="ticker-label">NIFTY 50</span>
-      <span class="ticker-value mono">—</span>
-      <span class="ticker-change mono">—</span>
-    </span>
-    <span class="ticker-item" data-ticker="banknifty">
-      <span class="ticker-label">BANK NIFTY</span>
-      <span class="ticker-value mono">—</span>
-      <span class="ticker-change mono">—</span>
-    </span>
-    <span class="ticker-item" data-ticker="sensex">
-      <span class="ticker-label">SENSEX</span>
-      <span class="ticker-value mono">—</span>
-      <span class="ticker-change mono">—</span>
-    </span>
+    <div class="ticker-group" id="tickerGroupBase">
+      <span class="ticker-item" data-ticker="nifty">
+        <span class="ticker-label">NIFTY 50</span>
+        <span class="ticker-value mono">—</span>
+        <span class="ticker-change mono">—</span>
+      </span>
+      <span class="ticker-item" data-ticker="banknifty">
+        <span class="ticker-label">BANK NIFTY</span>
+        <span class="ticker-value mono">—</span>
+        <span class="ticker-change mono">—</span>
+      </span>
+      <span class="ticker-item" data-ticker="sensex">
+        <span class="ticker-label">SENSEX</span>
+        <span class="ticker-value mono">—</span>
+        <span class="ticker-change mono">—</span>
+      </span>
+    </div>
   </div>
 </div>
 
@@ -5613,6 +5640,71 @@ function updateMarketStatusDOM() {
   return isOpen;
 }
 
+/* ---------- Continuous scrolling marquee (CNBC/Bloomberg-style) ----------
+   Technique: keep exactly one real ".ticker-group" in the HTML (source of
+   truth), then at runtime clone it enough times to comfortably exceed the
+   viewport width, then duplicate that whole run once more so the track's
+   content is two identical halves back to back. Animating the track by
+   exactly translateX(-50%) then loops seamlessly — the instant it "resets"
+   to 0%, the pixels on screen are unchanged, so there's no visible jump.
+   All clones share the same data-ticker attributes, so updateTickerDOM's
+   querySelectorAll already keeps every copy in sync automatically. ---------- */
+let tickerResizeTimer = null;
+
+function buildTickerMarquee() {
+  const track = document.getElementById('tickerTrack');
+  const base = document.getElementById('tickerGroupBase');
+  if (!track || !base) return;
+
+  // Reset to just the one original group before rebuilding, so this is
+  // safe to call again on resize without compounding clones forever.
+  track.querySelectorAll('.ticker-group').forEach((g, i) => { if (i > 0) g.remove(); });
+  track.classList.remove('ticker-animating');
+  track.style.removeProperty('--ticker-duration');
+
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1200;
+  const minHalfWidth = viewportWidth * 1.5; // generous safety margin so no gap ever shows, even while resizing
+
+  // Fill the first half with enough repeats of the base group.
+  let halfWidth = base.getBoundingClientRect().width;
+  if (halfWidth <= 0) return; // not rendered yet (e.g. hidden tab) — bail, a later resize/poll will retry
+  let guard = 0;
+  while (halfWidth < minHalfWidth && guard < 40) {
+    const clone = base.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.setAttribute('aria-hidden', 'true');
+    track.appendChild(clone);
+    halfWidth += clone.getBoundingClientRect().width;
+    guard++;
+  }
+
+  // Duplicate the whole first half once more — this second half is what's
+  // revealed as the track scrolls left, then the loop resets invisibly.
+  const firstHalfGroups = Array.from(track.children);
+  firstHalfGroups.forEach(g => {
+    const clone = g.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.setAttribute('aria-hidden', 'true');
+    track.appendChild(clone);
+  });
+
+  // Constant, professional-feeling scroll speed regardless of how many
+  // groups/screen width required — not just a fixed duration that would
+  // look faster or slower depending on content length.
+  const PIXELS_PER_SECOND = 45;
+  const duration = Math.max(halfWidth / PIXELS_PER_SECOND, 8); // never absurdly fast on tiny/narrow content
+  track.style.setProperty('--ticker-duration', `${duration}s`);
+  track.classList.add('ticker-animating');
+}
+
+function initTickerMarquee() {
+  buildTickerMarquee();
+  window.addEventListener('resize', () => {
+    clearTimeout(tickerResizeTimer);
+    tickerResizeTimer = setTimeout(buildTickerMarquee, 300);
+  });
+}
+
 function loadCachedQuotes() {
   try {
     const raw = localStorage.getItem(TICKER_CACHE_KEY);
@@ -5635,19 +5727,28 @@ function saveCachedQuotes() {
 }
 
 function updateTickerDOM(key, q, silent) {
-  const item = document.querySelector(`.ticker-item[data-ticker="${key}"]`);
-  if (!item || !q) return;
-  const valueEl  = item.querySelector('.ticker-value');
-  const changeEl = item.querySelector('.ticker-change');
+  const items = document.querySelectorAll(`.ticker-item[data-ticker="${key}"]`);
+  if (!items.length || !q) return;
   const prev = lastQuotes[key]?.price;
   const up = q.change >= 0;
-  valueEl.textContent  = q.price.toLocaleString('en-IN', { maximumFractionDigits: 2 });
-  changeEl.textContent = `${up ? '+' : ''}${q.change.toFixed(2)} (${up ? '+' : ''}${q.changePercent.toFixed(2)}%)`;
-  changeEl.className   = 'ticker-change mono ' + (up ? 'price-up' : 'price-down');
-  if (!silent && prev != null && Math.abs(q.price - prev) > 0.01) {
-    changeEl.classList.add(q.price > prev ? 'flash-up' : 'flash-down');
-    setTimeout(() => changeEl.classList.remove('flash-up', 'flash-down'), 700);
-  }
+  const priceText  = q.price.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  const changeText = `${up ? '+' : ''}${q.change.toFixed(2)} (${up ? '+' : ''}${q.changePercent.toFixed(2)}%)`;
+  const changeClass = 'ticker-change mono ' + (up ? 'price-up' : 'price-down');
+  const shouldFlash = !silent && prev != null && Math.abs(q.price - prev) > 0.01;
+  const flashClass = shouldFlash ? (q.price > prev ? 'flash-up' : 'flash-down') : null;
+  // Every clone of this symbol (see initTickerMarquee) gets the same update,
+  // so the whole scrolling strip always shows identical, in-sync numbers.
+  items.forEach(item => {
+    const valueEl  = item.querySelector('.ticker-value');
+    const changeEl = item.querySelector('.ticker-change');
+    valueEl.textContent  = priceText;
+    changeEl.textContent = changeText;
+    changeEl.className   = changeClass;
+    if (flashClass) {
+      changeEl.classList.add(flashClass);
+      setTimeout(() => changeEl.classList.remove('flash-up', 'flash-down'), 700);
+    }
+  });
 }
 
 /* ---------- Source: the "market-quotes" Supabase Edge Function ----------
@@ -5724,10 +5825,18 @@ function scheduleNextPoll() {
 }
 
 function initLiveTicker() {
-  loadCachedQuotes();
+  loadCachedQuotes(); // populate any cached numbers first, so...
+  initTickerMarquee(); // ...cloning starts from real widths when a cache exists, not placeholder "—" widths
   updateMarketStatusDOM();
   setInterval(updateMarketStatusDOM, 1000); // clock-accurate open/close flip + staleness check, every second
-  pollQuotes().then(scheduleNextPoll); // first fetch immediately, then self-scheduling loop (never overlapping)
+  pollQuotes().then(() => {
+    scheduleNextPoll();
+    // Real prices are usually a bit wider than the "—" placeholders, so
+    // rebuild once now that actual numbers are in — keeps the loop gap-free
+    // without re-measuring on every 15s poll (that would restart the
+    // animation and cause a visible stutter for no benefit).
+    buildTickerMarquee();
+  });
 }
 
 renderCurriculumList();
