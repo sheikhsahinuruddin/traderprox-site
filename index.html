@@ -350,6 +350,60 @@ h1, h2, h3, h4 {
   #navAuth { margin-left: auto; }
 }
 
+.nav-account-mobile { display: none; position: relative; }
+@media (max-width: 1180px) {
+  .nav-account-mobile { display: block; }
+}
+.nav-account-trigger {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--signal-soft);
+  border: 1px solid rgba(0, 230, 118, 0.28);
+  color: var(--signal);
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.nav-account-trigger:hover { border-color: var(--signal); }
+.nav-account-dropdown {
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: 0;
+  min-width: 190px;
+  background: var(--ink-raised);
+  border: 1px solid var(--ink-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 8px;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 60;
+}
+.nav-account-dropdown-open { display: flex; }
+.nav-account-dropdown a, .nav-account-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--paper-dim);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--body);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.nav-account-dropdown a:hover, .nav-account-dropdown button:hover { background: var(--ink); color: var(--paper); }
+.nav-account-dropdown .nav-account-primary { color: var(--signal); font-weight: 600; }
+
 /* Phase 6 follow-up: defensive guard against horizontal overflow forcing
    the mobile browser to zoom out to fit content (the actual cause was the
    nav auth cluster never collapsing into the hamburger menu — fixed above
@@ -2033,6 +2087,10 @@ body.intro-locked { overflow: hidden; }
       <a href="#" data-nav="home" data-scroll="pricing">Pricing</a>
       <a href="#" data-nav="home" data-scroll="faq">FAQ</a>
       <div class="nav-cta" id="navAuth"></div>
+    </div>
+    <div class="nav-account-mobile" id="navAccountMobile">
+      <button type="button" class="nav-account-trigger" id="navAccountTrigger" aria-label="Manage account"></button>
+      <div class="nav-account-dropdown" id="navAccountDropdown"></div>
     </div>
     <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
   </div>
@@ -5077,6 +5135,35 @@ async function renderNavAuthState() {
       <a href="#" class="btn btn-primary" style="padding:9px 16px;font-size:13.5px;" data-nav="checkout">Get access — ₹159/mo</a>
     `;
   }
+
+  // Mobile account trigger + dropdown — same auth state as above, just a
+  // compact presentation for the space freed up when Admin/username/Logout
+  // moved into the main hamburger menu on narrow screens.
+  const trigger = document.getElementById('navAccountTrigger');
+  const dropdown = document.getElementById('navAccountDropdown');
+  if (trigger && dropdown) {
+    if (user) {
+      trigger.textContent = (user.name || 'A').trim().charAt(0).toUpperCase() || 'A';
+      dropdown.innerHTML = `
+        ${user.isAdmin ? `<a href="#" data-nav="admin">⚙️ Admin</a>` : ''}
+        <a href="#" data-nav="dashboard" class="nav-account-primary">📊 Dashboard</a>
+        <button type="button" id="navAccountLogoutBtn">Log out</button>
+      `;
+      const mobileLogoutBtn = document.getElementById('navAccountLogoutBtn');
+      if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', async () => {
+        dropdown.classList.remove('nav-account-dropdown-open');
+        await Auth.logout();
+        Progress.reset();
+        goTo('home');
+      });
+    } else {
+      trigger.textContent = '👤';
+      dropdown.innerHTML = `
+        <a href="#" data-nav="login">Log in</a>
+        <a href="#" data-nav="checkout" class="nav-account-primary">💎 Get access</a>
+      `;
+    }
+  }
 }
 
 /* ---------- PREMIUM PURCHASE FLOW (via Telegram) ----------
@@ -6574,6 +6661,10 @@ document.getElementById('navToggle').addEventListener('click', () => {
   const links = document.querySelector('.nav-links');
   const open = links.classList.toggle('nav-links-open');
   document.getElementById('navToggle').textContent = open ? '✕' : '☰';
+});
+
+document.getElementById('navAccountTrigger').addEventListener('click', () => {
+  document.getElementById('navAccountDropdown').classList.toggle('nav-account-dropdown-open');
 });
 
 /* ===========================================================
