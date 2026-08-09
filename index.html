@@ -346,6 +346,16 @@ h1, h2, h3, h4 {
 }
 .nav-links a:hover { color: var(--paper) !important; }
 .nav-cta { display: flex; align-items: center; gap: 16px; }
+@media (min-width: 1181px) {
+  #navAuth { margin-left: auto; }
+}
+
+/* Phase 6 follow-up: defensive guard against horizontal overflow forcing
+   the mobile browser to zoom out to fit content (the actual cause was the
+   nav auth cluster never collapsing into the hamburger menu — fixed above
+   by moving it inside .nav-links — but this stays as a safety net against
+   the same class of bug from any other element). */
+html, body { max-width: 100%; overflow-x: hidden; }
 
 .nav-toggle {
   display: none;
@@ -2022,8 +2032,8 @@ body.intro-locked { overflow: hidden; }
       <a href="#" data-nav="home" data-scroll="how-it-works">How it works</a>
       <a href="#" data-nav="home" data-scroll="pricing">Pricing</a>
       <a href="#" data-nav="home" data-scroll="faq">FAQ</a>
+      <div class="nav-cta" id="navAuth"></div>
     </div>
-    <div class="nav-cta" id="navAuth"></div>
     <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
   </div>
 </nav>
