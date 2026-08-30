@@ -67,9 +67,9 @@
   --paper: #F5F5F0;
   --paper-dim: #9BA89C;
   --paper-faint: #718472; /* Phase 6: lightened from #5C6B5D — the original failed WCAG AA (3.3-3.6:1); this reaches 4.67-5.05:1 against ink/ink-raised, same hue */
-  --signal: #00E676;
-  --signal-soft: rgba(0, 230, 118, 0.10);
-  --signal-dim: #00B85F;
+  --signal: #00D0FF;
+  --signal-soft: rgba(0, 208, 255, 0.10);
+  --signal-dim: #0099D6;
   --up: #00E676;
   --up-soft: rgba(0, 230, 118, 0.12);
   --down: #FF5252;
@@ -204,9 +204,9 @@ h1, h2, h3, h4 {
 
 .btn-primary {
   background: var(--signal);
-  color: #00150A !important;
+  color: #001824 !important;
 }
-.btn-primary:hover { background: #29FF8F; box-shadow: 0 0 24px rgba(0,230,118,0.35); }
+.btn-primary:hover { background: #29FF8F; box-shadow: 0 0 24px rgba(0,208,255,0.35); }
 
 .btn-ghost {
   background: transparent;
@@ -330,7 +330,7 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #00150A;
+  color: #001824;
   font-family: var(--mono);
   font-weight: 700;
   font-size: 10.5px;
@@ -359,7 +359,7 @@ h1, h2, h3, h4 {
   height: 38px;
   border-radius: 50%;
   background: var(--signal-soft);
-  border: 1px solid rgba(0, 230, 118, 0.28);
+  border: 1px solid rgba(0, 208, 255, 0.28);
   color: var(--signal);
   font-family: var(--mono);
   font-weight: 700;
@@ -503,8 +503,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(560px 380px at 78% 18%, rgba(0, 230, 118, 0.16), transparent 68%),
-    radial-gradient(420px 320px at 8% 82%, rgba(0, 230, 118, 0.07), transparent 70%);
+    radial-gradient(560px 380px at 78% 18%, rgba(0, 208, 255, 0.16), transparent 68%),
+    radial-gradient(420px 320px at 8% 82%, rgba(0, 208, 255, 0.07), transparent 70%);
   filter: blur(2px);
 }
 @media (max-width: 720px) {
@@ -684,13 +684,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
   gap: 24px;
   margin-top: 28px;
   border-color: var(--signal);
-  background: linear-gradient(135deg, var(--ink-raised), rgba(0,230,118,0.05));
+  background: linear-gradient(135deg, var(--ink-raised), rgba(0,208,255,0.05));
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .game-promo-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0,230,118,0.12);
+  box-shadow: 0 8px 28px rgba(0,208,255,0.12);
 }
 @media (max-width: 640px) {
   .game-promo-card { flex-direction: column; align-items: flex-start; }
@@ -1310,7 +1310,7 @@ body.intro-locked { overflow: hidden; }
   width: 11px;
   border-radius: 3px 3px 1px 1px;
   background: linear-gradient(180deg, var(--signal), var(--signal-dim));
-  filter: drop-shadow(0 0 7px rgba(0, 230, 118, 0.5));
+  filter: drop-shadow(0 0 7px rgba(0, 208, 255, 0.5));
   transform: scaleY(0);
   transform-origin: bottom;
   animation: introBarGrow 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -1334,7 +1334,7 @@ body.intro-locked { overflow: hidden; }
   border-radius: 50%;
   background: var(--signal);
   opacity: 0;
-  filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.9));
+  filter: drop-shadow(0 0 8px rgba(0, 208, 255, 0.9));
   animation: introPingPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   animation-delay: 760ms;
 }
@@ -1378,12 +1378,12 @@ body.intro-locked { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #00150A;
+  color: #001824;
   font-family: var(--mono);
   font-weight: 700;
   font-size: 11px;
   letter-spacing: -0.5px;
-  box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
+  box-shadow: 0 0 20px rgba(0, 208, 255, 0.4);
 }
 .intro-logo-word {
   font-family: var(--display);
@@ -1414,21 +1414,21 @@ body.intro-locked { overflow: hidden; }
   animation: btnGlowPulse 2.6s ease-in-out infinite;
 }
 @keyframes btnGlowPulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(0,230,118,0); }
-  50% { box-shadow: 0 0 26px rgba(0,230,118,0.45); }
+  0%, 100% { box-shadow: 0 0 0 rgba(0,208,255,0); }
+  50% { box-shadow: 0 0 26px rgba(0,208,255,0.45); }
 }
 .btn-arrow { display: inline-block; transition: transform 0.2s ease; margin-left: 2px; }
 .btn-primary:hover .btn-arrow { transform: translateX(4px); }
 
 .market-card-premium {
   position: relative;
-  border-color: rgba(0, 230, 118, 0.3);
-  box-shadow: 0 20px 60px -20px rgba(0, 230, 118, 0.18), 0 0 0 1px rgba(0, 230, 118, 0.05) inset;
+  border-color: rgba(0, 208, 255, 0.3);
+  box-shadow: 0 20px 60px -20px rgba(0, 208, 255, 0.18), 0 0 0 1px rgba(0, 208, 255, 0.05) inset;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .market-card-premium:hover {
   transform: translateY(-3px);
-  box-shadow: 0 26px 70px -18px rgba(0, 230, 118, 0.26), 0 0 0 1px rgba(0, 230, 118, 0.09) inset;
+  box-shadow: 0 26px 70px -18px rgba(0, 208, 255, 0.26), 0 0 0 1px rgba(0, 208, 255, 0.09) inset;
 }
 .market-live-badge {
   position: absolute;
@@ -1438,20 +1438,20 @@ body.intro-locked { overflow: hidden; }
   align-items: center;
   gap: 6px;
   background: var(--signal);
-  color: #00150A;
+  color: #001824;
   font-family: var(--mono);
   font-weight: 700;
   font-size: 11px;
   letter-spacing: 0.06em;
   padding: 5px 12px;
   border-radius: 20px;
-  box-shadow: 0 4px 14px rgba(0, 230, 118, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 208, 255, 0.4);
 }
 .market-live-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #00150A;
+  background: #001824;
   animation: pulse 1.6s ease-in-out infinite;
 }
 .market-live-badge-closed {
@@ -1491,7 +1491,7 @@ body.intro-locked { overflow: hidden; }
   height: 36px;
   border-radius: 50%;
   background: linear-gradient(155deg, var(--signal), #00803D);
-  color: #00150A;
+  color: #001824;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1504,18 +1504,19 @@ body.intro-locked { overflow: hidden; }
 .testimonial-role { font-size: 12px; color: var(--paper-faint); }
 
 /* ===========================================================
-   3D SCROLL SCENE — ambient rotating bar-chart ring
+   3D SCROLL SCENE — ambient rotating diamond/gem
    Pure CSS 3D transforms, no external library. Fades in after
-   the hero, spins continuously, adds extra motion on scroll,
-   fades out near the footer. Hidden on touch/small screens and
-   for prefers-reduced-motion.
+   the hero, spins continuously, grows/shrinks with scroll depth
+   (see initScene3D), fades out near the footer. Now visible on
+   phones too (smaller), not just desktop. Still respects
+   prefers-reduced-motion.
    =========================================================== */
 #scene3d {
   position: fixed;
   top: 50%;
   right: 40px;
-  width: 150px;
-  height: 150px;
+  width: 170px;
+  height: 170px;
   perspective: 900px;
   pointer-events: none;
   z-index: 4;
@@ -1523,8 +1524,8 @@ body.intro-locked { overflow: hidden; }
   transform: translateY(-50%);
   will-change: transform, opacity;
 }
-@media (max-width: 1180px) { #scene3d { right: 16px; width: 120px; height: 120px; } }
-@media (max-width: 980px) { #scene3d { display: none; } }
+@media (max-width: 1180px) { #scene3d { right: 16px; width: 130px; height: 130px; } }
+@media (max-width: 640px) { #scene3d { right: 8px; width: 78px; height: 78px; } }
 @media (prefers-reduced-motion: reduce) { #scene3d { display: none !important; } }
 
 .scene3d-float {
@@ -1544,23 +1545,37 @@ body.intro-locked { overflow: hidden; }
   transform-style: preserve-3d;
 }
 
-.bar3d {
+.gem-facet {
   position: absolute;
   left: 50%;
-  bottom: 50%;
-  width: 15px;
-  height: var(--h);
-  margin-left: -7.5px;
-  border-radius: 4px 4px 2px 2px;
-  background: linear-gradient(180deg, rgba(0,230,118,0.55), rgba(0,230,118,0.08));
-  border: 1px solid rgba(0,230,118,0.4);
-  box-shadow: 0 0 16px rgba(0,230,118,0.28);
-  transform: rotateY(calc(var(--i) * 60deg)) translateZ(68px);
+  top: 50%;
+  width: 42px;
+  height: 82px;
+  margin-left: -21px;
+  margin-top: -41px;
+  clip-path: polygon(35% 0%, 65% 0%, 100% 32%, 50% 100%, 0% 32%);
+  background: linear-gradient(180deg, rgba(0,208,255,0.6), rgba(0,208,255,0.06));
+  border: 1px solid rgba(0,208,255,0.45);
+  box-shadow: 0 0 18px rgba(0,208,255,0.3);
+  transform: rotateY(calc(var(--i) * 45deg)) translateZ(54px);
 }
-.bar3d.down {
-  background: linear-gradient(180deg, rgba(255,82,82,0.5), rgba(255,82,82,0.08));
-  border-color: rgba(255,82,82,0.4);
-  box-shadow: 0 0 16px rgba(255,82,82,0.22);
+.gem-facet:nth-child(even) {
+  background: linear-gradient(180deg, rgba(140,235,255,0.72), rgba(0,208,255,0.08));
+  border-color: rgba(160,240,255,0.55);
+  box-shadow: 0 0 22px rgba(140,235,255,0.38);
+}
+
+.scene3d-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFFFFF, #00D0FF 55%, transparent 100%);
+  box-shadow: 0 0 32px 8px rgba(0,208,255,0.55);
 }
 
 /* ===========================================================
@@ -1799,7 +1814,7 @@ body.intro-locked { overflow: hidden; }
 .bt-replay-btn:hover:not(:disabled) { border-color: var(--signal); color: var(--paper); }
 .bt-replay-btn:active:not(:disabled) { transform: scale(0.93); }
 .bt-replay-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.bt-replay-btn.bt-replay-play { background: var(--signal); color: #00150A; border-color: var(--signal); font-weight: 700; }
+.bt-replay-btn.bt-replay-play { background: var(--signal); color: #001824; border-color: var(--signal); font-weight: 700; }
 .bt-replay-btn.bt-replay-play:hover { background: var(--signal-dim); }
 .bt-replay-speed {
   margin-left: auto; background: var(--ink-raised); border: 1px solid var(--ink-line); color: var(--paper-dim);
@@ -1827,7 +1842,7 @@ body.intro-locked { overflow: hidden; }
 }
 .bt-journal-table td { padding: 10px 12px; border-bottom: 1px solid var(--ink-line); color: var(--paper-dim); font-family: var(--mono); white-space: nowrap; }
 .bt-journal-table tr:last-child td { border-bottom: none; }
-.bt-journal-table tr:hover td { background: rgba(0,230,118,0.03); }
+.bt-journal-table tr:hover td { background: rgba(0,208,255,0.03); }
 .bt-journal-side { font-weight: 700; }
 .bt-journal-side.up { color: var(--up); } .bt-journal-side.down { color: var(--down); }
 .bt-journal-tag {
@@ -2036,12 +2051,14 @@ body.intro-locked { overflow: hidden; }
 <div id="scene3d" aria-hidden="true">
   <div class="scene3d-float">
     <div class="scene3d-rig" id="scene3dRig">
-      <div class="bar3d" style="--i:0;--h:56px;"></div>
-      <div class="bar3d down" style="--i:1;--h:38px;"></div>
-      <div class="bar3d" style="--i:2;--h:70px;"></div>
-      <div class="bar3d down" style="--i:3;--h:46px;"></div>
-      <div class="bar3d" style="--i:4;--h:60px;"></div>
-      <div class="bar3d down" style="--i:5;--h:32px;"></div>
+      <div class="gem-facet" style="--i:0;"></div>
+      <div class="gem-facet" style="--i:1;"></div>
+      <div class="gem-facet" style="--i:2;"></div>
+      <div class="gem-facet" style="--i:3;"></div>
+      <div class="gem-facet" style="--i:4;"></div>
+      <div class="gem-facet" style="--i:5;"></div>
+      <div class="gem-facet" style="--i:6;"></div>
+      <div class="gem-facet" style="--i:7;"></div>
       <div class="scene3d-core"></div>
     </div>
   </div>
@@ -2302,7 +2319,7 @@ body.intro-locked { overflow: hidden; }
       border-radius: 20px;
       margin-bottom: 14px;
     }
-    .badge-beginner { background: rgba(0,230,118,0.12); color: var(--signal); }
+    .badge-beginner { background: rgba(0,208,255,0.12); color: var(--signal); }
     .badge-intermediate { background: rgba(255,200,0,0.12); color: #FFD600; }
     .badge-advanced { background: rgba(255,82,82,0.12); color: var(--down); }
 
@@ -3145,7 +3162,7 @@ body.intro-locked { overflow: hidden; }
             <button type="button" id="clReset" class="btn btn-ghost" style="padding:6px 14px;font-size:12.5px;">Reset</button>
           </div>
           <div style="margin-top:10px;background:var(--ink);border-radius:20px;height:5px;overflow:hidden;">
-            <div id="clBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--signal),#00B85F);border-radius:20px;transition:width 0.4s ease;"></div>
+            <div id="clBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--signal),#0099D6);border-radius:20px;transition:width 0.4s ease;"></div>
           </div>
         </div>`;
       const checks = () => Array.from(CALC_CONTENT.querySelectorAll('.calc-check-row input[type=checkbox]'));
@@ -3212,7 +3229,7 @@ body.intro-locked { overflow: hidden; }
           </div>
           <div id="sessBarWrap" style="margin-top:18px;display:none;">
             <div style="background:var(--ink);border-radius:20px;height:6px;overflow:hidden;">
-              <div id="sessBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--signal),#00B85F);border-radius:20px;transition:width 0.6s ease;"></div>
+              <div id="sessBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--signal),#0099D6);border-radius:20px;transition:width 0.6s ease;"></div>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--paper-faint);margin-top:6px;font-family:var(--mono);">
               <span>09:15</span><span>15:30</span>
@@ -3600,7 +3617,7 @@ body.intro-locked { overflow: hidden; }
 
           <div class="dash-stat-row">
             <!-- Today's Progress Card — real data, same IDs renderDashboard() already binds to -->
-            <div id="progressCard" class="card" data-reveal style="background:linear-gradient(135deg,var(--ink-raised),rgba(0,230,118,0.04));border-color:var(--ink-line);">
+            <div id="progressCard" class="card" data-reveal style="background:linear-gradient(135deg,var(--ink-raised),rgba(0,208,255,0.04));border-color:var(--ink-line);">
               <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
                 <span class="eyebrow">📊 Today's Progress</span>
                 <span id="streakBadge" style="font-size:13px;font-weight:700;color:var(--signal);font-family:var(--mono);">🌱 Start streak!</span>
@@ -3620,7 +3637,7 @@ body.intro-locked { overflow: hidden; }
                 </div>
               </div>
               <div style="margin-top:16px;background:var(--ink);border-radius:20px;height:5px;overflow:hidden;">
-                <div id="progBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--signal),#00B85F);border-radius:20px;transition:width 1.2s ease;"></div>
+                <div id="progBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--signal),#0099D6);border-radius:20px;transition:width 1.2s ease;"></div>
               </div>
               <div style="font-size:11.5px;color:var(--paper-faint);margin-top:6px;" id="progPercent">0% complete</div>
             </div>
@@ -6646,8 +6663,12 @@ function initScene3D() {
     const opacity = Math.min(heroFadeIn, footerFadeOut);
 
     const driftX = 50 * (1 - heroFadeIn); // slides in from the right edge
+    // Grows big near the top, shrinks as you scroll deeper, grows back as
+    // you scroll back up — recomputed from scrollY every frame, so it's a
+    // live, reactive size tied to scroll position, not a one-time animation.
+    const scale = 1.5 - progress * 0.8; // 1.5x near top -> 0.7x near footer
     scene.style.opacity = opacity.toFixed(2);
-    scene.style.transform = `translateY(-50%) translateX(${driftX.toFixed(1)}px)`;
+    scene.style.transform = `translateY(-50%) translateX(${driftX.toFixed(1)}px) scale(${scale.toFixed(3)})`;
 
     const rotation = autoAngle + progress * 900; // extra spin tied to scroll depth
     rig.style.transform = `rotateY(${rotation.toFixed(2)}deg) rotateX(6deg)`;
@@ -8484,7 +8505,7 @@ function renderDistributionChart(stats, trades) {
 
 /* ---------- confetti (A+ grade only) ---------- */
 function launchConfetti() {
-  const colors = ['#00E676', '#00B85F', '#F5F5F0', '#5C6B5D'];
+  const colors = ['#00D0FF', '#0099D6', '#F5F5F0', '#5C6B5D'];
   const layer = document.createElement('div');
   layer.className = 'bt-confetti-layer';
   document.body.appendChild(layer);
