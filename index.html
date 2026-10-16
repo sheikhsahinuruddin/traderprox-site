@@ -87,7 +87,7 @@ button:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid va
   </div>
   <h1>Which train is passing near you?</h1>
   <p class="sub">Track trains across India's railway network. See the train number, where it started, where it's headed, and when it runs next.</p>
-  <div class="how"><div><b>1 · Search</b>Type a train number (like 12951), name or station.</div><div><b>2 · Tap a train</b>See route, next stop, speed and delay on the map.</div><div><b>3 · Live status</b>Any train number can be checked live once the API key is added.</div></div>
+  <div class="how"><div><b>1 · Search</b>Type a train number (like 12951), name or station.</div><div><b>2 · Tap a train</b>See route, next stop, speed and delay on the map.</div><div><b>3 · Live status</b>Any train number gets real running status from RailKit.</div></div>
   <div class="lgd"><span><i style="background:var(--gr)"></i>On time</span><span><i style="background:var(--rd)"></i>Late 20+ min</span><span><i style="background:var(--yl)"></i>Selected</span><span><i style="background:var(--me)"></i>You</span></div>
   <div class="bar">
     <input id="q" type="search" placeholder="Search by train number, name or station" aria-label="Search trains">
@@ -105,7 +105,7 @@ button:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid va
     </div>
     <div class="rl"><h3>Trains <small id="cnt"></small></h3><div id="ls"></div></div>
   </div>
-  <p class="ft">Positions on the map are <b>estimated</b> from sample timetables. Real live status shows up (in the yellow box) only after you add an API key in <code>CFG</code> inside the script. Tip: keep the key on a small proxy server, not in public HTML.</p>
+  <p class="ft">Positions on the map are <b>estimated</b> from sample timetables. Real running status (RailKit) shows in the box below the map. The key sits in <code>CFG</code> in the script; for a public site move it to a small proxy.</p>
 </div>
 <script>
 const $=s=>document.querySelector(s),R=Math.PI/180;
@@ -157,12 +157,13 @@ function state(t,now){
  return{d,dir,pos:at(t,d),order,nx,eta:Math.abs(t.cum[nx]-d)/t.v,sp:Math.round(t.v+Math.sin(now/4000+t.o*9)*6)};
 }
 const fm=h=>{const m=Math.max(1,Math.round(h*60));return m<60?m+' min':Math.floor(m/60)+'h '+m%60+'m'};
-const CFG={key:'',host:'irctc1.p.rapidapi.com'};
+const CFG={key:'railkit_077f22bb7de13a835a76798955f6753238c57b4621125da7',base:'https://railkit.in',header:'x-api-key'};
+const istDate=()=>{const d=new Date(Date.now()+new Date().getTimezoneOffset()*6e4+19800000),p=n=>String(n).padStart(2,'0');return p(d.getDate())+'-'+p(d.getMonth()+1)+'-'+d.getFullYear()};
 const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let lk=null;
-async function live(no){if(!CFG.key)throw Error('nokey');const r=await fetch('https://'+CFG.host+'/api/v1/liveTrainStatus?trainNo='+no+'&startDay=1',{headers:{'x-rapidapi-key':CFG.key,'x-rapidapi-host':CFG.host}});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(!j||!j.data)throw Error('empty');return j.data}
-function lvHtml(d){const g=(...k)=>{for(const x of k)if(d[x]!=null&&d[x]!=='')return d[x]};const u=(g('upcoming_stations')||[]).slice(0,5);return'<b>'+esc(g('train_name','name')||'')+'</b><br>Now at: '+esc(g('current_station_name','current_station')||'—')+' · Delay: '+esc(g('delay')??'—')+' min'+(u.length?'<ul class="tl">'+u.map(s=>'<li>'+esc(s.station_name||s.stationName||'')+'<span>'+esc(s.eta||s.arrival||'')+'</span></li>').join('')+'</ul>':'')}
-const errMsg=e=>e.message==='nokey'?'Live API is not connected yet. Add your key in CFG (top of the script) to see real status.':'Could not fetch live status ('+esc(e.message)+'). Check the train number, key or internet.';
+async function live(no){if(!CFG.key)throw Error('nokey');const r=await fetch(CFG.base+'/api/v1/trains/'+no+'/live/'+istDate(),{headers:{[CFG.header]:CFG.key}});let j;try{j=await r.json()}catch(e){throw Error('HTTP '+r.status)}if(!j||!j.success)throw Error((j&&j.error)||'HTTP '+r.status);return j.data}
+function lvHtml(d){const u=(d.timeline||[]).filter(p=>p.type==='stoppage'&&p.status!=='passed').slice(0,6);return'<b>'+esc(d.trainName||'')+' ('+esc(d.trainNo||'')+')</b><br>'+esc(d.statusNote||'—')+'<br><small>Updated: '+esc(d.lastUpdate||'—')+'</small>'+(u.length?'<ul class="tl">'+u.map(p=>'<li class="'+(p.status==='current'?'n':'')+'">'+esc(p.stationName||'')+(p.platform?' · PF '+esc(p.platform):'')+'<span>'+esc((p.arrival&&p.arrival.actual!=='SRC'?p.arrival.actual:(p.departure&&p.departure.actual)||'')+' '+((p.arrival&&p.arrival.delay)||(p.departure&&p.departure.delay)||''))+'</span></li>').join('')+'</ul>':'')}
+const errMsg=e=>e.message==='nokey'?'Live API key missing in CFG.':/Failed to fetch|NetworkError|Load failed/.test(e.message)?'Browser could not reach RailKit (CORS block or wrong base URL). Open console (F12) and send me the error.':'Live status failed: '+esc(e.message);
 async function lookup(no,box,tag){box.style.display='';box.innerHTML='Checking live status of '+esc(no)+'…';try{const d=await live(no);box.innerHTML=lvHtml(d);if(tag)tag(d)}catch(e){box.innerHTML=errMsg(e)}}
 if(CFG.key){const l=$('#lv');l.classList.remove('est');l.querySelector('span').textContent='Live'}
 let sel=null,near=null,cur=[],q='',flt='all';
