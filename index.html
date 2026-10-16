@@ -1,1799 +1,199 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>InstaRecover — Instagram Account Recovery & Official Appeal Assistant</title>
-  <meta name="description" content="Understand Instagram account restrictions and navigate the official Meta recovery and appeal process safely. Not affiliated with Instagram or Meta." />
-  
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              dark: '#090a0f',
-              surface: '#11131a',
-              card: '#161922',
-              accent: '#9333ea',
-              pink: '#ec4899',
-              orange: '#f97316'
-            }
-          },
-          backgroundImage: {
-            'insta-gradient': 'linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)',
-          }
-        }
-      }
-    }
-  </script>
-  
-  <!-- React & ReactDOM 18 -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  
-  <!-- Babel for JSX transformation in browser -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <style>
-    body {
-      background-color: #090a0f;
-      color: #f4f4f5;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #090a0f;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #27272a;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #3f3f46;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RailRadar – India Live Train Tracker</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Hind:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#f3f5fb;--pn:#fff;--ln:#d6dcee;--tx:#101a3a;--mu:#5a6794;--yl:#ffc83d;--yt:#0d1630;--gr:#14a85a;--rd:#d9483a;--land:#e3e8f6;--trk:#98a5cf;--me:#2f6bff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1630;--pn:#14204a;--ln:#26366b;--tx:#eef1fb;--mu:#93a0c9;--gr:#3ddc84;--rd:#ff6b5e;--land:#1a2a5c;--trk:#4a5d98;--me:#6a9bff;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1630;--pn:#14204a;--ln:#26366b;--tx:#eef1fb;--mu:#93a0c9;--gr:#3ddc84;--rd:#ff6b5e;--land:#1a2a5c;--trk:#4a5d98;--me:#6a9bff;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 Hind,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.w{max-width:1100px;margin:0 auto;padding:14px}
+.hd{display:flex;justify-content:space-between;align-items:center}
+.lg{font:700 26px/1 "Barlow Condensed",Impact,sans-serif;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.lg i{width:26px;height:26px;border-radius:7px;background:var(--yl);display:grid;place-items:center}
+.lv{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gr);font-weight:600}
+.lv b{width:8px;height:8px;border-radius:50%;background:var(--gr);animation:pl 1.6s infinite}
+@keyframes pl{50%{opacity:.25}}
+h1{font:700 clamp(32px,6vw,48px)/1.02 "Barlow Condensed",Impact,sans-serif;margin:18px 0 6px}
+.sub{margin:0 0 14px;color:var(--mu);max-width:58ch}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.bar input{flex:1 1 220px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:inherit}
+button{font:600 15px Hind,sans-serif;cursor:pointer}
+button:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid var(--yl);outline-offset:2px}
+#nb{padding:12px 16px;border-radius:12px;border:0;background:var(--yl);color:var(--yt)}
+.tb{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tb button{padding:7px 14px;border-radius:20px;border:1px solid var(--ln);background:var(--pn);color:var(--mu)}
+.tb button.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+#nm{margin:0 0 12px;font-size:14px;color:var(--mu)}
+.g{display:grid;gap:14px}
+@media(min-width:900px){.g{grid-template-columns:1.15fr .85fr;align-items:start}.sticky{position:sticky;top:14px}}
+.mp{background:var(--pn);border:1px solid var(--ln);border-radius:18px;overflow:hidden}
+.mp svg{display:block;width:100%;height:auto;max-height:78vh}
+.st{display:flex;gap:18px;padding:10px 14px;border-top:1px solid var(--ln);font-size:14px;color:var(--mu);flex-wrap:wrap}
+.st b{font:700 22px "Barlow Condensed",sans-serif;color:var(--tx);margin-right:4px}
+.dt{margin-top:14px;border:1px solid var(--ln);border-radius:14px;background:var(--pn);padding:14px}
+.hint{color:var(--mu);margin:0}
+.dh{display:flex;gap:10px;align-items:center}
+.dh h2{margin:0;font:700 24px/1.1 "Barlow Condensed",sans-serif}
+.no{background:var(--yl);color:var(--yt);font:700 20px/1 "Barlow Condensed",sans-serif;padding:6px 9px;border-radius:6px;white-space:nowrap}
+.pg{height:6px;border-radius:3px;background:var(--ln);margin:12px 0}
+.pg div{height:100%;border-radius:3px;background:var(--yl)}
+.tl{list-style:none;margin:0;padding:0 0 0 4px}
+.tl li{display:flex;gap:12px;align-items:center;padding:6px 0;color:var(--mu)}
+.tl li::before{content:"";width:10px;height:10px;border-radius:50%;border:2px solid var(--trk);flex:none;background:var(--pn)}
+.tl li.p::before{background:var(--trk)}
+.tl li.n{color:var(--tx);font-weight:600}
+.tl li.n::before{border-color:var(--yl);background:var(--yl)}
+.tl li span{margin-left:auto;font-size:14px}
+.dy{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.dy span{padding:4px 9px;border-radius:6px;border:1px solid var(--ln);font-size:13px;color:var(--mu)}
+.dy span.on{background:var(--yl);color:var(--yt);border-color:var(--yl);font-weight:600}
+.nr{margin:10px 0 0;font-weight:600}
+.rl{background:var(--pn);border:1px solid var(--ln);border-radius:14px;overflow:hidden}
+.rl h3{margin:0;padding:12px 14px;font:700 20px "Barlow Condensed",sans-serif;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between}
+.rl h3 small{font:400 13px Hind,sans-serif;color:var(--mu);align-self:center}
+.row{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--ln);cursor:pointer}
+.row:last-child{border-bottom:0}
+.row.on{background:color-mix(in srgb,var(--yl) 14%,transparent)}
+.row .m{flex:1;min-width:0}
+.nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt,.nx{font-size:13.5px;color:var(--mu)}
+.tag{font-size:13px;font-weight:600;color:var(--gr);white-space:nowrap;text-align:right}
+.tag.late{color:var(--rd)}.tag.off{color:var(--mu)}
+.empty{padding:18px 14px;color:var(--mu)}
+.ft{margin:16px 0 4px;font-size:13px;color:var(--mu)}
+.ring{fill:var(--me);fill-opacity:.1;stroke:var(--me);stroke-opacity:.5}
+@media(prefers-reduced-motion:reduce){.lv b{animation:none}}
+</style>
 </head>
-<body class="min-h-screen bg-[#090a0f] text-zinc-100 antialiased selection:bg-purple-600 selection:text-white">
-  <div id="root"></div>
-
-  <!-- Main Standalone Application Script -->
-  <script type="text/babel">
-    const { useState, useEffect, useMemo } = React;
-
-    // --- Inline Crisp SVG Icons for complete reliability ---
-    const IconShield = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-    );
-    const IconShieldCheck = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-    );
-    const IconShieldAlert = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v4m0 4h.01" /></svg>
-    );
-    const IconAlertTriangle = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-    );
-    const IconLock = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M7 11V7a5 5 0 0110 0v4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    );
-    const IconClock = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2" /><path d="M12 6v6l4 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    );
-    const IconKeyRound = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 2l-2 2m-1.5 1.5L14 9a5 5 0 10-2 2l7.5-7.5m0 0L21 2m-1.5 1.5l1.5 1.5M16 7l1.5 1.5" /></svg>
-    );
-    const IconUserX = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m8-10a4 4 0 100-8 4 4 0 000 8zm8 2l5 5m0-5l-5 5" /></svg>
-    );
-    const IconFileCheck = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-    );
-    const IconBan = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.93 4.93l14.14 14.14" /></svg>
-    );
-    const IconSmartphone = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2" strokeWidth="2" /><path d="M12 18h.01" strokeWidth="2" strokeLinecap="round" /></svg>
-    );
-    const IconSparkles = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
-    );
-    const IconLifeBuoy = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" strokeWidth="2" /><circle cx="12" cy="12" r="4" strokeWidth="2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.93 4.93l4.24 4.24m5.66 5.66l4.24 4.24m-14.14 0l4.24-4.24m5.66-5.66l4.24-4.24" /></svg>
-    );
-    const IconFileText = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-    );
-    const IconCheckSquare = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-    );
-    const IconExternalLink = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-    );
-    const IconBookOpen = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-    );
-    const IconArrowRight = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-    );
-    const IconArrowLeft = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-    );
-    const IconCopy = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-    );
-    const IconCheck = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-    );
-    const IconCheckCircle2 = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-    );
-    const IconTrash2 = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-    );
-    const IconSearch = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" strokeWidth="2" /><line x1="21" y1="21" x2="16.65" y2="16.65" strokeWidth="2" strokeLinecap="round" /></svg>
-    );
-    const IconRotateCcw = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 4v6h6m-3.5 10a9 9 0 113.13-14.86L1 10" /></svg>
-    );
-    const IconDownload = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-    );
-    const IconX = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-    );
-    const IconMenu = ({ className = "w-4 h-4" }) => (
-      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-    );
-
-    // --- Data Definitions ---
-    const CATEGORIES_DATA = [
-      {
-        id: 'disabled',
-        title: 'Account Disabled',
-        badge: 'Deactivated by Meta',
-        badgeColor: 'red',
-        icon: IconShieldAlert,
-        shortDescription: 'Your account was turned off for allegedly violating Terms of Use or Community Guidelines.',
-        keyIndicators: [
-          'Screen says "Your account has been disabled for violating our terms"',
-          'Friends see "Instagram User" or profile not found',
-          'Cannot find username when trying to reset password'
-        ],
-        recommendedAction: 'Submit the official Meta Deactivated Account Appeal Form with government identification if requested.',
-        isAppealable: true
-      },
-      {
-        id: 'suspended',
-        title: 'Account Suspended',
-        badge: '180-Day Notice',
-        badgeColor: 'amber',
-        icon: IconClock,
-        shortDescription: 'Temporary suspension pending identity review or confirmation of community standard compliance.',
-        keyIndicators: [
-          'Message says "We suspended your account on [Date]"',
-          'States "You have 180 days left to disagree with our decision"',
-          'Requires phone number SMS or selfie verification to proceed'
-        ],
-        recommendedAction: 'Tap "Disagree with decision" directly in the app and follow the on-screen SMS and selfie steps.',
-        isAppealable: true
-      },
-      {
-        id: 'login_problem',
-        title: 'Login Problem & 2FA',
-        badge: 'Access Issue',
-        badgeColor: 'blue',
-        icon: IconKeyRound,
-        shortDescription: 'Forgotten credentials, endless login loop, lost 2-Factor Authentication backup codes.',
-        keyIndicators: [
-          'Cannot receive SMS code to registered number',
-          'Authenticator app lost after phone switch or reset',
-          'Looping back to login screen without specific violation message'
-        ],
-        recommendedAction: 'Use Instagram Login Support ("Need more help?") and select "I can\'t access this email or phone number".',
-        isAppealable: false
-      },
-      {
-        id: 'hacked',
-        title: 'Hacked / Compromised',
-        badge: 'Security Incident',
-        badgeColor: 'purple',
-        icon: IconUserX,
-        shortDescription: 'Someone else gained unauthorized access, changed your linked email, phone, or enabled rogue 2FA.',
-        keyIndicators: [
-          'Received email saying "Your email was changed to..." without consent',
-          'Followers report spam or crypto posts from your account',
-          'Password was unexpectedly changed and you are logged out'
-        ],
-        recommendedAction: 'Visit instagram.com/hacked immediately, check for "Secure my account" email links, or submit video selfie.',
-        isAppealable: true
-      },
-      {
-        id: 'identity_verification',
-        title: 'Identity Verification',
-        badge: 'Verification Gate',
-        badgeColor: 'blue',
-        icon: IconFileCheck,
-        shortDescription: 'Instagram requires you to prove ownership or confirm age before restoring full access.',
-        keyIndicators: [
-          '"Help us confirm you own this account"',
-          'Prompt asking to upload a valid photo ID (Driver\'s License, Passport)',
-          'Prompt asking to record a video selfie turning head in multiple directions'
-        ],
-        recommendedAction: 'Follow the official in-app prompt in good lighting. Ensure full ID corners and name match your account.',
-        isAppealable: true
-      },
-      {
-        id: 'action_blocked',
-        title: 'Action Block / Temporary',
-        badge: 'Rate Limit',
-        badgeColor: 'amber',
-        icon: IconBan,
-        shortDescription: 'Temporary restriction on liking, commenting, following, or direct messaging due to rapid activity.',
-        keyIndicators: [
-          'Popup says "Try Again Later: We limit how often you can do certain things"',
-          'Account is visible and you can log in, but specific actions fail',
-          'Usually expires automatically within 24 to 72 hours'
-        ],
-        recommendedAction: 'Cease all high-frequency actions, disconnect third-party follower tracker apps, and wait 24-48 hours.',
-        isAppealable: false
-      },
-      {
-        id: 'device_restricted',
-        title: 'Device or Network Restriction',
-        badge: 'Network / Device Flag',
-        badgeColor: 'emerald',
-        icon: IconSmartphone,
-        shortDescription: 'Your phone hardware or current IP address is flagged as suspicious by automated anti-spam filters.',
-        keyIndicators: [
-          '"Sorry, there was a problem with your request" on login',
-          'Account logs in fine on a computer or friend\'s phone, but fails on your app',
-          'Recent use of public proxy, shared VPN, or creating multiple new accounts'
-        ],
-        recommendedAction: 'Switch to cellular data, restart router, reinstall Instagram app, and avoid VPN rotation.',
-        isAppealable: false
-      }
-    ];
-
-    const COMMON_ERRORS = {
-      disabled: [
-        'Your account has been disabled for violating our terms.',
-        'Your account was disabled for not following our Community Guidelines.',
-        'We deactivated your account because you might be under 13 years old.'
-      ],
-      suspended: [
-        'We suspended your account on [Date]. You have 180 days left to disagree with this decision.',
-        'Your account doesn\'t follow our Community Guidelines. You can disagree with the decision.'
-      ],
-      login_problem: [
-        'Sorry, your password was incorrect. Please double-check your password.',
-        'We couldn\'t find an account with that username or email.',
-        'Enter the 6-digit login code from your authentication app.'
-      ],
-      hacked: [
-        'The email associated with your account was changed to an unfamiliar address.',
-        'Suspicious login attempt detected from an unknown device or country.'
-      ],
-      identity_verification: [
-        'Help us confirm you own this account.',
-        'Take a video selfie: We need a short video of you turning your head.',
-        'Upload a photo of your government-issued ID.'
-      ],
-      action_blocked: [
-        'Try Again Later: We limit how often you can do certain things on Instagram.',
-        'Your account has been temporarily blocked from taking this action.'
-      ],
-      device_restricted: [
-        'Sorry, there was a problem with your request.',
-        'An unknown network error has occurred.'
-      ]
-    };
-
-    const OFFICIAL_LINKS_DATA = [
-      {
-        id: 'res-hacked',
-        title: 'Instagram Compromised Account Portal',
-        category: 'Compromised',
-        desc: 'The official self-service triage hub built by Meta specifically for hacked accounts, lost 2FA, and video selfie recovery.',
-        url: 'https://www.instagram.com/hacked',
-        tags: ['Hacked', '2FA Lost', 'Video Selfie']
-      },
-      {
-        id: 'res-deactivated',
-        title: 'Deactivated Personal Account Appeal Form',
-        category: 'Appeals',
-        desc: 'Official Meta form to submit an appeal if you believe your personal Instagram account was deactivated or disabled by mistake.',
-        url: 'https://help.instagram.com/contact/606967319425038',
-        tags: ['Disabled', 'Deactivated', 'Human Review']
-      },
-      {
-        id: 'res-business',
-        title: 'Deactivated Business Account Appeal Form',
-        category: 'Business',
-        desc: 'Official appeal form specifically for commercial or creator accounts requiring business registration verification.',
-        url: 'https://help.instagram.com/contact/1652567838289083',
-        tags: ['Business', 'Commerce', 'Ads']
-      },
-      {
-        id: 'res-age',
-        title: 'Age Verification / Under-13 Appeal Form',
-        category: 'Verification',
-        desc: 'Submit government-issued photo identification to prove you meet the minimum age requirement (13+).',
-        url: 'https://help.instagram.com/contact/396169787183059',
-        tags: ['Age', 'ID Check', 'Legal']
-      },
-      {
-        id: 'res-2fa',
-        title: 'Two-Factor Authentication Troubleshooting',
-        category: 'Verification',
-        desc: 'Official guidance on retrieving backup codes and resetting authenticator apps.',
-        url: 'https://help.instagram.com/374546259294234',
-        tags: ['2FA', 'SMS Code', 'Backup']
-      },
-      {
-        id: 'res-meta-business',
-        title: 'Meta Business Help & Live Support',
-        category: 'Business',
-        desc: 'Live chat and priority ticket support available to advertisers and verified business managers.',
-        url: 'https://www.facebook.com/business/help/support',
-        tags: ['Live Chat', 'Priority Support']
-      }
-    ];
-
-    const GUIDES_DATA = [
-      {
-        id: 'guide-1',
-        title: 'Difference Between Account Suspension and Disablement',
-        readTime: '3 min read',
-        category: 'Status',
-        summary: 'Learn what the 180-day countdown means, how it differs from deactivation, and why immediate action matters.',
-        content: `When an account is suspended, Meta freezes your account visibility and presents a banner stating "You have 180 days left to disagree with this decision." During this phase, your data is retained and you have a formal right to appeal directly inside the app. Once an account is formally disabled, in-app buttons usually lock, and you must use external Meta web appeal forms. If the 180-day grace period lapses without an appeal, accounts are permanently deleted.`
-      },
-      {
-        id: 'guide-2',
-        title: 'Temporary Action Restrictions ("Try Again Later")',
-        readTime: '3 min read',
-        category: 'Rate Limits',
-        summary: 'Why rapid following, unfollowing, liking, or third-party apps trigger rate limits, and the safe cooldown period.',
-        content: `Instagram imposes automated hourly and daily velocity caps on actions like liking, commenting, following, and DMing to counter spam. Connecting third-party tracker apps ("Who Unfollowed Me") logs into your account via untrusted cloud servers, triggering security blocks. These blocks typically expire on their own within 24 to 72 hours. Continuously tapping the button resets the automated cooldown timer.`
-      },
-      {
-        id: 'guide-3',
-        title: 'The New Account Restriction Loop',
-        readTime: '4 min read',
-        category: 'Anti-Spam Heuristics',
-        summary: 'Why creating multiple replacement accounts right after a ban triggers immediate restrictions.',
-        content: `When an account is suspended, automated anti-abuse systems monitor registration activity originating from the same device fingerprint, IP subnet, or linked contact details. If a user immediately attempts to register multiple accounts in rapid succession, algorithms flag the activity as characteristic of automated spam farms. Instead, focus on legitimate appeals for your original account.`
-      },
-      {
-        id: 'guide-4',
-        title: 'Device and IP Myths: Why VPNs Don’t Guarantee Recovery',
-        readTime: '4 min read',
-        category: 'Technical Facts',
-        summary: 'Debunking myths regarding IP bans, device blacklists, VPN switching, and hardware spoofing.',
-        content: `Account bans are tied to your account credentials (user ID, username, registered email), not just your IP address. Switching to a VPN does not unban an account, and shared VPN IP ranges are often pre-flagged by Meta firewalls. Most errors like "Sorry, there was a problem with your request" are temporary device rate limits that clear after logging in through a desktop browser, reinstalling the app, or waiting 48 hours.`
-      },
-      {
-        id: 'guide-5',
-        title: 'How Official Instagram Appeals Work',
-        readTime: '4 min read',
-        category: 'Appeals',
-        summary: 'An objective overview of AI triage, proof of authentic ownership requests, and review queues.',
-        content: `Initial enforcements are predominantly automated heuristics based on community reports, keyword detection, and image analysis. When you submit an appeal, an automated triage system checks eligibility. Meta frequently requests a photo holding a handwritten piece of paper with a 5-digit code, your name, and username to prove human ownership. Valid appeals then enter a human review queue taking 48 hours to 2 weeks.`
-      },
-      {
-        id: 'guide-6',
-        title: 'Basic Account Security Practices',
-        readTime: '3 min read',
-        category: 'Security',
-        summary: 'Essential best practices to fortify your account and maintain good standing with platform algorithms.',
-        content: `1. Switch to an authenticator app (Google Authenticator, Microsoft Authenticator) instead of SMS 2FA to prevent SIM-swap attacks.
-2. Store your 8-digit backup recovery codes offline.
-3. Disconnect unauthorized third-party apps via Settings > Website Permissions > Apps and Websites.
-4. Ensure your linked email account has 2FA enabled.`
-      }
-    ];
-
-    const CHECKLIST_ITEMS_DATA = [
-      { id: 'chk-1', title: 'Verify public profile visibility', desc: 'Visit instagram.com/your_username in an incognito window to check if it says "User not found".', stage: 'diagnose' },
-      { id: 'chk-2', title: 'Check linked email & spam folders', desc: 'Search for official alerts from @mail.instagram.com, especially "Email Changed" or "Account Suspended".', stage: 'diagnose', important: true },
-      { id: 'chk-3', title: 'Document the exact error banner', desc: 'Take a clear screenshot of the error message or suspension date for your records.', stage: 'diagnose' },
-      { id: 'chk-4', title: 'Prepare government photo ID', desc: 'Have a valid Passport or Driver\'s License ready in case Meta requests identity confirmation.', stage: 'prepare' },
-      { id: 'chk-5', title: 'Confirm access to contact email', desc: 'Ensure you can securely receive emails and codes on the address you\'ll list on your appeal.', stage: 'prepare', important: true },
-      { id: 'chk-6', title: 'Generate polite, factual appeal statement', desc: 'Use our Appeal Generator to write a respectful draft without emotional or fabricated claims.', stage: 'appeal' },
-      { id: 'chk-7', title: 'Submit exclusively via official channels', desc: 'Submit only via in-app "Disagree with decision" button or verified help.instagram.com forms.', stage: 'appeal', important: true },
-      { id: 'chk-8', title: 'Observe the 48–72 hour waiting window', desc: 'Avoid submitting multiple duplicate appeals within 48 hours to prevent queue penalties.', stage: 'appeal' },
-      { id: 'chk-9', title: 'Enable Authenticator App 2FA', desc: 'Upon regaining access, turn on 2FA using Google/Microsoft Authenticator in Accounts Center.', stage: 'harden', important: true },
-      { id: 'chk-10', title: 'Save 8-digit emergency backup codes', desc: 'Store your 8-digit Instagram backup recovery codes in a safe offline location.', stage: 'harden' },
-      { id: 'chk-11', title: 'Revoke untrusted third-party apps', desc: 'Remove any follower trackers or auto-likers in Settings > Website Permissions.', stage: 'harden' }
-    ];
-
-    // --- Main Application Component ---
-    function InstaRecoverApp() {
-      const [activeTab, setActiveTab] = useState('home');
-      const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-      // Wizard State
-      const [wizardStep, setWizardStep] = useState(1);
-      const [wizardAnswers, setWizardAnswers] = useState({
-        type: 'disabled',
-        message: '',
-        customMessage: '',
-        access: 'yes'
-      });
-      const [diagnosticResult, setDiagnosticResult] = useState(null);
-
-      // Appeal State
-      const [appealForm, setAppealForm] = useState({
-        username: '',
-        fullName: '',
-        email: '',
-        accountType: 'personal',
-        restrictionType: 'disabled',
-        believesMistake: true,
-        incident: '',
-        additional: '',
-        tone: 'professional'
-      });
-      const [copiedDraft, setCopiedDraft] = useState(false);
-
-      // Checklist State
-      const [completedChecks, setCompletedChecks] = useState(() => {
-        try {
-          const saved = localStorage.getItem('instarecover_checks');
-          return saved ? JSON.parse(saved) : ['chk-1'];
-        } catch {
-          return ['chk-1'];
-        }
-      });
-
-      // Knowledge Base State
-      const [guideSearch, setGuideSearch] = useState('');
-      const [expandedGuide, setExpandedGuide] = useState('guide-1');
-      const [resourceSearch, setResourceSearch] = useState('');
-
-      const toggleCheck = (id) => {
-        let updated;
-        if (completedChecks.includes(id)) {
-          updated = completedChecks.filter(item => item !== id);
-        } else {
-          updated = [...completedChecks, id];
-        }
-        setCompletedChecks(updated);
-        try {
-          localStorage.setItem('instarecover_checks', JSON.stringify(updated));
-        } catch {}
-      };
-
-      const handleResetAllData = () => {
-        try {
-          localStorage.removeItem('instarecover_checks');
-        } catch {}
-        setCompletedChecks([]);
-        setWizardStep(1);
-        setWizardAnswers({ type: 'disabled', message: '', customMessage: '', access: 'yes' });
-        setDiagnosticResult(null);
-        setAppealForm({
-          username: '',
-          fullName: '',
-          email: '',
-          accountType: 'personal',
-          restrictionType: 'disabled',
-          believesMistake: true,
-          incident: '',
-          additional: '',
-          tone: 'professional'
-        });
-        alert('All local session and checklist data has been reset.');
-      };
-
-      // Diagnostic Evaluation
-      const runDiagnostic = () => {
-        const { type, access } = wizardAnswers;
-        let outcome = {
-          title: 'Official Account Recovery Path',
-          severity: 'high',
-          timeframe: '48h – 7 business days',
-          summary: 'Your account is currently restricted by automated or human review systems. Follow official Meta workflows.',
-          officialUrl: 'https://help.instagram.com/',
-          officialName: 'Instagram Official Help & Review Channel',
-          steps: [
-            'Log into Instagram on a desktop browser to view the unformatted notice.',
-            'Locate the official appeal form or in-app "Disagree with decision" button.',
-            'Submit a clear appeal statement explaining your situation.'
-          ],
-          whatNotToDo: [
-            'Never pay third parties or "recovery hackers" on Telegram or Instagram.',
-            'Do not spam appeal forms multiple times per day.'
-          ],
-          prefill: 'My account was restricted unexpectedly. I follow all Community Guidelines and request a human review.'
-        };
-
-        if (type === 'hacked' || access === 'no') {
-          outcome = {
-            title: 'Compromised Account & Credential Recovery',
-            severity: 'critical',
-            timeframe: '24h – 5 business days',
-            summary: 'Because your linked contact details are altered or inaccessible, standard password resets will fail. You must use Meta\'s dedicated compromised account workflow.',
-            officialUrl: 'https://www.instagram.com/hacked',
-            officialName: 'Meta Official Hacked Portal (instagram.com/hacked)',
-            steps: [
-              'Visit https://www.instagram.com/hacked on a phone or computer you previously used.',
-              'Select "My account was hacked" or "Login code was sent to an email/phone I don\'t have".',
-              'Enter your original username.',
-              'Select "Try another way" -> "Get support" to trigger the Video Selfie verification.'
-            ],
-            whatNotToDo: [
-              'Never share any 6-digit SMS code with anyone claiming to help you.',
-              'Never pay for "unban services" or cryptocurrency recovery agents.'
-            ],
-            prefill: 'My account was compromised by an unauthorized party who altered my login settings. I am the authentic owner ready for selfie ID verification.'
-          };
-        } else if (type === 'disabled') {
-          outcome = {
-            title: 'Deactivated / Disabled Account Formal Appeal',
-            severity: 'high',
-            timeframe: '48h – 14 business days',
-            summary: 'Your account was disabled for an alleged violation of terms. If this was an automated mistake, you can submit the formal deactivated account appeal form.',
-            officialUrl: 'https://help.instagram.com/contact/606967319425038',
-            officialName: 'Official Meta Deactivated Account Appeal Form',
-            steps: [
-              'Open the official Meta Deactivated Account Appeal Form.',
-              'Enter your full legal name, Instagram handle, and the active email linked to the account.',
-              'Paste a concise, respectful appeal statement.',
-              'Watch your email for a response from Meta requesting a photo holding a handwritten 5-digit code.'
-            ],
-            whatNotToDo: [
-              'Do not send abusive messages to support; polite appeals have higher success rates.',
-              'Do not use VPNs while submitting the appeal form.'
-            ],
-            prefill: 'My account was disabled without prior warning. I strictly follow Instagram Community Guidelines and believe this was an automated false positive.'
-          };
-        } else if (type === 'suspended') {
-          outcome = {
-            title: '180-Day Suspension Disagreement Flow',
-            severity: 'high',
-            timeframe: '24h – 7 business days',
-            summary: 'You are in the 180-day grace period. In this state, your profile data still exists on Meta servers. You must complete the in-app disagreement steps before the timer expires.',
-            officialUrl: 'https://help.instagram.com/',
-            officialName: 'In-App "Disagree With Decision" Sequence',
-            steps: [
-              'Open the official Instagram mobile app.',
-              'Tap the blue "Disagree with decision" button.',
-              'Complete the SMS verification and follow any selfie instructions.',
-              'Allow 48-72 hours for Meta to review the request.'
-            ],
-            whatNotToDo: [
-              'Do not let the 180 days elapse without submitting the disagreement.',
-              'Do not upload altered or digitally modified identity cards.'
-            ],
-            prefill: 'My account was placed under suspension. I completed the in-app verification and respectfully request a review to restore access.'
-          };
-        } else if (type === 'action_blocked') {
-          outcome = {
-            title: 'Temporary Action Restriction (Rate Limit)',
-            severity: 'low',
-            timeframe: '24 – 72 hours automatically',
-            summary: 'Your account is not banned. An automated rate limit was triggered by rapid following, liking, or third-party apps.',
-            officialUrl: 'https://help.instagram.com/',
-            officialName: 'Automatic 48-Hour Cooldown Protocol',
-            steps: [
-              'Completely pause the restricted action (following, liking, DMing) for 48 hours.',
-              'Disconnect all third-party tracker apps in Settings > Website Permissions.',
-              'Change your password to revoke active third-party app sessions.',
-              'Switch from Wi-Fi to cellular mobile data.'
-            ],
-            whatNotToDo: [
-              'Do NOT repeatedly tap the blocked button; this resets the cooldown timer.',
-              'Do not use automated bot scripts.'
-            ],
-            prefill: 'I am experiencing a temporary action restriction and have disconnected third-party apps to comply with rate limits.'
-          };
-        } else if (type === 'device_restricted') {
-          outcome = {
-            title: 'Device or Network Perimeter Flag',
-            severity: 'medium',
-            timeframe: '24 – 72 hours',
-            summary: 'Your current network IP or mobile device is temporarily throttled by anti-spam perimeter filters.',
-            officialUrl: 'https://help.instagram.com/',
-            officialName: 'Network Isolation & Browser Verification',
-            steps: [
-              'Try logging in via a desktop computer browser (Chrome/Edge in Incognito).',
-              'Disable any active VPNs, proxies, or iCloud Private Relay.',
-              'Switch between Wi-Fi and Cellular Mobile Data.',
-              'Reinstall the official Instagram app from Google Play or Apple App Store.'
-            ],
-            whatNotToDo: [
-              'NEVER download modified APKs (Instagram mods); they result in permanent bans.',
-              'Do not create multiple new accounts in rapid succession on this device.'
-            ],
-            prefill: 'I am experiencing a network connection restriction on my device while attempting to log into my account.'
-          };
-        }
-
-        setDiagnosticResult(outcome);
-        setWizardStep(4);
-      };
-
-      // Appeal Draft Generation
-      const generatedAppealText = useMemo(() => {
-        const u = appealForm.username.trim() || '[Your Username]';
-        const name = appealForm.fullName.trim() || '[Your Full Name]';
-        const em = appealForm.email.trim() || '[Your Email]';
-        const inc = appealForm.incident.trim() || 'my account was restricted unexpectedly without prior notice.';
-        const extra = appealForm.additional.trim();
-
-        let core = '';
-        if (appealForm.tone === 'business') {
-          core = `This is an official ${appealForm.accountType === 'creator' ? 'creator' : 'business'} account used to communicate with our community and clients. The restriction occurred recently:
-"${inc}"
-
-${appealForm.believesMistake ? 'We believe this restriction was triggered erroneously by automated spam filters, as our organization strictly adheres to all Meta Terms of Service.' : 'We take full responsibility for maintaining community compliance and respectfully request an opportunity to resolve any unintended oversight.'}
-
-${extra ? `Additional Business Details:\n${extra}\n` : ''}We are prepared to furnish business registration documents, licenses, or government photo ID upon request.`;
-        } else if (appealForm.tone === 'compromised') {
-          core = `I believe my account was compromised by unauthorized third-party activity prior to this restriction:
-"${inc}"
-
-${appealForm.believesMistake ? 'Any policy infractions that occurred were unauthorized and not performed by me. As soon as I realized, I took steps to secure my account.' : 'I am the legitimate creator and original owner of this profile.'}
-
-${extra ? `Compromise Context:\n${extra}\n` : ''}I am prepared to complete official video selfie verification or submit valid government identification to prove authentic ownership.`;
-        } else if (appealForm.tone === 'humble') {
-          core = `I am reaching out respectfully regarding the restriction on my account (@${u.replace('@', '')}).
-Details:
-"${inc}"
-
-${appealForm.believesMistake ? 'I have always endeavored to be a positive member of the Instagram community and believe this restriction may be an automated error.' : 'If any inadvertent action on my part violated community guidelines, I sincerely apologize. I have thoroughly reviewed the rules to ensure full future compliance.'}
-
-${extra ? `Additional Context:\n${extra}\n` : ''}I kindly request your patience and consideration in granting a human re-review of my account.`;
-        } else {
-          core = `I am submitting this appeal to respectfully request a human review of the restriction on my account (@${u.replace('@', '')}).
-Summary of the situation:
-"${inc}"
-
-${appealForm.believesMistake ? 'Based on a thorough review of the Instagram Community Guidelines, I believe this enforcement was applied in error due to automated pattern detection.' : 'I value platform integrity and am committed to maintaining compliance with all rules.'}
-
-${extra ? `Supporting Information:\n${extra}\n` : ''}I am the authentic owner of this profile, have secure access to the registered contact details, and am available to provide any requested identification.`;
-        }
-
-        return `Subject: Official Account Appeal & Review Request - @${u.replace('@', '')}
-
-Dear Instagram Review & Operations Team,
-
-I am writing to formally request a manual human review regarding the restriction on my Instagram account (@${u.replace('@', '')}).
-
-${core}
-
-Thank you for your time, review, and dedication to keeping the platform safe.
-
-Sincerely,
-${name}
-Username: @${u.replace('@', '')}
-Contact Email: ${em}
-Submitted via Official Instagram Review Channels`;
-      }, [appealForm]);
-
-      const handleCopyAppeal = () => {
-        navigator.clipboard.writeText(generatedAppealText);
-        setCopiedDraft(true);
-        setTimeout(() => setCopiedDraft(false), 2500);
-      };
-
-      const handleDownloadAppeal = () => {
-        const blob = new Blob([generatedAppealText], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `instagram_appeal_${appealForm.username.replace('@', '') || 'draft'}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-      };
-
-      const handleStartWizardFromCat = (catId) => {
-        setWizardAnswers(prev => ({ ...prev, type: catId }));
-        setActiveTab('wizard');
-        setWizardStep(2);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
-
-      const handleStartAppealFromCat = (catId, prefill = '') => {
-        setAppealForm(prev => ({
-          ...prev,
-          restrictionType: catId,
-          incident: prefill || prev.incident
-        }));
-        setActiveTab('appeal');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
-
-      return (
-        <div className="flex flex-col min-h-screen">
-          {/* 1. TOP DISCLAIMER & SAFETY BANNER */}
-          <div className="bg-gradient-to-r from-purple-950 via-zinc-900 to-rose-950 border-b border-purple-500/20 text-xs py-2 px-4 text-zinc-300">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <IconShieldCheck className="w-4 h-4 text-purple-400 shrink-0" />
-                <span>
-                  <strong className="text-white font-medium">Independent Recovery Guidance:</strong> Not affiliated with Instagram or Meta. No bypass tools or credentials requested.
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 text-zinc-400">
-                <IconAlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>Never pay third parties or share passwords to unban accounts</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. NAVBAR */}
-          <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between h-16">
-                <div 
-                  onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  className="flex items-center gap-3 cursor-pointer group"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 via-rose-500 to-amber-400 flex items-center justify-center p-0.5 shadow-lg shadow-purple-500/20">
-                    <div className="w-full h-full bg-zinc-950 rounded-[10px] flex items-center justify-center">
-                      <IconShield className="w-5 h-5 text-purple-400" />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-lg font-bold text-white tracking-tight">Insta<span className="bg-gradient-to-r from-purple-400 via-rose-400 to-amber-300 bg-clip-text text-transparent">Recover</span></span>
-                      <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full">Official Helper</span>
-                    </div>
-                    <p className="text-[10px] text-zinc-400 hidden sm:block">Legitimate Recovery & Appeal Assistant</p>
-                  </div>
-                </div>
-
-                <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-                  {[
-                    { id: 'home', label: 'Overview', icon: IconSparkles },
-                    { id: 'wizard', label: 'Recovery Wizard', icon: IconLifeBuoy },
-                    { id: 'appeal', label: 'Appeal Generator', icon: IconFileText },
-                    { id: 'resources', label: 'Official Links', icon: IconExternalLink },
-                    { id: 'guides', label: 'Guides & FAQ', icon: IconBookOpen },
-                    { id: 'safety', label: 'Scam Shield', icon: IconAlertTriangle },
-                    { id: 'dashboard', label: 'Checklist', icon: IconCheckSquare },
-                  ].map(tab => {
-                    const Icon = tab.icon;
-                    const active = activeTab === tab.id;
-                    return (
-                      <button
-                        key={tab.id}
-                        onClick={() => { setActiveTab(tab.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                          active ? 'bg-white/10 text-white border border-white/10' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                        }`}
-                      >
-                        <Icon className={`w-3.5 h-3.5 ${active ? 'text-purple-400' : 'text-zinc-500'}`} />
-                        <span>{tab.label}</span>
-                      </button>
-                    );
-                  })}
-                </nav>
-
-                <div className="hidden sm:flex items-center gap-2">
-                  <button
-                    onClick={() => { setActiveTab('wizard'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className="px-4 py-2 text-xs font-semibold text-white rounded-lg bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 shadow-md shadow-purple-900/30 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
-                  >
-                    <IconLifeBuoy className="w-3.5 h-3.5" />
-                    Check My Situation
-                  </button>
-                </div>
-
-                <div className="flex md:hidden">
-                  <button
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="p-2 text-zinc-400 hover:text-white"
-                  >
-                    {mobileMenuOpen ? <IconX className="w-5 h-5" /> : <IconMenu className="w-5 h-5" />}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile Menu */}
-            {mobileMenuOpen && (
-              <div className="md:hidden bg-zinc-950/95 border-b border-white/10 px-4 pt-2 pb-6 space-y-1">
-                {[
-                  { id: 'home', label: 'Overview', icon: IconSparkles },
-                  { id: 'wizard', label: 'Recovery Wizard', icon: IconLifeBuoy },
-                  { id: 'appeal', label: 'Appeal Generator', icon: IconFileText },
-                  { id: 'resources', label: 'Official Links', icon: IconExternalLink },
-                  { id: 'guides', label: 'Guides & FAQ', icon: IconBookOpen },
-                  { id: 'safety', label: 'Scam Shield', icon: IconAlertTriangle },
-                  { id: 'dashboard', label: 'Checklist', icon: IconCheckSquare },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium ${
-                      activeTab === tab.id ? 'bg-purple-600/20 text-purple-300' : 'text-zinc-300 hover:bg-white/5'
-                    }`}
-                  >
-                    <tab.icon className="w-4 h-4 text-purple-400" />
-                    <span>{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </header>
-
-          {/* 3. MAIN ROUTER */}
-          <main className="flex-1">
-            {/* VIEW: HOME */}
-            {activeTab === 'home' && (
-              <div className="space-y-12 pb-16">
-                {/* Hero Section */}
-                <section className="relative overflow-hidden pt-12 pb-16 md:pt-20 md:pb-20 text-center px-4">
-                  <div className="max-w-4xl mx-auto space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900 border border-purple-500/30 text-xs text-purple-300">
-                      <IconSparkles className="w-3.5 h-3.5 text-rose-400" />
-                      <span>Legitimate Recovery Guidance • 100% Client-Side & Private</span>
-                    </div>
-
-                    <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
-                      Having trouble accessing your <br />
-                      <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
-                        Instagram account?
-                      </span>
-                    </h1>
-
-                    <p className="text-base sm:text-lg text-zinc-300 max-w-2xl mx-auto font-normal">
-                      Understand your restriction and find the appropriate official recovery or appeal path.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                      <button
-                        onClick={() => { setActiveTab('wizard'); setWizardStep(1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-purple-600 via-fuchsia-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 shadow-xl shadow-purple-900/40 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all"
-                      >
-                        <IconLifeBuoy className="w-4 h-4" />
-                        <span>Check My Situation</span>
-                        <IconArrowRight className="w-4 h-4" />
-                      </button>
-
-                      <button
-                        onClick={() => { setActiveTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-semibold text-sm text-zinc-300 bg-zinc-900 border border-white/10 hover:border-white/20 flex items-center justify-center gap-2 cursor-pointer transition-all"
-                      >
-                        <IconBookOpen className="w-4 h-4 text-zinc-400" />
-                        <span>Recovery Guide</span>
-                      </button>
-                    </div>
-
-                    {/* Trust Pillars */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left pt-10 max-w-3xl mx-auto">
-                      <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/5 flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
-                          <IconShieldCheck className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-semibold text-white">Official Meta Routes</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">Direct links to verified Meta forms, video selfie flows, and help portals.</p>
-                        </div>
-                      </div>
-                      <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/5 flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 shrink-0">
-                          <IconLock className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-semibold text-white">Zero Credentials Stored</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">We never request passwords, 2FA codes, or session cookies.</p>
-                        </div>
-                      </div>
-                      <div className="p-4 rounded-xl bg-zinc-900/50 border border-white/5 flex items-start gap-3">
-                        <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 shrink-0">
-                          <IconAlertTriangle className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs font-semibold text-white">Scam Prevention</h4>
-                          <p className="text-[11px] text-zinc-400 mt-0.5">Shielding users from fraudulent unban services and Telegram extortion scams.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Quick Categories Section */}
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="text-center max-w-2xl mx-auto mb-10">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                      Select Your Account Situation
-                    </h2>
-                    <p className="text-zinc-400 text-sm mt-1">
-                      Choose the scenario below to navigate the legitimate resolution workflow.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {CATEGORIES_DATA.map(cat => {
-                      const Icon = cat.icon;
-                      const badgeBg = cat.badgeColor === 'red' ? 'bg-rose-500/10 text-rose-300 border-rose-500/20'
-                        : cat.badgeColor === 'amber' ? 'bg-amber-500/10 text-amber-300 border-amber-500/20'
-                        : cat.badgeColor === 'blue' ? 'bg-blue-500/10 text-blue-300 border-blue-500/20'
-                        : cat.badgeColor === 'purple' ? 'bg-purple-500/10 text-purple-300 border-purple-500/20'
-                        : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20';
-
-                      return (
-                        <div
-                          key={cat.id}
-                          className="rounded-2xl bg-zinc-900/60 border border-white/10 hover:border-purple-500/40 p-6 flex flex-col justify-between transition-all duration-300 shadow-xl"
-                        >
-                          <div>
-                            <div className="flex items-center justify-between gap-3 mb-4">
-                              <div className="p-2.5 rounded-xl bg-zinc-800/80 border border-white/5">
-                                <Icon className="w-5 h-5 text-purple-400" />
-                              </div>
-                              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeBg}`}>
-                                {cat.badge}
-                              </span>
-                            </div>
-
-                            <h3 className="text-base font-bold text-white">{cat.title}</h3>
-                            <p className="text-xs text-zinc-400 mt-1.5 leading-relaxed">{cat.shortDescription}</p>
-
-                            <div className="mt-4 pt-3 border-t border-white/5 space-y-1">
-                              <span className="text-[11px] font-medium text-zinc-300">Key symptoms:</span>
-                              <ul className="space-y-1">
-                                {cat.keyIndicators.slice(0, 2).map((ind, i) => (
-                                  <li key={i} className="text-[11px] text-zinc-400 flex items-start gap-1.5">
-                                    <span className="text-purple-400">•</span>
-                                    <span>{ind}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </div>
-
-                          <div className="mt-6 pt-4 border-t border-white/5 space-y-2">
-                            <button
-                              onClick={() => handleStartWizardFromCat(cat.id)}
-                              className="w-full py-2 px-3 rounded-lg bg-white/5 hover:bg-purple-600/20 text-xs font-semibold text-zinc-200 hover:text-white border border-white/10 hover:border-purple-500/30 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                            >
-                              <span>Diagnose Path</span>
-                              <IconArrowRight className="w-3.5 h-3.5 text-zinc-400" />
-                            </button>
-
-                            {cat.isAppealable && (
-                              <button
-                                onClick={() => handleStartAppealFromCat(cat.id)}
-                                className="w-full py-1.5 px-3 rounded-lg text-[11px] text-zinc-400 hover:text-purple-300 hover:bg-white/5 flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                              >
-                                <IconSparkles className="w-3 h-3 text-purple-400" />
-                                <span>Draft Appeal Letter</span>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-
-                {/* Scam Alert Callout on Homepage */}
-                <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="p-8 rounded-3xl bg-gradient-to-r from-rose-950/40 via-zinc-900 to-rose-950/40 border border-rose-500/20 flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="space-y-2 text-center md:text-left">
-                      <span className="text-xs font-bold uppercase tracking-wider text-rose-400">
-                        Critical Consumer Safety Advisory
-                      </span>
-                      <h3 className="text-xl font-bold text-white">
-                        Beware of Instagram "Recovery Hackers" in Comments & DMs
-                      </h3>
-                      <p className="text-xs text-zinc-400 max-w-xl leading-relaxed">
-                        Never give your Instagram password, OTP, 2FA code, session cookie, or recovery code to anyone claiming they can unban your account. Official Meta appeals are completely free.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => { setActiveTab('safety'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                      className="px-5 py-2.5 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 shadow-lg shadow-rose-900/30 cursor-pointer shrink-0 transition-all"
-                    >
-                      Read Scam Warning Guide
-                    </button>
-                  </div>
-                </section>
-              </div>
-            )}
-
-            {/* VIEW: RECOVERY WIZARD */}
-            {activeTab === 'wizard' && (
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
-                <div className="rounded-3xl bg-zinc-900/80 border border-white/10 p-6 sm:p-10 shadow-2xl relative">
-                  {/* Progress Header */}
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between text-xs text-zinc-400 font-medium mb-3">
-                      <span className="text-purple-300 font-semibold uppercase tracking-wider text-[11px]">
-                        Step {wizardStep} of 4: {
-                          wizardStep === 1 ? 'What happened?' :
-                          wizardStep === 2 ? 'Specific message' :
-                          wizardStep === 3 ? 'Access check' :
-                          'Personalized Official Resolution'
-                        }
-                      </span>
-                      <span className="text-zinc-500 text-[11px]">
-                        Situation → Details → Recovery Path → Appeal → Checklist
-                      </span>
-                    </div>
-
-                    <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden flex">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 transition-all duration-500"
-                        style={{ width: `${(wizardStep / 4) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Step 1: What happened */}
-                  {wizardStep === 1 && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">What happened to your account?</h2>
-                        <p className="text-zinc-400 text-sm mt-1">Select the option that best describes your situation.</p>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                        {[
-                          { id: 'disabled', label: 'Account disabled', sub: 'Turned off for community terms or copyright' },
-                          { id: 'suspended', label: 'Account suspended', sub: '180-day countdown timer to disagree' },
-                          { id: 'login_problem', label: "Can't log in / 2FA issues", sub: 'Password loop or authenticator codes lost' },
-                          { id: 'hacked', label: 'Account hacked', sub: 'Email or phone changed without your consent' },
-                          { id: 'identity_verification', label: "Can't complete verification", sub: 'Stuck on photo ID upload or video selfie' },
-                          { id: 'action_blocked', label: 'Actions temporarily blocked', sub: '"Try again later" on following/liking' },
-                          { id: 'device_restricted', label: 'New account immediately restricted', sub: 'Instant flag or "Problem with your request"' },
-                          { id: 'other', label: 'Other account issue', sub: 'Unusual state or multiple combined factors' }
-                        ].map(opt => (
-                          <button
-                            key={opt.id}
-                            onClick={() => setWizardAnswers(prev => ({ ...prev, type: opt.id }))}
-                            className={`p-4 rounded-xl border text-left transition-all cursor-pointer ${
-                              wizardAnswers.type === opt.id
-                                ? 'bg-purple-950/40 border-purple-500 ring-1 ring-purple-500'
-                                : 'bg-zinc-950/50 hover:bg-zinc-800/60 border-white/5'
-                            }`}
-                          >
-                            <h4 className="text-sm font-semibold text-white">{opt.label}</h4>
-                            <p className="text-xs text-zinc-400 mt-0.5">{opt.sub}</p>
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="pt-4 flex justify-end">
-                        <button
-                          onClick={() => setWizardStep(2)}
-                          className="px-6 py-2.5 rounded-xl font-semibold text-xs bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 text-white shadow-lg shadow-purple-900/40 flex items-center gap-2 cursor-pointer"
-                        >
-                          <span>Next: Specific Message</span>
-                          <IconArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 2: Specific Message */}
-                  {wizardStep === 2 && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">Do you see a specific message?</h2>
-                        <p className="text-zinc-400 text-sm mt-1">Select a common error below or type your custom message.</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        {(COMMON_ERRORS[wizardAnswers.type] || [
-                          'Your account has been restricted.',
-                          'Sorry, there was a problem with your request.',
-                          'No specific message displayed.'
-                        ]).map((msg, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setWizardAnswers(prev => ({ ...prev, message: msg, customMessage: '' }))}
-                            className={`w-full p-3 rounded-xl border text-left text-xs transition-all cursor-pointer ${
-                              wizardAnswers.message === msg
-                                ? 'bg-purple-950/40 border-purple-500 text-purple-200 ring-1 ring-purple-500'
-                                : 'bg-zinc-950/50 hover:bg-zinc-800/60 border-white/5 text-zinc-300'
-                            }`}
-                          >
-                            "{msg}"
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="pt-2">
-                        <label className="text-xs font-medium text-zinc-300 block mb-1">Or enter custom message:</label>
-                        <textarea
-                          value={wizardAnswers.customMessage}
-                          onChange={(e) => setWizardAnswers(prev => ({ ...prev, customMessage: e.target.value, message: '' }))}
-                          placeholder="e.g. 'We couldn't find an account matching that username'..."
-                          rows={2}
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs placeholder-zinc-500 focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-
-                      <div className="pt-4 flex items-center justify-between">
-                        <button
-                          onClick={() => setWizardStep(1)}
-                          className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <IconArrowLeft className="w-3.5 h-3.5" />
-                          <span>Back</span>
-                        </button>
-
-                        <button
-                          onClick={() => setWizardStep(3)}
-                          className="px-6 py-2.5 rounded-xl font-semibold text-xs bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 text-white shadow-lg shadow-purple-900/40 flex items-center gap-2 cursor-pointer"
-                        >
-                          <span>Next: Contact Access</span>
-                          <IconArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 3: Access Check */}
-                  {wizardStep === 3 && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">Can you access your email or phone number connected to the account?</h2>
-                        <p className="text-zinc-400 text-sm mt-1">This determines whether automated password resets or official manual identity appeals are necessary.</p>
-                      </div>
-
-                      <div className="space-y-3">
-                        {[
-                          { id: 'yes', label: 'Yes, I have full access', sub: 'I can receive emails and SMS verification codes without issue.' },
-                          { id: 'no', label: 'No, I lost access / It was changed by a hacker', sub: 'The email or phone is deleted, compromised, or altered.' },
-                          { id: 'partial', label: 'Partial access (Phone only OR Email only)', sub: 'I can access one method, but 2FA or the other is blocked.' }
-                        ].map(acc => (
-                          <button
-                            key={acc.id}
-                            onClick={() => setWizardAnswers(prev => ({ ...prev, access: acc.id }))}
-                            className={`w-full p-4 rounded-xl border text-left transition-all cursor-pointer ${
-                              wizardAnswers.access === acc.id
-                                ? 'bg-purple-950/40 border-purple-500 ring-1 ring-purple-500'
-                                : 'bg-zinc-950/50 hover:bg-zinc-800/60 border-white/5'
-                            }`}
-                          >
-                            <h4 className="text-sm font-semibold text-white">{acc.label}</h4>
-                            <p className="text-xs text-zinc-400 mt-0.5">{acc.sub}</p>
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="pt-4 flex items-center justify-between">
-                        <button
-                          onClick={() => setWizardStep(2)}
-                          className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <IconArrowLeft className="w-3.5 h-3.5" />
-                          <span>Back</span>
-                        </button>
-
-                        <button
-                          onClick={runDiagnostic}
-                          className="px-6 py-2.5 rounded-xl font-semibold text-xs bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 text-white shadow-lg shadow-purple-900/40 flex items-center gap-2 cursor-pointer"
-                        >
-                          <IconSparkles className="w-3.5 h-3.5" />
-                          <span>Generate Recovery Diagnosis</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 4: Diagnostic Outcome */}
-                  {wizardStep === 4 && diagnosticResult && (
-                    <div className="space-y-6">
-                      <div className="p-5 rounded-2xl bg-zinc-950 border border-white/10 space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                            Diagnostic Complete
-                          </span>
-                          <span className="text-zinc-400">Estimated Timeline: <strong className="text-white">{diagnosticResult.timeframe}</strong></span>
-                        </div>
-                        <h3 className="text-xl font-bold text-white">{diagnosticResult.title}</h3>
-                        <p className="text-xs text-zinc-300 leading-relaxed">{diagnosticResult.summary}</p>
-                      </div>
-
-                      <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-950/40 via-zinc-900 to-zinc-950 border border-purple-500/30 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-bold text-white">Recommended Official Channel</h4>
-                          <a
-                            href={diagnosticResult.officialUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-purple-300 hover:text-white underline flex items-center gap-1"
-                          >
-                            <span>Open Official Portal</span>
-                            <IconExternalLink className="w-3 h-3" />
-                          </a>
-                        </div>
-
-                        <p className="text-xs text-zinc-300">{diagnosticResult.officialName}</p>
-
-                        <div className="space-y-2 pt-2">
-                          <span className="text-xs font-bold text-white uppercase tracking-wider block">Official Steps to Take:</span>
-                          <ol className="space-y-2">
-                            {diagnosticResult.steps.map((st, i) => (
-                              <li key={i} className="text-xs text-zinc-300 flex items-start gap-2">
-                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-500/20 text-[10px] font-bold text-purple-300 border border-purple-500/30">
-                                  {i + 1}
-                                </span>
-                                <span>{st}</span>
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-                      </div>
-
-                      <div className="p-4 rounded-xl bg-rose-950/20 border border-rose-500/20 space-y-1.5">
-                        <span className="text-xs font-bold text-rose-400 flex items-center gap-1.5">
-                          <IconAlertTriangle className="w-4 h-4" />
-                          <span>Important Precautions (What NOT to do):</span>
-                        </span>
-                        <ul className="space-y-1">
-                          {diagnosticResult.whatNotToDo.map((wn, i) => (
-                            <li key={i} className="text-[11px] text-zinc-300 flex items-start gap-1.5">
-                              <span className="text-rose-400 font-bold">•</span>
-                              <span>{wn}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10">
-                        <button
-                          onClick={() => setWizardStep(1)}
-                          className="px-4 py-2 text-xs text-zinc-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <IconRotateCcw className="w-3.5 h-3.5" />
-                          <span>Restart Diagnostic</span>
-                        </button>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => { setActiveTab('dashboard'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="px-4 py-2 text-xs font-medium text-zinc-300 bg-zinc-800 hover:bg-zinc-700 rounded-xl border border-white/10 cursor-pointer"
-                          >
-                            View Checklist
-                          </button>
-                          <button
-                            onClick={() => {
-                              handleStartAppealFromCat(wizardAnswers.type, diagnosticResult.prefill);
-                            }}
-                            className="px-5 py-2 text-xs font-semibold text-white bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 rounded-xl shadow-lg shadow-purple-900/40 cursor-pointer"
-                          >
-                            Draft Appeal Letter
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* VIEW: APPEAL GENERATOR */}
-            {activeTab === 'appeal' && (
-              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-                <div className="text-center max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-2">
-                    <IconSparkles className="w-3.5 h-3.5" />
-                    <span>Compliant Appeal Draft Assistant</span>
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white">Appeal Letter Generator</h2>
-                  <p className="text-zinc-400 text-sm mt-1">
-                    Prepare a factual, concise, and respectful appeal draft to submit via official Meta forms.
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-zinc-900/90 border border-purple-500/20 flex items-start gap-3.5">
-                  <IconShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="text-xs space-y-1">
-                    <span className="font-semibold text-white">Safety & Compliance Guarantee:</span>
-                    <p className="text-zinc-400">
-                      Never lie, fabricate excuses, or share passwords/2FA codes in an appeal. All appeals must be submitted directly through official Instagram channels.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                  {/* Form Inputs */}
-                  <div className="lg:col-span-6 space-y-4 p-6 rounded-2xl bg-zinc-900/70 border border-white/10">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs font-medium text-zinc-300 block mb-1">Instagram Username *</label>
-                        <input
-                          type="text"
-                          value={appealForm.username}
-                          onChange={(e) => setAppealForm(prev => ({ ...prev, username: e.target.value }))}
-                          placeholder="@your_handle"
-                          className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs placeholder-zinc-600 focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-zinc-300 block mb-1">Full Legal Name *</label>
-                        <input
-                          type="text"
-                          value={appealForm.fullName}
-                          onChange={(e) => setAppealForm(prev => ({ ...prev, fullName: e.target.value }))}
-                          placeholder="e.g. Jane Doe"
-                          className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs placeholder-zinc-600 focus:outline-none focus:border-purple-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-zinc-300 block mb-1">Accessible Contact Email *</label>
-                      <input
-                        type="email"
-                        value={appealForm.email}
-                        onChange={(e) => setAppealForm(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="email@example.com"
-                        className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs placeholder-zinc-600 focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs font-medium text-zinc-300 block mb-1">Account Type</label>
-                        <select
-                          value={appealForm.accountType}
-                          onChange={(e) => setAppealForm(prev => ({ ...prev, accountType: e.target.value }))}
-                          className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-500"
-                        >
-                          <option value="personal">Personal Account</option>
-                          <option value="creator">Creator Profile</option>
-                          <option value="business">Registered Business</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-zinc-300 block mb-1">Tone & Focus</label>
-                        <select
-                          value={appealForm.tone}
-                          onChange={(e) => setAppealForm(prev => ({ ...prev, tone: e.target.value }))}
-                          className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs focus:outline-none focus:border-purple-500"
-                        >
-                          <option value="professional">Professional & Factual</option>
-                          <option value="business">Business & Commercial</option>
-                          <option value="compromised">Hacked / Compromised</option>
-                          <option value="humble">Humble & Constructive</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="pt-1">
-                      <label className="flex items-center gap-2 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={appealForm.believesMistake}
-                          onChange={(e) => setAppealForm(prev => ({ ...prev, believesMistake: e.target.checked }))}
-                          className="w-4 h-4 rounded bg-zinc-950 border-white/20 text-purple-600"
-                        />
-                        <span className="text-xs text-zinc-300">I believe this restriction was an automated mistake or false positive.</span>
-                      </label>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-zinc-300 block mb-1">Description of What Happened *</label>
-                      <textarea
-                        value={appealForm.incident}
-                        onChange={(e) => setAppealForm(prev => ({ ...prev, incident: e.target.value }))}
-                        placeholder="State briefly what happened (e.g. Logged out suddenly, received suspension banner, no prior warnings)..."
-                        rows={3}
-                        className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs placeholder-zinc-600 focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-zinc-300 block mb-1">Additional Context (Optional)</label>
-                      <textarea
-                        value={appealForm.additional}
-                        onChange={(e) => setAppealForm(prev => ({ ...prev, additional: e.target.value }))}
-                        placeholder="e.g. Government ID ready, 2FA enabled, no third party apps used..."
-                        rows={2}
-                        className="w-full px-3 py-2 rounded-xl bg-zinc-950 border border-white/10 text-white text-xs placeholder-zinc-600 focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Output Preview */}
-                  <div className="lg:col-span-6 flex flex-col justify-between p-6 rounded-2xl bg-zinc-900/90 border border-white/10">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-bold uppercase tracking-wider text-white">Generated Appeal Draft</span>
-                        <span className="text-[11px] text-zinc-500">{generatedAppealText.length} characters</span>
-                      </div>
-                      <textarea
-                        readOnly
-                        value={generatedAppealText}
-                        rows={16}
-                        className="w-full p-4 rounded-xl bg-zinc-950 border border-white/10 text-zinc-200 font-mono text-xs leading-relaxed resize-none focus:outline-none selection:bg-purple-600/30"
-                      />
-                    </div>
-
-                    <div className="pt-4 border-t border-white/10 space-y-3">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={handleCopyAppeal}
-                          className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                            copiedDraft ? 'bg-emerald-600 text-white' : 'bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 text-white'
-                          }`}
-                        >
-                          {copiedDraft ? <IconCheck className="w-4 h-4" /> : <IconCopy className="w-4 h-4" />}
-                          <span>{copiedDraft ? 'Copied to Clipboard!' : 'Copy Appeal Draft'}</span>
-                        </button>
-
-                        <button
-                          onClick={handleDownloadAppeal}
-                          className="py-2.5 px-4 rounded-xl text-xs font-semibold text-zinc-300 bg-zinc-800 hover:bg-zinc-700 border border-white/10 flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <IconDownload className="w-4 h-4" />
-                          <span>Export .txt</span>
-                        </button>
-                      </div>
-
-                      <div className="text-[11px] text-zinc-400 flex items-center justify-between">
-                        <span>Submit this draft via official Meta forms.</span>
-                        <button
-                          onClick={() => { setActiveTab('resources'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className="text-purple-300 hover:text-white underline cursor-pointer"
-                        >
-                          View Official Forms →
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* VIEW: OFFICIAL RESOURCES DIRECTORY */}
-            {activeTab === 'resources' && (
-              <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-                <div className="text-center max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold mb-2">
-                    <IconShieldCheck className="w-3.5 h-3.5" />
-                    <span>Verified Meta Destinations Only</span>
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white">Official Help & Recovery Directory</h2>
-                  <p className="text-zinc-400 text-sm mt-1">
-                    Direct access to genuine Instagram and Meta support pages. No third-party intermediaries.
-                  </p>
-                </div>
-
-                <div className="relative">
-                  <IconSearch className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
-                  <input
-                    type="text"
-                    value={resourceSearch}
-                    onChange={(e) => setResourceSearch(e.target.value)}
-                    placeholder="Search official links (e.g. hacked, deactivated, business, 2FA)..."
-                    className="w-full pl-9 pr-4 py-2.5 text-xs bg-zinc-900 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {OFFICIAL_LINKS_DATA.filter(link => 
-                    link.title.toLowerCase().includes(resourceSearch.toLowerCase()) ||
-                    link.desc.toLowerCase().includes(resourceSearch.toLowerCase()) ||
-                    link.tags.some(t => t.toLowerCase().includes(resourceSearch.toLowerCase()))
-                  ).map(link => (
-                    <div
-                      key={link.id}
-                      className="p-5 rounded-2xl bg-zinc-900/60 border border-white/10 hover:border-emerald-500/30 flex flex-col justify-between transition-all"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">
-                            {link.category}
-                          </span>
-                          <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
-                            <IconCheckCircle2 className="w-3 h-3" />
-                            Verified Meta URL
-                          </span>
-                        </div>
-                        <h3 className="text-sm font-bold text-white">{link.title}</h3>
-                        <p className="text-xs text-zinc-400 mt-1 leading-relaxed">{link.desc}</p>
-                      </div>
-
-                      <div className="mt-4 pt-3 border-t border-white/5">
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-2 px-3 rounded-xl bg-zinc-800/80 hover:bg-emerald-600/20 text-xs font-semibold text-zinc-200 hover:text-emerald-200 border border-white/5 flex items-center justify-center gap-1.5 transition-all"
-                        >
-                          <span>Open on Instagram / Meta</span>
-                          <IconExternalLink className="w-3.5 h-3.5 text-zinc-400" />
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* VIEW: GUIDES & KNOWLEDGE BASE */}
-            {activeTab === 'guides' && (
-              <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-                <div className="text-center max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-semibold mb-2">
-                    <IconBookOpen className="w-3.5 h-3.5" />
-                    <span>Objective Platform Knowledge</span>
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white">Restriction Knowledge Base</h2>
-                  <p className="text-zinc-400 text-sm mt-1">
-                    Factual explanations avoiding speculation or claims of undocumented bypasses.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {GUIDES_DATA.map(g => {
-                    const isExpanded = expandedGuide === g.id;
-                    return (
-                      <div
-                        key={g.id}
-                        className={`rounded-2xl border transition-all ${
-                          isExpanded ? 'bg-zinc-900/90 border-purple-500/40' : 'bg-zinc-900/50 border-white/5'
-                        }`}
-                      >
-                        <button
-                          onClick={() => setExpandedGuide(isExpanded ? null : g.id)}
-                          className="w-full p-5 text-left flex items-start justify-between gap-4 cursor-pointer"
-                        >
-                          <div>
-                            <div className="flex items-center gap-2 text-[11px] text-zinc-400 mb-1">
-                              <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">{g.category}</span>
-                              <span>•</span>
-                              <span>{g.readTime}</span>
-                            </div>
-                            <h3 className="text-base font-bold text-white">{g.title}</h3>
-                            <p className="text-xs text-zinc-400 mt-1">{g.summary}</p>
-                          </div>
-                          <span className="text-zinc-400 text-sm">{isExpanded ? '−' : '+'}</span>
-                        </button>
-
-                        {isExpanded && (
-                          <div className="p-5 pt-0 border-t border-white/5 text-xs text-zinc-300 leading-relaxed space-y-3">
-                            <p className="pt-3 whitespace-pre-line">{g.content}</p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* VIEW: SCAM SHIELD */}
-            {activeTab === 'safety' && (
-              <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-                <div className="text-center max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-semibold mb-2">
-                    <IconAlertTriangle className="w-3.5 h-3.5" />
-                    <span>Consumer Protection Advisory</span>
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white">Scam Shield & Anti-Fraud Center</h2>
-                  <p className="text-zinc-400 text-sm mt-1">
-                    How recovery scammers prey on restricted account holders and how to protect yourself.
-                  </p>
-                </div>
-
-                {/* MANDATORY WARNING HERO */}
-                <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-rose-950 via-zinc-900 to-rose-950 border-2 border-rose-500/40 shadow-2xl">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-2xl bg-rose-500/20 text-rose-400 shrink-0">
-                      <IconAlertTriangle className="w-8 h-8" />
-                    </div>
-                    <div className="space-y-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-rose-400">Non-Negotiable Rule:</span>
-                      <blockquote className="text-base sm:text-xl font-bold text-white">
-                        "Never give your Instagram password, OTP, 2FA code, session cookie, or recovery code to anyone claiming they can unban your account."
-                      </blockquote>
-                      <p className="text-xs text-rose-200/80">
-                        Websites or individuals claiming they can instantly remove Instagram device or IP bans are scams.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    {
-                      title: 'Telegram & WhatsApp "Recovery Hackers"',
-                      claim: '"DM @expert_recovery on Telegram to get your account back in 10 minutes."',
-                      fact: 'These are advance-fee fraud syndicates. They demand $50-$500 in crypto or gift cards, then block you or extort you for more.',
-                      flags: ['Crypto/gift cards required', 'Redirects to Telegram', 'Guarantees 100% instant unban']
-                    },
-                    {
-                      title: 'Fake "Meta Employee / Inside Support"',
-                      claim: '"I have a contact inside Meta headquarters who can flip your account switch."',
-                      fact: 'Meta audits internal moderation actions with multi-level authorization. Anyone claiming to sell internal overrides is an impersonator.',
-                      flags: ['Claims insider friends at Meta', 'Photoshopped support screenshots', 'Non-Meta email addresses']
-                    },
-                    {
-                      title: '"Ban Bypass Tools" & Modded APKs',
-                      claim: '"Download this tool to crack Instagram device bans and bypass rate limits."',
-                      fact: 'These files are malicious spyware and session stealers engineered to compromise your computer or phone.',
-                      flags: ['Asks to disable antivirus', 'Requests session cookies', 'Unsigned APK or executable files']
-                    }
-                  ].map((scam, idx) => (
-                    <div key={idx} className="p-5 rounded-2xl bg-zinc-900/60 border border-white/10 space-y-3">
-                      <h3 className="text-sm font-bold text-white">{scam.title}</h3>
-                      <div className="p-2.5 rounded-xl bg-zinc-950 text-xs">
-                        <span className="text-zinc-500 block text-[10px] font-bold">THE CLAIM:</span>
-                        <p className="text-rose-300 italic">{scam.claim}</p>
-                      </div>
-                      <p className="text-xs text-zinc-400 leading-relaxed">{scam.fact}</p>
-                      <div className="pt-2 border-t border-white/5">
-                        <span className="text-[10px] font-bold text-zinc-300 uppercase block mb-1">Red Flags:</span>
-                        <ul className="space-y-1">
-                          {scam.flags.map((f, i) => (
-                            <li key={i} className="text-[11px] text-zinc-400 flex items-center gap-1.5">
-                              <span className="text-rose-400">•</span>
-                              <span>{f}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* VIEW: RECOVERY CHECKLIST & DASHBOARD */}
-            {activeTab === 'dashboard' && (
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-                <div className="text-center max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold mb-2">
-                    <IconCheckSquare className="w-3.5 h-3.5" />
-                    <span>Recovery Milestones</span>
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-white">Recovery & Security Checklist</h2>
-                  <p className="text-zinc-400 text-sm mt-1">
-                    Track your step-by-step progress through problem identification, appeal submission, and security hardening.
-                  </p>
-                </div>
-
-                {/* Progress bar */}
-                <div className="p-6 rounded-3xl bg-zinc-900/80 border border-white/10 space-y-4">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-white">Completed: {completedChecks.length} of {CHECKLIST_ITEMS_DATA.length} Tasks</span>
-                    <span className="text-purple-300 font-semibold">{Math.round((completedChecks.length / CHECKLIST_ITEMS_DATA.length) * 100)}%</span>
-                  </div>
-                  <div className="w-full h-2 bg-zinc-950 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-emerald-400 transition-all duration-300"
-                      style={{ width: `${(completedChecks.length / CHECKLIST_ITEMS_DATA.length) * 100}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-zinc-400 flex items-center justify-between pt-1">
-                    <span>Workflow: Situation → Details → Recovery Path → Appeal → Checklist</span>
-                    <button
-                      onClick={handleResetAllData}
-                      className="text-rose-400 hover:text-rose-300 text-xs flex items-center gap-1 cursor-pointer"
-                    >
-                      <IconTrash2 className="w-3.5 h-3.5" />
-                      <span>Reset Checklist</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Checklist items */}
-                <div className="space-y-3">
-                  {CHECKLIST_ITEMS_DATA.map(item => {
-                    const isDone = completedChecks.includes(item.id);
-                    return (
-                      <div
-                        key={item.id}
-                        onClick={() => toggleCheck(item.id)}
-                        className={`p-4 rounded-2xl border text-left flex items-start gap-3.5 transition-all cursor-pointer ${
-                          isDone
-                            ? 'bg-zinc-950/40 border-emerald-500/20 text-zinc-500'
-                            : 'bg-zinc-900/60 border-white/10 hover:border-purple-500/30'
-                        }`}
-                      >
-                        <div className="mt-0.5 shrink-0">
-                          {isDone ? (
-                            <IconCheckCircle2 className="w-5 h-5 text-emerald-400" />
-                          ) : (
-                            <div className="w-5 h-5 rounded border border-zinc-600" />
-                          )}
-                        </div>
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <h4 className={`text-xs font-semibold ${isDone ? 'line-through text-zinc-500' : 'text-white'}`}>
-                              {item.title}
-                            </h4>
-                            {item.important && (
-                              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                                Crucial
-                              </span>
-                            )}
-                          </div>
-                          <p className={`text-xs leading-relaxed ${isDone ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                            {item.desc}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </main>
-
-          {/* 4. FOOTER */}
-          <footer className="bg-zinc-950 border-t border-white/10 text-zinc-400 text-xs py-12 px-4 sm:px-6 lg:px-8 mt-16">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-              <div className="md:col-span-2 space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-purple-600 to-rose-500 flex items-center justify-center p-0.5">
-                    <div className="w-full h-full bg-zinc-950 rounded-[6px] flex items-center justify-center">
-                      <IconShield className="w-3.5 h-3.5 text-purple-400" />
-                    </div>
-                  </div>
-                  <span className="text-white font-bold text-base">Insta<span className="text-purple-400">Recover</span></span>
-                </div>
-                <p className="text-zinc-400 text-xs leading-relaxed max-w-md">
-                  Independent educational and recovery guidance tool. Helps users navigate official Instagram and Meta appeal workflows. No credentials collected, no automated bypass tools.
-                </p>
-                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-zinc-900 border border-white/10 text-[11px] text-zinc-300">
-                  <IconLock className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>100% Client-Side Privacy. Zero passwords or tokens requested.</span>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">Official Meta Channels</h4>
-                <ul className="space-y-2 text-xs">
-                  <li><a href="https://www.instagram.com/hacked" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">instagram.com/hacked</a></li>
-                  <li><a href="https://help.instagram.com/contact/606967319425038" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">Deactivated Account Form</a></li>
-                  <li><a href="https://help.instagram.com/477434105621119" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">Community Guidelines</a></li>
-                  <li><a href="https://help.instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-purple-300">Instagram Help Center</a></li>
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="text-white font-semibold text-xs uppercase tracking-wider mb-3">Privacy & Controls</h4>
-                <p className="text-zinc-500 text-xs mb-3">
-                  All questionnaire answers and checklists are saved only in your local browser cache.
-                </p>
-                <button
-                  onClick={handleResetAllData}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-rose-950/40 text-zinc-300 hover:text-rose-300 border border-white/10 text-xs cursor-pointer"
-                >
-                  <IconTrash2 className="w-3.5 h-3.5" />
-                  <span>Clear All Session Data</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Required Specific Footer */}
-            <div className="max-w-7xl mx-auto pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-              <p className="text-zinc-500 text-[11px]">
-                Independent recovery guidance tool. <strong className="text-zinc-400">Not affiliated with Instagram or Meta.</strong>
-              </p>
-              <span className="text-[11px] text-zinc-500">
-                Safe, legitimate recovery assistance
-              </span>
-            </div>
-          </footer>
-        </div>
-      );
-    }
-
-    // Render Root
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<InstaRecoverApp />);
-  </script>
+<body>
+<div class="w">
+  <div class="hd">
+    <div class="lg"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d1630" stroke-width="2.4" stroke-linecap="round"><path d="M6 3h12a2 2 0 0 1 2 2v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2zM4 11h16M8 21l2-3m6 3-2-3"/></svg></i>RailRadar</div>
+    <div class="lv"><b></b>Live</div>
+  </div>
+  <h1>Which train is passing near you?</h1>
+  <p class="sub">Track trains across India's railway network. See the train number, where it started, where it's headed, and when it runs next.</p>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Search by train number, name or station" aria-label="Search trains">
+    <button id="nb" type="button">Trains near me</button>
+  </div>
+  <div class="tb" id="tb"><button data-f="all" class="on">All</button><button data-f="run">Running now</button><button data-f="off">Not running today</button></div>
+  <p id="nm"></p>
+  <div class="g">
+    <div class="sticky">
+      <div class="mp">
+        <svg id="map" viewBox="0 0 600 630" role="img" aria-label="India railway map with live trains"><g id="rts"></g><g id="tr"></g><g id="us"></g></svg>
+        <div class="st"><span><b id="s0">0</b>total</span><span><b id="s1">0</b>running now</span><span><b id="s2">0</b>not running today</span><span><b id="s3">0</b>delayed</span></div>
+      </div>
+      <div class="dt" id="dt"></div>
+    </div>
+    <div class="rl"><h3>Trains <small id="cnt"></small></h3><div id="ls"></div></div>
+  </div>
+  <p class="ft">Demo data: positions are simulated and schedules are samples. Covering every Indian train needs the live railway database connected through a backend.</p>
+</div>
+<script>
+const $=s=>document.querySelector(s),R=Math.PI/180;
+const ST={Delhi:[77.21,28.64,'New Delhi'],Mumbai:[72.83,18.97,'Mumbai'],Surat:[72.83,21.17,'Surat'],Vadodara:[73.18,22.31,'Vadodara'],Kota:[75.84,25.18,'Kota'],Ahmedabad:[72.6,23.03,'Ahmedabad'],Kolkata:[88.34,22.58,'Howrah'],Gaya:[85,24.8,'Gaya'],Prayagraj:[81.85,25.43,'Prayagraj'],Kanpur:[80.35,26.45,'Kanpur'],Bengaluru:[77.57,12.98,'Bengaluru'],Hyderabad:[78.5,17.43,'Secunderabad'],Nagpur:[79.09,21.15,'Nagpur'],Bhopal:[77.41,23.26,'Bhopal'],Jhansi:[78.57,25.45,'Jhansi'],Agra:[78.01,27.16,'Agra'],Chennai:[80.27,13.08,'Chennai'],Vijayawada:[80.62,16.52,'Vijayawada'],Guwahati:[91.75,26.18,'Guwahati'],NJP:[88.43,26.68,'New Jalpaiguri'],Patna:[85.1,25.6,'Patna'],Dibrugarh:[94.91,27.47,'Dibrugarh'],Amritsar:[74.87,31.63,'Amritsar'],Ludhiana:[75.85,30.9,'Ludhiana'],Ambala:[76.78,30.36,'Ambala'],Trivandrum:[76.95,8.49,'Thiruvananthapuram'],Kochi:[76.29,9.97,'Ernakulam'],Mangaluru:[74.85,12.87,'Mangaluru'],Bhubaneswar:[85.84,20.27,'Bhubaneswar'],Puri:[85.83,19.8,'Puri'],Visakhapatnam:[83.29,17.72,'Visakhapatnam'],Pune:[73.87,18.53,'Pune'],Jaipur:[75.79,26.92,'Jaipur'],Varanasi:[82.99,25.32,'Varanasi']};
+const METRO=['Delhi','Mumbai','Kolkata','Chennai','Bengaluru','Hyderabad'];
+const A='0123456',DY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const D=[
+['Mumbai Rajdhani',12951,12952,'Mumbai,Surat,Vadodara,Kota,Delhi',90,0,A],
+['Howrah Rajdhani',12301,12302,'Kolkata,Gaya,Prayagraj,Kanpur,Delhi',90,12,A],
+['Karnataka Express',12627,12628,'Bengaluru,Hyderabad,Nagpur,Bhopal,Jhansi,Agra,Delhi',62,0,A],
+['Tamil Nadu Express',12621,12622,'Chennai,Vijayawada,Nagpur,Bhopal,Agra,Delhi',64,25,A],
+['Grand Trunk Express',12615,12616,'Chennai,Vijayawada,Nagpur,Bhopal,Agra,Delhi',60,6,A],
+['Kerala Express',12625,12626,'Trivandrum,Kochi,Chennai,Vijayawada,Nagpur,Bhopal,Agra,Delhi',62,18,A],
+['Telangana Express',12723,12724,'Hyderabad,Nagpur,Bhopal,Jhansi,Agra,Delhi',62,0,A],
+['Coromandel Express',12841,12842,'Kolkata,Bhubaneswar,Visakhapatnam,Vijayawada,Chennai',70,10,A],
+['Gitanjali Express',12859,12860,'Mumbai,Nagpur,Kolkata',66,0,A],
+['Golden Temple Mail',12903,12904,'Mumbai,Surat,Vadodara,Kota,Delhi,Ambala,Ludhiana,Amritsar',66,30,A],
+['Paschim Express',12925,12926,'Mumbai,Surat,Vadodara,Kota,Delhi,Ambala,Amritsar',64,4,A],
+['August Kranti Rajdhani',12953,12954,'Mumbai,Surat,Vadodara,Kota,Delhi',90,0,A],
+['Purushottam Express',12801,12802,'Puri,Bhubaneswar,Gaya,Prayagraj,Kanpur,Delhi',62,15,A],
+['Poorva Express',12303,12304,'Kolkata,Gaya,Prayagraj,Kanpur,Delhi',66,0,'1346'],
+['Dibrugarh Rajdhani',12423,12424,'Dibrugarh,Guwahati,NJP,Patna,Kanpur,Delhi',80,40,'135'],
+['Trivandrum Rajdhani',12431,12432,'Trivandrum,Kochi,Mangaluru,Mumbai,Vadodara,Kota,Delhi',80,0,'24'],
+['Udyan Express',11301,11302,'Mumbai,Pune,Bengaluru',60,8,A],
+['Deccan Express',11007,11008,'Mumbai,Pune',60,0,A],
+['Lalbagh Express',12607,12608,'Chennai,Bengaluru',60,3,A],
+['Mumbai Shatabdi',12009,12010,'Mumbai,Surat,Vadodara,Ahmedabad',85,5,'123456'],
+['Bhopal Shatabdi',12001,12002,'Delhi,Agra,Jhansi,Bhopal',90,0,A],
+['Amritsar Shatabdi',12013,12014,'Delhi,Ambala,Ludhiana,Amritsar',85,8,'123456'],
+['Gatimaan Express',12049,12050,'Delhi,Agra,Jhansi',100,0,'012346'],
+['Jaipur Double Decker',12985,12986,'Delhi,Jaipur',80,0,A],
+['Vande Bharat Varanasi',22435,22436,'Delhi,Kanpur,Prayagraj,Varanasi',110,0,'012456']];
+const LAND=[[74.3,34.8],[76.8,35.6],[78.5,34.5],[78.9,32.5],[80.2,30.8],[81,30.2],[80.1,28.8],[81.9,27.9],[84.1,27.4],[86,26.6],[88.1,26.5],[88.2,27.6],[89,27.3],[92.1,26.9],[93.4,28.2],[95.3,28.9],[97.2,28],[95.5,26],[94.6,24],[93.4,22.9],[92.6,24],[91.8,24.2],[91.2,25.2],[90,25.2],[89,26.3],[88.4,25.3],[88.9,24],[89.1,22],[87,21.5],[86.8,20.3],[85,19.3],[83,17.6],[81.2,16.3],[80.3,15.2],[80.2,13.4],[79.9,11.7],[79.3,10.3],[78.2,8.9],[77.5,8.1],[76.6,8.9],[75.8,11.3],[74.9,12.9],[74,15],[73.3,17.2],[72.8,19.1],[72.8,21],[72.6,21.9],[72.2,21],[70.9,20.7],[69,22.2],[68.7,23.2],[70,24.2],[70.5,25.6],[69.6,26.6],[70.3,27.9],[71.9,27.9],[72.9,29],[74.3,30],[74.6,31.1],[74.5,32.4],[75.4,33.2]];
+const P=(o,a)=>[(o-67.5)*19.5,(37-a)*20.5];
+const hv=(a,b,c,d)=>{const x=(c-a)*R*Math.cos((b+d)*R/2),y=(d-b)*R;return 6371*Math.hypot(x,y)};
+const sn=k=>ST[k][2];
+const T=D.map((a,i)=>{const t={name:a[0],n:[a[1],a[2]],r:a[3].split(','),v:a[4],dl:a[5],days:a[6].split('').map(Number),o:(i*.137+.05)%1};
+ t.g=t.r.map(k=>ST[k]);t.cum=[0];for(let j=1;j<t.g.length;j++){const p=t.g[j-1],q=t.g[j];t.cum[j]=t.cum[j-1]+hv(p[0],p[1],q[0],q[1])*1.15}t.L=t.cum[t.cum.length-1];return t});
+const isRun=t=>t.days.includes(new Date().getDay());
+function nextRun(t){for(let k=1;k<=7;k++){const d=new Date();d.setDate(d.getDate()+k);if(t.days.includes(d.getDay()))return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}return'—'}
+function at(t,d){let j=1;while(j<t.cum.length-1&&t.cum[j]<d)j++;const f=(d-t.cum[j-1])/(t.cum[j]-t.cum[j-1]),a=t.g[j-1],b=t.g[j];return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]}
+function state(t,now){
+ const h=now/1000*30/3600,p=(h*t.v+t.o*2*t.L)%(2*t.L),dir=p>t.L?1:0,d=dir?2*t.L-p:p;
+ const order=t.r.map((_,i)=>dir?t.r.length-1-i:i);
+ let nx=order.find(i=>dir?t.cum[i]<d-.01:t.cum[i]>d+.01);if(nx===undefined)nx=order[order.length-1];
+ return{d,dir,pos:at(t,d),order,nx,eta:Math.abs(t.cum[nx]-d)/t.v,sp:Math.round(t.v+Math.sin(now/4000+t.o*9)*6)};
+}
+const fm=h=>{const m=Math.max(1,Math.round(h*60));return m<60?m+' min':Math.floor(m/60)+'h '+m%60+'m'};
+let sel=null,near=null,cur=[],q='',flt='all';
+function drawMap(){
+ const S=sel!=null?T[sel]:null;
+ let h='<path d="M'+LAND.map(p=>P(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join('L')+'Z" fill="var(--land)" stroke="var(--ln)" stroke-width="1.5" stroke-linejoin="round"/>';
+ T.forEach((t,i)=>{if(i===sel)return;h+='<polyline points="'+t.g.map(p=>P(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join(' ')+'" fill="none" stroke="var(--trk)" stroke-width="1.3" stroke-linejoin="round" opacity="'+(S?.35:.9)+'"/>'});
+ if(S)h+='<polyline points="'+S.g.map(p=>P(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join(' ')+'" fill="none" stroke="var(--yl)" stroke-width="3" stroke-linejoin="round"/>';
+ const lab=new Set(METRO);if(S)S.r.forEach(k=>lab.add(k));
+ Object.keys(ST).forEach(k=>{const[x,y]=P(ST[k][0],ST[k][1]);h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.8" fill="var(--pn)" stroke="var(--mu)" stroke-width="1.2"/>';if(lab.has(k))h+='<text x="'+(x+6).toFixed(1)+'" y="'+(y+3).toFixed(1)+'" font-size="10.5" font-weight="600" fill="var(--tx)" stroke="var(--land)" stroke-width="3" paint-order="stroke" font-family="Hind,sans-serif">'+sn(k)+'</text>'});
+ $('#rts').innerHTML=h;
+ document.querySelectorAll('.tn').forEach(g=>{const i=+g.dataset.i,on=i===sel,c=g.querySelector('.d');c.setAttribute('r',on?8:5.5);c.setAttribute('fill',on?'var(--yl)':T[i].dl>=20?'var(--rd)':'var(--gr)')});
+}
+function drawUser(){
+ if(!near){$('#us').innerHTML='';return}
+ const[x,y]=P(near.lo,near.la);
+ $('#us').innerHTML='<circle class="ring" cx="'+x+'" cy="'+y+'" r="39"/><circle cx="'+x+'" cy="'+y+'" r="6" fill="var(--me)" stroke="var(--pn)" stroke-width="2.5"/>';
+}
+$('#tr').innerHTML=T.map((t,i)=>'<g class="tn" data-i="'+i+'" style="cursor:pointer"><circle r="13" fill="transparent"/><circle class="d" r="5.5" fill="var(--gr)" stroke="var(--pn)" stroke-width="2"/></g>').join('');
+const GS=[...document.querySelectorAll('.tn')];
+function frame(now){cur=T.map((t,i)=>{const s=state(t,now),g=GS[i];if(isRun(t)){const[x,y]=P(s.pos[0],s.pos[1]);g.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+')');g.style.display=''}else g.style.display='none';return s})}
+function list(){
+ let idx=T.map((t,i)=>i).filter(i=>{const t=T[i],r=isRun(t),txt=(t.n.join(' ')+' '+t.name+' '+t.r.map(sn).join(' ')).toLowerCase();return txt.includes(q)&&(flt==='all'||(flt==='run')===r)});
+ if(near){idx.forEach(i=>{cur[i].km=isRun(T[i])?hv(near.lo,near.la,cur[i].pos[0],cur[i].pos[1]):1e9});idx.sort((a,b)=>cur[a].km-cur[b].km)}
+ $('#cnt').textContent=idx.length+' of '+T.length;
+ $('#ls').innerHTML=idx.length?idx.map(i=>{const t=T[i],s=cur[i],run=isRun(t),f=t.r[run?s.order[0]:0],e=t.r[run?s.order[s.order.length-1]:t.r.length-1],no=t.n[run?s.dir:0];
+  const info=run?'Next stop: '+sn(t.r[s.nx])+', '+fm(s.eta)+(near?' · '+Math.round(s.km)+' km away':''):'Runs '+t.days.map(d=>DY[d]).join(', ')+' · Next run: '+nextRun(t);
+  const tag=run?(t.dl?'+'+t.dl+' min late':'On time'):'Not running today';
+  return'<div class="row'+(i===sel?' on':'')+'" data-i="'+i+'" tabindex="0"><span class="no">'+no+'</span><div class="m"><div class="nm">'+t.name+'</div><div class="rt">'+sn(f)+' to '+sn(e)+'</div><div class="nx">'+info+'</div></div><span class="tag'+(!run?' off':t.dl>=20?' late':'')+'">'+tag+'</span></div>'}).join(''):'<div class="empty">No train matches your search. Try another train number, name or station.</div>';
+ const run=T.filter(isRun).length;$('#s0').textContent=T.length;$('#s1').textContent=run;$('#s2').textContent=T.length-run;$('#s3').textContent=T.filter(t=>isRun(t)&&t.dl>0).length;
+ if(near){const b=T.map((t,i)=>[isRun(t)?hv(near.lo,near.la,cur[i].pos[0],cur[i].pos[1]):1e9,i]).sort((a,b)=>a[0]-b[0])[0];$('#nm').textContent=(near.real?'Closest to you: ':"Couldn't read your location, showing from New Delhi. Closest: ")+T[b[1]].name+' ('+Math.round(b[0])+' km away)'}else $('#nm').textContent='';
+}
+function detail(){
+ const el=$('#dt');if(sel==null){el.innerHTML='<p class="hint">Tap a train on the map or in the list to see its route, next stop and schedule.</p>';return}
+ const t=T[sel],s=cur[sel],run=isRun(t);
+ if(!run){el.innerHTML='<div class="dh"><span class="no">'+t.n[0]+'</span><h2>'+t.name+'</h2></div><div class="rt" style="margin-top:6px">'+sn(t.r[0])+' to '+sn(t.r[t.r.length-1])+' · Not running today</div><p class="nr">Next run: '+nextRun(t)+'</p><div class="dy">'+DY.map((d,i)=>'<span class="'+(t.days.includes(i)?'on':'')+'">'+d+'</span>').join('')+'</div><ul class="tl">'+t.r.map(k=>'<li>'+sn(k)+'</li>').join('')+'</ul>';return}
+ const pct=Math.round((s.dir?t.L-s.d:s.d)/t.L*100),k=s.order.indexOf(s.nx);
+ el.innerHTML='<div class="dh"><span class="no">'+t.n[s.dir]+'</span><h2>'+t.name+'</h2></div><div class="rt" style="margin-top:6px">'+sn(t.r[s.order[0]])+' to '+sn(t.r[s.order[s.order.length-1]])+' · '+s.sp+' km/h · '+(t.dl?t.dl+' min late':'On time')+'</div><div class="pg"><div style="width:'+pct+'%"></div></div><ul class="tl">'+s.order.map((si,j)=>'<li class="'+(j<k?'p':j===k?'n':'')+'">'+sn(t.r[si])+'<span>'+(j<k?'Departed':fm(Math.abs(t.cum[si]-s.d)/t.v))+'</span></li>').join('')+'</ul>';
+}
+function pick(i,scroll){sel=sel===i?null:i;drawMap();list();detail();if(scroll&&sel!=null)$('#dt').scrollIntoView({block:'nearest'})}
+$('#tr').addEventListener('click',e=>{const g=e.target.closest('.tn');if(g)pick(+g.dataset.i)});
+$('#ls').addEventListener('click',e=>{const r=e.target.closest('.row');if(r)pick(+r.dataset.i,1)});
+$('#ls').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const r=e.target.closest('.row');if(r){e.preventDefault();pick(+r.dataset.i,1)}}});
+$('#q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();list()});
+$('#tb').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;flt=b.dataset.f;document.querySelectorAll('#tb button').forEach(x=>x.classList.toggle('on',x===b));list()});
+$('#nb').addEventListener('click',()=>{
+ const set=(lo,la,real)=>{near={lo,la,real:real&&lo>68&&lo<98&&la>7&&la<36};if(!near.real){near.lo=77.21;near.la=28.61}drawUser();list()};
+ try{navigator.geolocation.getCurrentPosition(p=>set(p.coords.longitude,p.coords.latitude,true),()=>set(77.21,28.61,false),{timeout:6000})}catch(e){set(77.21,28.61,false)}
+});
+frame(Date.now());drawMap();list();detail();
+setInterval(()=>frame(Date.now()),100);
+setInterval(()=>{list();detail()},1000);
+</script>
 </body>
 </html>
