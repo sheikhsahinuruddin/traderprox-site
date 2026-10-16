@@ -68,6 +68,14 @@ button:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid va
 .empty{padding:18px 14px;color:var(--mu)}
 .ft{margin:16px 0 4px;font-size:13px;color:var(--mu)}
 .ring{fill:var(--me);fill-opacity:.1;stroke:var(--me);stroke-opacity:.5}
+.lv.est{color:var(--mu)}.lv.est b{background:var(--yl)}
+.how{display:grid;gap:10px;margin:0 0 14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.how div{background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--mu)}
+.how b{display:block;color:var(--tx);font:700 17px "Barlow Condensed",sans-serif;margin-bottom:2px}
+.lgd{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mu);margin:0 0 12px}
+.lgd i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.lkb{margin:10px 0 0;padding:10px 14px;border-radius:10px;border:0;background:var(--yl);color:var(--yt)}
+.lvx{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:14px}
 @media(prefers-reduced-motion:reduce){.lv b{animation:none}}
 </style>
 </head>
@@ -75,10 +83,12 @@ button:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid va
 <div class="w">
   <div class="hd">
     <div class="lg"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d1630" stroke-width="2.4" stroke-linecap="round"><path d="M6 3h12a2 2 0 0 1 2 2v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2zM4 11h16M8 21l2-3m6 3-2-3"/></svg></i>RailRadar</div>
-    <div class="lv"><b></b>Live</div>
+    <div class="lv est" id="lv"><b></b><span>Estimated</span></div>
   </div>
   <h1>Which train is passing near you?</h1>
   <p class="sub">Track trains across India's railway network. See the train number, where it started, where it's headed, and when it runs next.</p>
+  <div class="how"><div><b>1 · Search</b>Type a train number (like 12951), name or station.</div><div><b>2 · Tap a train</b>See route, next stop, speed and delay on the map.</div><div><b>3 · Live status</b>Any train number can be checked live once the API key is added.</div></div>
+  <div class="lgd"><span><i style="background:var(--gr)"></i>On time</span><span><i style="background:var(--rd)"></i>Late 20+ min</span><span><i style="background:var(--yl)"></i>Selected</span><span><i style="background:var(--me)"></i>You</span></div>
   <div class="bar">
     <input id="q" type="search" placeholder="Search by train number, name or station" aria-label="Search trains">
     <button id="nb" type="button">Trains near me</button>
@@ -91,11 +101,11 @@ button:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid va
         <svg id="map" viewBox="0 0 600 630" role="img" aria-label="India railway map with live trains"><g id="rts"></g><g id="tr"></g><g id="us"></g></svg>
         <div class="st"><span><b id="s0">0</b>total</span><span><b id="s1">0</b>running now</span><span><b id="s2">0</b>not running today</span><span><b id="s3">0</b>delayed</span></div>
       </div>
-      <div class="dt" id="dt"></div>
+      <div class="dt" id="dt"></div><div class="dt" id="lvx" style="display:none"></div>
     </div>
     <div class="rl"><h3>Trains <small id="cnt"></small></h3><div id="ls"></div></div>
   </div>
-  <p class="ft">Demo data: positions are simulated and schedules are samples. Covering every Indian train needs the live railway database connected through a backend.</p>
+  <p class="ft">Positions on the map are <b>estimated</b> from sample timetables. Real live status shows up (in the yellow box) only after you add an API key in <code>CFG</code> inside the script. Tip: keep the key on a small proxy server, not in public HTML.</p>
 </div>
 <script>
 const $=s=>document.querySelector(s),R=Math.PI/180;
@@ -127,6 +137,9 @@ const D=[
 ['Amritsar Shatabdi',12013,12014,'Delhi,Ambala,Ludhiana,Amritsar',85,8,'123456'],
 ['Gatimaan Express',12049,12050,'Delhi,Agra,Jhansi',100,0,'012346'],
 ['Jaipur Double Decker',12985,12986,'Delhi,Jaipur',80,0,A],
+['Bengaluru Rajdhani',22691,22692,'Bengaluru,Hyderabad,Nagpur,Bhopal,Jhansi,Agra,Delhi',88,0,'0136'],
+['Chennai Rajdhani',12433,12434,'Chennai,Vijayawada,Nagpur,Bhopal,Jhansi,Agra,Delhi',86,0,'1346'],
+['Howrah Chennai Mail',12839,12840,'Kolkata,Bhubaneswar,Visakhapatnam,Vijayawada,Chennai',68,12,A],
 ['Vande Bharat Varanasi',22435,22436,'Delhi,Kanpur,Prayagraj,Varanasi',110,0,'012456']];
 const LAND=[[74.3,34.8],[76.8,35.6],[78.5,34.5],[78.9,32.5],[80.2,30.8],[81,30.2],[80.1,28.8],[81.9,27.9],[84.1,27.4],[86,26.6],[88.1,26.5],[88.2,27.6],[89,27.3],[92.1,26.9],[93.4,28.2],[95.3,28.9],[97.2,28],[95.5,26],[94.6,24],[93.4,22.9],[92.6,24],[91.8,24.2],[91.2,25.2],[90,25.2],[89,26.3],[88.4,25.3],[88.9,24],[89.1,22],[87,21.5],[86.8,20.3],[85,19.3],[83,17.6],[81.2,16.3],[80.3,15.2],[80.2,13.4],[79.9,11.7],[79.3,10.3],[78.2,8.9],[77.5,8.1],[76.6,8.9],[75.8,11.3],[74.9,12.9],[74,15],[73.3,17.2],[72.8,19.1],[72.8,21],[72.6,21.9],[72.2,21],[70.9,20.7],[69,22.2],[68.7,23.2],[70,24.2],[70.5,25.6],[69.6,26.6],[70.3,27.9],[71.9,27.9],[72.9,29],[74.3,30],[74.6,31.1],[74.5,32.4],[75.4,33.2]];
 const P=(o,a)=>[(o-67.5)*19.5,(37-a)*20.5];
@@ -144,6 +157,14 @@ function state(t,now){
  return{d,dir,pos:at(t,d),order,nx,eta:Math.abs(t.cum[nx]-d)/t.v,sp:Math.round(t.v+Math.sin(now/4000+t.o*9)*6)};
 }
 const fm=h=>{const m=Math.max(1,Math.round(h*60));return m<60?m+' min':Math.floor(m/60)+'h '+m%60+'m'};
+const CFG={key:'',host:'irctc1.p.rapidapi.com'};
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let lk=null;
+async function live(no){if(!CFG.key)throw Error('nokey');const r=await fetch('https://'+CFG.host+'/api/v1/liveTrainStatus?trainNo='+no+'&startDay=1',{headers:{'x-rapidapi-key':CFG.key,'x-rapidapi-host':CFG.host}});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(!j||!j.data)throw Error('empty');return j.data}
+function lvHtml(d){const g=(...k)=>{for(const x of k)if(d[x]!=null&&d[x]!=='')return d[x]};const u=(g('upcoming_stations')||[]).slice(0,5);return'<b>'+esc(g('train_name','name')||'')+'</b><br>Now at: '+esc(g('current_station_name','current_station')||'—')+' · Delay: '+esc(g('delay')??'—')+' min'+(u.length?'<ul class="tl">'+u.map(s=>'<li>'+esc(s.station_name||s.stationName||'')+'<span>'+esc(s.eta||s.arrival||'')+'</span></li>').join('')+'</ul>':'')}
+const errMsg=e=>e.message==='nokey'?'Live API is not connected yet. Add your key in CFG (top of the script) to see real status.':'Could not fetch live status ('+esc(e.message)+'). Check the train number, key or internet.';
+async function lookup(no,box,tag){box.style.display='';box.innerHTML='Checking live status of '+esc(no)+'…';try{const d=await live(no);box.innerHTML=lvHtml(d);if(tag)tag(d)}catch(e){box.innerHTML=errMsg(e)}}
+if(CFG.key){const l=$('#lv');l.classList.remove('est');l.querySelector('span').textContent='Live'}
 let sel=null,near=null,cur=[],q='',flt='all';
 function drawMap(){
  const S=sel!=null?T[sel]:null;
@@ -170,7 +191,7 @@ function list(){
  $('#ls').innerHTML=idx.length?idx.map(i=>{const t=T[i],s=cur[i],run=isRun(t),f=t.r[run?s.order[0]:0],e=t.r[run?s.order[s.order.length-1]:t.r.length-1],no=t.n[run?s.dir:0];
   const info=run?'Next stop: '+sn(t.r[s.nx])+', '+fm(s.eta)+(near?' · '+Math.round(s.km)+' km away':''):'Runs '+t.days.map(d=>DY[d]).join(', ')+' · Next run: '+nextRun(t);
   const tag=run?(t.dl?'+'+t.dl+' min late':'On time'):'Not running today';
-  return'<div class="row'+(i===sel?' on':'')+'" data-i="'+i+'" tabindex="0"><span class="no">'+no+'</span><div class="m"><div class="nm">'+t.name+'</div><div class="rt">'+sn(f)+' to '+sn(e)+'</div><div class="nx">'+info+'</div></div><span class="tag'+(!run?' off':t.dl>=20?' late':'')+'">'+tag+'</span></div>'}).join(''):'<div class="empty">No train matches your search. Try another train number, name or station.</div>';
+  return'<div class="row'+(i===sel?' on':'')+'" data-i="'+i+'" tabindex="0"><span class="no">'+no+'</span><div class="m"><div class="nm">'+t.name+'</div><div class="rt">'+sn(f)+' to '+sn(e)+'</div><div class="nx">'+info+'</div></div><span class="tag'+(!run?' off':t.dl>=20?' late':'')+'">'+tag+'</span></div>'}).join(''):'<div class="empty">No train in our map list matches. '+(/^\d{5}$/.test(q)?'You can still check train <b>'+q+'</b> live.<br><button class="lkb" id="lk">Check live status</button><div class="lvx" id="lkr" style="display:none"></div>':'Try another train number, name or station.')+'</div>';
  const run=T.filter(isRun).length;$('#s0').textContent=T.length;$('#s1').textContent=run;$('#s2').textContent=T.length-run;$('#s3').textContent=T.filter(t=>isRun(t)&&t.dl>0).length;
  if(near){const b=T.map((t,i)=>[isRun(t)?hv(near.lo,near.la,cur[i].pos[0],cur[i].pos[1]):1e9,i]).sort((a,b)=>a[0]-b[0])[0];$('#nm').textContent=(near.real?'Closest to you: ':"Couldn't read your location, showing from New Delhi. Closest: ")+T[b[1]].name+' ('+Math.round(b[0])+' km away)'}else $('#nm').textContent='';
 }
@@ -181,10 +202,11 @@ function detail(){
  const pct=Math.round((s.dir?t.L-s.d:s.d)/t.L*100),k=s.order.indexOf(s.nx);
  el.innerHTML='<div class="dh"><span class="no">'+t.n[s.dir]+'</span><h2>'+t.name+'</h2></div><div class="rt" style="margin-top:6px">'+sn(t.r[s.order[0]])+' to '+sn(t.r[s.order[s.order.length-1]])+' · '+s.sp+' km/h · '+(t.dl?t.dl+' min late':'On time')+'</div><div class="pg"><div style="width:'+pct+'%"></div></div><ul class="tl">'+s.order.map((si,j)=>'<li class="'+(j<k?'p':j===k?'n':'')+'">'+sn(t.r[si])+'<span>'+(j<k?'Departed':fm(Math.abs(t.cum[si]-s.d)/t.v))+'</span></li>').join('')+'</ul>';
 }
-function pick(i,scroll){sel=sel===i?null:i;drawMap();list();detail();if(scroll&&sel!=null)$('#dt').scrollIntoView({block:'nearest'})}
+function pick(i,scroll){sel=sel===i?null:i;drawMap();list();detail();const lb=$('#lvx');lb.style.display='none';if(sel!=null&&CFG.key)lookup(T[sel].n[cur[sel].dir],lb);if(scroll&&sel!=null)$('#dt').scrollIntoView({block:'nearest'})}
 $('#tr').addEventListener('click',e=>{const g=e.target.closest('.tn');if(g)pick(+g.dataset.i)});
 $('#ls').addEventListener('click',e=>{const r=e.target.closest('.row');if(r)pick(+r.dataset.i,1)});
 $('#ls').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const r=e.target.closest('.row');if(r){e.preventDefault();pick(+r.dataset.i,1)}}});
+$('#ls').addEventListener('click',e=>{if(e.target.id==='lk')lookup(q,$('#lkr'))});
 $('#q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();list()});
 $('#tb').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;flt=b.dataset.f;document.querySelectorAll('#tb button').forEach(x=>x.classList.toggle('on',x===b));list()});
 $('#nb').addEventListener('click',()=>{
@@ -193,7 +215,7 @@ $('#nb').addEventListener('click',()=>{
 });
 frame(Date.now());drawMap();list();detail();
 setInterval(()=>frame(Date.now()),100);
-setInterval(()=>{list();detail()},1000);
+setInterval(()=>{const r=$('#lkr');if(!(r&&r.style.display===''))list();detail()},1000);
 </script>
 </body>
 </html>
