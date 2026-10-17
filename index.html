@@ -45,6 +45,8 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
 .lb{pointer-events:none!important;transition:opacity .25s;will-change:transform}
 .lb.cn{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#bcd3ff;padding:0}
 .lb.cn:before{display:none}
+.results .act{background:rgba(77,163,255,.22)}
+.results .more{color:var(--acc);font-size:13px}
 .lb.sm{font-size:11px;opacity:.9}
 .lb:before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 6px #ffb84a}
 .lb.c{font-weight:600}
@@ -91,7 +93,7 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
   <p>Small towns &amp; villages load progressively from OpenStreetMap as you zoom in. Weather: not enabled – it needs a provider/API key. See README.</p>
   <h3>Settings</h3>
   <label style="display:block">Rotation speed: <b id="spv">0.40</b>°/s<input type="range" id="speed" min="0" max="3" step="0.05" value="0.4"></label>
-  <label><input type="checkbox" id="hq">High-quality rendering (more GPU)</label>
+  <label><input type="checkbox" id="hq" checked>High-quality rendering (more GPU)</label>
   <h3>About the data</h3>
   <p><b>Calculated live:</b> clock, sun position, day/night boundary, sunrise/sunset.<br><b>Reference imagery (not real-time):</b> surface, night lights (satellite-derived, not current electricity use) and clouds.<br><b>Live feeds:</b> earthquakes (USGS) when enabled.<br><b>Map &amp; places:</b> OpenStreetMap, Natural Earth.</p>
 </div>
