@@ -67,7 +67,7 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
 </head><body>
 <canvas id="gl"></canvas><div id="labels"></div><div id="pin"></div>
 <header class="top">
-  <div class="logo glass"><i>◉</i><b>EarthVision</b></div>
+  <div class="logo glass"><i>◉</i><b>EarthVision</b><small style="color:var(--dim);font-size:10px;margin-left:2px">v5</small></div>
   <div class="search glass"><input id="q" type="search" placeholder="Search any country, state, city, village…" autocomplete="off" enterkeyhint="search" aria-label="Search places"><div id="res" class="results glass" hidden></div></div>
   <div class="clock glass"><span><span id="utcd"></span> <span id="utc">--:--:--</span> UTC</span><span id="live" class="live">LIVE</span></div>
 </header>
@@ -108,5 +108,5 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
 <div id="loader"><div class="o"></div><div style="letter-spacing:.3em;font-weight:600">EARTHVISION</div><div style="color:var(--dim);font-size:12px">Loading planet…</div></div>
 <div id="nogl"><div><h2>WebGL is unavailable</h2><p style="color:var(--dim)">EarthVision needs WebGL. Enable hardware acceleration or try a recent Chrome, Edge, Firefox or Safari.</p></div></div>
 
-<script type="module" src="./main.js"></script>
+<script type="module" src="./main.js?v=5"></script>
 </body></html>
