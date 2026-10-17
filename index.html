@@ -1,35 +1,215 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#02040b"><title>Orbital Earth · Live Globe</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030711">
+<title>EARTH / Live Planet</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02040b;color:#eaf4ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}#space{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}.stars{position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(1px 1px at 8% 18%,#fff 99%,transparent),radial-gradient(1px 1px at 72% 12%,#c7d9ff 99%,transparent),radial-gradient(1.5px 1.5px at 89% 39%,#fff 99%,transparent),radial-gradient(1px 1px at 24% 62%,#fff 99%,transparent),radial-gradient(1px 1px at 57% 79%,#c9d9ff 99%,transparent),radial-gradient(1px 1px at 38% 31%,#fff 99%,transparent),radial-gradient(1px 1px at 94% 83%,#fff 99%,transparent),radial-gradient(1px 1px at 12% 87%,#c7d9ff 99%,transparent);background-size:100% 100%;opacity:.85}.search{position:fixed;z-index:5;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 28px));display:flex;gap:8px;padding:7px;border:1px solid #8db9ff44;border-radius:17px;background:#050c1bd9;box-shadow:0 8px 35px #0008;backdrop-filter:blur(16px)}input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#fff;padding:10px;font-size:15px}input::placeholder{color:#9aaac3}button{cursor:pointer;color:#eaf4ff;background:#0c1a30;border:1px solid #8db9ff35;border-radius:12px;padding:10px 14px;font:inherit}.search button{background:#c9efff;color:#071323;font-weight:750}.results{display:none;position:fixed;z-index:6;top:calc(max(16px,env(safe-area-inset-top)) + 62px);left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 28px));max-height:38vh;overflow:auto;border:1px solid #8db9ff44;border-radius:14px;background:#050c1bf5;backdrop-filter:blur(16px)}.result{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #ffffff14;border-radius:0;background:transparent}.result small{display:block;color:#9baec9;margin-top:3px}.controls{position:fixed;z-index:4;right:14px;top:50%;transform:translateY(-50%);display:grid;gap:9px}.controls button{width:46px;height:46px;padding:0;border-radius:50%;font-size:23px;background:#061020d9;backdrop-filter:blur(12px)}.brand{position:fixed;z-index:3;left:17px;top:20px;color:#d8eaff;font-size:10px;letter-spacing:.22em;font-weight:800;pointer-events:none;text-shadow:0 2px 10px #000}.hint{position:fixed;z-index:3;left:50%;transform:translateX(-50%);bottom:max(18px,env(safe-area-inset-bottom));color:#b8c8e0;background:#061020b8;border:1px solid #8db9ff25;border-radius:30px;padding:10px 15px;font-size:11px;letter-spacing:.07em;white-space:nowrap;backdrop-filter:blur(12px);pointer-events:none}.place{position:fixed;z-index:3;left:17px;bottom:max(20px,env(safe-area-inset-bottom));color:#e5f1ff;font-size:12px;max-width:calc(100% - 150px);text-shadow:0 2px 12px #000;pointer-events:none}.place b{font-size:15px;display:block}.tag{font:11px system-ui,sans-serif;color:#eaf4ff;text-shadow:0 1px 5px #000,0 0 8px #000;white-space:nowrap;pointer-events:none;opacity:.9}.tag.country{font-size:12px;font-weight:750;letter-spacing:.08em;color:#d5eaff}.tag.city{font-size:10px;color:#d7e2f5}.tag.selected{color:#fff;font-size:13px;font-weight:800;text-shadow:0 0 10px #63c8ff,0 2px 5px #000}.tag.hidden{display:none}@media(max-width:520px){.brand{top:83px;left:18px;font-size:9px}.hint{font-size:9px;padding:9px 12px;bottom:15px}.place{bottom:64px;left:16px}.controls{right:10px}.tag.city{font-size:9px}}
-</style></head><body><canvas id="space"></canvas><div class="stars"></div><div class="brand">◉ ORBITAL / EARTH</div><form class="search" id="form"><input id="query" type="search" autocomplete="off" placeholder="Search any country, city or place…" aria-label="Search any country, city or place"><button type="submit">⌕</button></form><div id="results" class="results"></div><div class="controls"><button id="plus" aria-label="Zoom in">+</button><button id="minus" aria-label="Zoom out">−</button><button id="reset" aria-label="Reset Earth">↺</button></div><div class="place"><b id="selected">Earth</b><span id="coords">Live day & night · city lights</span></div><div class="hint">DRAG TO ROTATE · PINCH TO ZOOM</div>
+:root{color-scheme:dark;--bg:#030711;--panel:rgba(9,18,35,.72);--line:rgba(157,190,255,.17);--muted:#91a3c2;--white:#edf5ff;--cyan:#83dcff}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--white);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+body{overflow-x:hidden;background:radial-gradient(ellipse at 50% 38%,#102342 0,#070f20 36%,#030711 75%)}
+#stars{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;opacity:.85}
+.shell{position:relative;z-index:1;max-width:1450px;margin:auto;padding:24px clamp(14px,3vw,42px) 30px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:11px;letter-spacing:.18em;font-size:12px;font-weight:800}
+.brandmark{width:30px;height:30px;border:1px solid #7acbff;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 22px #2f91ff44;color:#a9e6ff;font-size:15px}
+.live{font-size:10px;letter-spacing:.14em;color:#a9f7d1;border:1px solid #64dba455;background:#55c99112;border-radius:99px;padding:8px 11px;white-space:nowrap}
+.live:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#6cf0b1;margin-right:7px;box-shadow:0 0 10px #6cf0b1}
+.hero{text-align:center;padding:27px 0 6px}
+.kicker{font-size:10px;letter-spacing:.32em;color:#8cb4e9;text-transform:uppercase}
+h1{font-size:clamp(29px,5vw,58px);font-weight:550;letter-spacing:-.055em;margin:10px 0 7px;line-height:1.02}
+.subtitle{font-size:13px;color:var(--muted);margin:0}
+.stage{position:relative;max-width:980px;height:clamp(520px,78vw,820px);margin:0 auto}
+#globe{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab;outline:none}
+#globe:active{cursor:grabbing}
+.hud{position:absolute;z-index:2;pointer-events:none;top:28px;left:2px;display:grid;gap:8px}
+.hud .label{font-size:9px;color:#7894bd;letter-spacing:.2em;text-transform:uppercase}
+.hud .value{font-size:12px;color:#dcecff}
+.coord{font-variant-numeric:tabular-nums}
+.mobile-zoom{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:grid;gap:8px;z-index:3}.mobile-zoom button{width:46px;height:46px;padding:0;border-radius:50%;font-size:24px;background:#071020d9;backdrop-filter:blur(10px)}
+.bottom-hud{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:7px;align-items:center;white-space:nowrap;font-size:10px;color:#9bb0ce;letter-spacing:.08em;pointer-events:none}
+.bottom-hud span{border:1px solid var(--line);background:#071020a8;padding:7px 10px;border-radius:99px;backdrop-filter:blur(10px)}
+.panel-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px;max-width:980px;margin:0 auto}
+.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,rgba(13,27,49,.82),rgba(5,12,25,.82));padding:17px 18px;min-width:0;backdrop-filter:blur(16px)}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
+.panel-title{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#9ab1d2}
+.icon{font-size:15px;color:#8bdfff}
+.big{font-size:clamp(18px,2.4vw,26px);font-weight:550;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.small{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.sunline{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:11px;color:#c7d7ed}
+.sun-dot{width:7px;height:7px;border-radius:50%;background:#ffd98a;box-shadow:0 0 12px #ffcf6d}
+.controls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:18px auto 0}
+button{border:1px solid rgba(147,186,255,.23);background:#0b1730;color:#dceaff;border-radius:99px;padding:11px 16px;font-size:11px;letter-spacing:.035em;cursor:pointer;min-height:42px;transition:background .2s,border-color .2s}
+button:hover{background:#142849;border-color:#73cfff88}button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+button.primary{background:#c6efff;color:#071323;border-color:#c6efff;font-weight:700}
+button[aria-pressed="true"]{border-color:#77d9ff;color:#bcecff;background:#102841}
+.footer{max-width:980px;margin:22px auto 0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#657c9f;font-size:10px;line-height:1.5}
+.status{color:#91a3c2}
+.search-result{display:block;width:100%;text-align:left;border:0;border-radius:0;border-bottom:1px solid rgba(157,190,255,.10);background:transparent;padding:12px 14px;min-height:48px;white-space:normal}.search-result:last-child{border-bottom:0}.search-result small{display:block;color:#91a3c2;margin-top:3px;font-size:10px}.search-result:hover{background:#142849}
+.error{display:none;position:absolute;inset:25% 10% auto;text-align:center;color:#e1eaff;background:#071020e8;border:1px solid var(--line);border-radius:16px;padding:18px;z-index:4}
+@media(max-width:650px){.shell{padding-top:16px}.hero{padding-top:31px}.stage{height:clamp(520px,118vw,760px)}.hud{top:12px;left:5px}.panel-grid{grid-template-columns:1fr 1fr}.panel:first-child{grid-column:1/-1}.panel{padding:14px}.footer{margin-top:17px}.bottom-hud{bottom:5px}.subtitle{max-width:290px;margin:0 auto;line-height:1.5}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="shell">
+<header>
+  <div class="brand"><span class="brandmark">◉</span><span>ORBITAL <span style="color:#7edcff">/</span> EARTH</span></div>
+  <div class="live" id="liveBadge">LIVE SOLAR POSITION</div>
+</header>
+<section class="hero">
+  <div class="kicker">One planet · One moment</div>
+  <h1>Earth, right now.</h1>
+  <p class="subtitle">A living view of our planet, illuminated by the real Sun.</p>
+</section>
+<section class="search-wrap" style="max-width:760px;margin:18px auto 0;position:relative;z-index:5">
+  <form id="placeSearch" style="display:flex;gap:8px;background:rgba(9,18,35,.9);border:1px solid rgba(157,190,255,.24);border-radius:16px;padding:7px;backdrop-filter:blur(16px)">
+    <input id="placeInput" type="search" autocomplete="off" placeholder="Search a country, city or place…" aria-label="Search country, city or place" style="flex:1;min-width:0;background:transparent;border:0;outline:0;color:#edf5ff;padding:11px 12px;font:inherit;font-size:14px">
+    <button class="primary" type="submit" style="border-radius:11px">Search</button>
+  </form>
+  <div id="searchResults" role="status" style="display:none;position:absolute;top:calc(100% + 7px);left:0;right:0;max-height:240px;overflow:auto;border:1px solid rgba(157,190,255,.2);border-radius:13px;background:#071020f5;backdrop-filter:blur(15px)"></div>
+  <div id="placeStatus" style="font-size:11px;color:#91a3c2;padding:8px 10px" aria-live="polite">Search worldwide places. Internet required for place lookup.</div>
+</section>
+<main>
+  <section class="stage" aria-label="Interactive 3D Earth. Drag to rotate and use the buttons to zoom.">
+    <div class="hud"><div><div class="label">Universal time</div><div class="value coord" id="utc">--:--:-- UTC</div></div><div style="margin-top:7px"><div class="label">Solar subpoint</div><div class="value coord" id="subpoint">Calculating…</div></div><div style="margin-top:7px"><div class="label">Selected place</div><div class="value" id="selectedPlace">Earth</div></div></div>
+    <canvas id="globe" tabindex="0" aria-label="Interactive rotating Earth globe"></canvas>
+    <div class="error" id="error">The 3D globe couldn't load. Check your internet connection, then refresh this page. The live clock remains available.</div>
+    <div class="bottom-hud"><span>✦ REAL-TIME SUN ANGLE</span><span>◐ DAY / NIGHT</span><span>⌖ DRAG TO EXPLORE</span></div>
+    <div class="mobile-zoom" aria-label="Globe zoom controls"><button id="zoomInFloat" type="button" aria-label="Zoom in">+</button><button id="zoomOutFloat" type="button" aria-label="Zoom out">−</button></div>
+  </section>
+  <section class="panel-grid">
+    <article class="panel">
+      <div class="panel-head"><span class="panel-title">Solar conditions</span><span class="icon">☼</span></div>
+      <div class="big" id="phase">Computing sunlight</div>
+      <div class="small" id="phaseDesc">The bright side faces the Sun; the dark side faces away.</div>
+      <div class="sunline"><span class="sun-dot"></span><span id="sunCoords">Sun position: calculating…</span></div>
+    </article>
+    <article class="panel">
+      <div class="panel-head"><span class="panel-title">UTC clock</span><span class="icon">◷</span></div>
+      <div class="big coord" id="clock">--:--:--</div>
+      <div class="small" id="date">Loading current date…</div>
+    </article>
+    <article class="panel">
+      <div class="panel-head"><span class="panel-title">Earth controls</span><span class="icon">◎</span></div>
+      <div class="big" id="motionState">Auto-rotation on</div>
+      <div class="small">Drag the globe to turn it. Pinch or use zoom controls to get closer.</div>
+    </article>
+  </section>
+  <div class="controls">
+    <button id="pause" type="button" aria-pressed="false">Ⅱ Pause rotation</button>
+    <button id="reset" type="button">↺ Reset view</button>
+    <button id="zoomOut" type="button" aria-label="Zoom out">− Zoom out</button>
+    <button id="zoomIn" type="button" aria-label="Zoom in">＋ Zoom in</button>
+    <button id="sunView" type="button" aria-pressed="false">☼ Sunlit view</button>
+  </div>
+</main>
+<footer class="footer"><span>EARTH VISUALIZATION · SOLAR GEOMETRY FROM YOUR DEVICE CLOCK</span><span class="status" id="loadStatus">Loading planet textures…</span></footer>
+</div>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/+esm';
-import {CSS2DRenderer,CSS2DObject} from 'https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/renderers/CSS2DRenderer.js';
-const canvas=document.querySelector('#space'),scene=new THREE.Scene();scene.background=new THREE.Color('#02040b');
-const camera=new THREE.PerspectiveCamera(36,innerWidth/innerHeight,.1,100);camera.position.z=2.75;
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;
-const labels=new CSS2DRenderer();labels.setSize(innerWidth,innerHeight);Object.assign(labels.domElement.style,{position:'fixed',inset:'0',pointerEvents:'none',zIndex:'2'});document.body.appendChild(labels.domElement);
-scene.add(new THREE.AmbientLight(0xffffff,.16));const sun=new THREE.DirectionalLight(0xffffff,2.25);sun.position.set(5,2,5);scene.add(sun);
-const loader=new THREE.TextureLoader(),base='https://threejs.org/examples/textures/planets/';const [day,night]=await Promise.all([loader.loadAsync(base+'earth_atmos_2048.jpg'),loader.loadAsync(base+'earth_lights_2048.png')]);day.colorSpace=THREE.SRGBColorSpace;night.colorSpace=THREE.SRGBColorSpace;
-const earthMat=new THREE.ShaderMaterial({uniforms:{dayMap:{value:day},nightMap:{value:night},sunDir:{value:new THREE.Vector3(1,0,0)}},vertexShader:'varying vec2 vUv; varying vec3 vNormalW; void main(){vUv=uv;vNormalW=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'uniform sampler2D dayMap;uniform sampler2D nightMap;uniform vec3 sunDir;varying vec2 vUv;varying vec3 vNormalW;void main(){float n=dot(normalize(vNormalW),normalize(sunDir));float day=smoothstep(-.12,.16,n);vec3 a=texture2D(dayMap,vUv).rgb*(.22+.98*max(n,0.));vec3 b=texture2D(nightMap,vUv).rgb*vec3(1.,.69,.35)*1.75+vec3(.002,.005,.015);gl_FragColor=vec4(mix(b,a,day),1.);}'});const globe=new THREE.Group();scene.add(globe);const earth=new THREE.Mesh(new THREE.SphereGeometry(1,112,112),earthMat);globe.add(earth);
-const glow=new THREE.Mesh(new THREE.SphereGeometry(1.025,64,64),new THREE.MeshBasicMaterial({color:0x267cff,transparent:true,opacity:.17,side:THREE.BackSide}));globe.add(glow);
-// Coordinates become real on-globe labels. Countries are shown at normal zoom; cities appear as you zoom in.
-const places=[
-['United States',39,-98,'country'],['Canada',57,-106,'country'],['Mexico',23,-102,'country'],['Brazil',-10,-53,'country'],['Argentina',-38,-64,'country'],['United Kingdom',54,-2,'country'],['France',46,2,'country'],['Spain',40,-4,'country'],['Germany',51,10,'country'],['Italy',42,12,'country'],['Norway',62,9,'country'],['Sweden',61,15,'country'],['Russia',60,90,'country'],['China',35,103,'country'],['India',22,79,'country'],['Pakistan',30,70,'country'],['Bangladesh',24,90,'country'],['Nepal',28,84,'country'],['Sri Lanka',7,81,'country'],['Japan',37,138,'country'],['South Korea',36,128,'country'],['Indonesia',-2,118,'country'],['Australia',-25,134,'country'],['New Zealand',-41,174,'country'],['Saudi Arabia',24,45,'country'],['United Arab Emirates',24,54,'country'],['Egypt',26,30,'country'],['Nigeria',9,8,'country'],['Kenya',0,38,'country'],['South Africa',-30,25,'country'],['Turkey',39,35,'country'],['Iran',32,53,'country'],['Thailand',16,101,'country'],['Vietnam',16,108,'country'],['Philippines',13,122,'country'],['Ukraine',49,32,'country'],['Poland',52,20,'country'],['Greece',39,22,'country'],['Colombia',4,-72,'country'],['Chile',-30,-71,'country'],
-['New York',40.71,-74.01,'city'],['Los Angeles',34.05,-118.24,'city'],['Toronto',43.65,-79.38,'city'],['Mexico City',19.43,-99.13,'city'],['São Paulo',-23.55,-46.63,'city'],['Rio de Janeiro',-22.91,-43.17,'city'],['London',51.51,-.13,'city'],['Paris',48.86,2.35,'city'],['Madrid',40.42,-3.7,'city'],['Berlin',52.52,13.4,'city'],['Rome',41.9,12.5,'city'],['Moscow',55.75,37.62,'city'],['Istanbul',41.01,28.98,'city'],['Cairo',30.04,31.24,'city'],['Lagos',6.52,3.38,'city'],['Nairobi',-1.29,36.82,'city'],['Dubai',25.2,55.27,'city'],['Riyadh',24.71,46.67,'city'],['Karachi',24.86,67.01,'city'],['Lahore',31.52,74.36,'city'],['Delhi',28.61,77.21,'city'],['Mumbai',19.08,72.88,'city'],['Kolkata',22.57,88.36,'city'],['Gwalior',26.22,78.18,'city'],['Bengaluru',12.97,77.59,'city'],['Chennai',13.08,80.27,'city'],['Hyderabad',17.39,78.49,'city'],['Shimoga',13.93,75.57,'city'],['Kathmandu',27.72,85.32,'city'],['Dhaka',23.81,90.41,'city'],['Colombo',6.93,79.86,'city'],['Bangkok',13.76,100.5,'city'],['Singapore',1.35,103.82,'city'],['Jakarta',-6.21,106.85,'city'],['Manila',14.6,120.98,'city'],['Hong Kong',22.32,114.17,'city'],['Beijing',39.9,116.4,'city'],['Shanghai',31.23,121.47,'city'],['Tokyo',35.68,139.69,'city'],['Seoul',37.57,126.98,'city'],['Sydney',-33.87,151.21,'city'],['Melbourne',-37.81,144.96,'city'],['Auckland',-36.85,174.76,'city'],['Buenos Aires',-34.6,-58.38,'city'],['Lima',-12.05,-77.04,'city'],['Santiago',-33.45,-70.67,'city'],['Bogotá',4.71,-74.07,'city'],['Johannesburg',-26.2,28.04,'city'],['Cape Town',-33.92,18.42,'city'],['Amsterdam',52.37,4.9,'city'],['Vienna',48.21,16.37,'city'],['Prague',50.08,14.44,'city'],['Stockholm',59.33,18.07,'city'],['Helsinki',60.17,24.94,'city'],['Lisbon',38.72,-9.14,'city'],['Athens',37.98,23.73,'city'],['Doha',25.29,51.53,'city'],['Abu Dhabi',24.45,54.65,'city'],['Kuala Lumpur',3.14,101.69,'city'],['Taipei',25.03,121.56,'city']
-];
-function xyz(lat,lon,r=1.012){let a=THREE.MathUtils.degToRad(90-lat),b=THREE.MathUtils.degToRad(lon+180);return new THREE.Vector3(-r*Math.sin(a)*Math.cos(b),r*Math.cos(a),r*Math.sin(a)*Math.sin(b))}
-const labelItems=[];for(const [name,lat,lon,type] of places){let el=document.createElement('div');el.className='tag '+type;el.textContent=name;let obj=new CSS2DObject(el);obj.position.copy(xyz(lat,lon,1.012));globe.add(obj);labelItems.push({name,lat,lon,type,el,obj})}
-let zoom=2.75,drag=false,lastX=0,lastY=0,pointers=new Map(),pinch=0,selectedLabel=null;
-function resize(){renderer.setSize(innerWidth,innerHeight);labels.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}addEventListener('resize',resize);
-const solar=d=>{let jd=d.getTime()/86400000+2440587.5,n=jd-2451545,L=(280.46+.9856474*n)%360,g=(357.528+.9856003*n)*Math.PI/180,lam=(L+1.915*Math.sin(g)+.02*Math.sin(2*g))*Math.PI/180,eps=(23.439-.0000004*n)*Math.PI/180,ra=Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam)),dec=Math.asin(Math.sin(eps)*Math.sin(lam)),gmst=((280.46061837+360.98564736629*(jd-2451545))%360+360)%360*Math.PI/180;return{lat:dec*180/Math.PI,lon:((ra-gmst)*180/Math.PI+540)%360-180}};
-function setZoom(z){zoom=THREE.MathUtils.clamp(z,1.25,7);camera.position.z=zoom}
-document.querySelector('#plus').onclick=()=>setZoom(zoom-.45);document.querySelector('#minus').onclick=()=>setZoom(zoom+.45);document.querySelector('#reset').onclick=()=>{globe.rotation.set(0,0,0);setZoom(2.75);document.querySelector('#selected').textContent='Earth';selectedLabel=null};
-canvas.addEventListener('pointerdown',e=>{pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){drag=true;lastX=e.clientX;lastY=e.clientY}else if(pointers.size===2){const p=[...pointers.values()];pinch=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);drag=false}canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2){const p=[...pointers.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(pinch)setZoom(zoom+(pinch-d)*.009);pinch=d}else if(drag){globe.rotation.y+=(e.clientX-lastX)*.005;globe.rotation.x=THREE.MathUtils.clamp(globe.rotation.x+(e.clientY-lastY)*.004,-1.45,1.45);lastX=e.clientX;lastY=e.clientY}});
-function end(e){pointers.delete(e.pointerId);if(!pointers.size)drag=false;pinch=0}canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);canvas.addEventListener('wheel',e=>{e.preventDefault();setZoom(zoom+e.deltaY*.003)},{passive:false});
-const input=document.querySelector('#query'),results=document.querySelector('#results');async function search(q){if(!q.trim())return;results.style.display='block';results.innerHTML='<button class="result">Searching worldwide…</button>';try{const res=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=7&q='+encodeURIComponent(q),{headers:{'Accept-Language':'en'}}),data=await res.json();results.innerHTML='';if(!data.length){results.textContent='No places found. Try another name.';return}for(const p of data){const b=document.createElement('button');b.className='result';b.innerHTML='';const strong=document.createElement('strong'),small=document.createElement('small');strong.textContent=p.name||p.display_name.split(',')[0];small.textContent=p.display_name;b.append(strong,small);b.onclick=()=>{const lat=+p.lat,lon=+p.lon;globe.rotation.set(THREE.MathUtils.degToRad(lat),THREE.MathUtils.degToRad(-lon),0);setZoom(p.type==='country'?2.15:1.55);document.querySelector('#selected').textContent=p.name||p.display_name.split(',')[0];document.querySelector('#coords').textContent=p.display_name;selectedLabel=p.name||p.display_name.split(',')[0];results.style.display='none';input.value=selectedLabel};results.append(b)}}catch{results.textContent='Place search needs an internet connection.'}}
-document.querySelector('#form').onsubmit=e=>{e.preventDefault();search(input.value)};let debounce;input.oninput=()=>{clearTimeout(debounce);if(input.value.trim().length>2)debounce=setTimeout(()=>search(input.value),500);else results.style.display='none'};document.addEventListener('click',e=>{if(!e.target.closest('.search')&&!e.target.closest('.results'))results.style.display='none'});
-function animate(){requestAnimationFrame(animate);const s=solar(new Date());earthMat.uniforms.sunDir.value.set(Math.cos(THREE.MathUtils.degToRad(s.lat))*Math.sin(THREE.MathUtils.degToRad(s.lon)),Math.sin(THREE.MathUtils.degToRad(s.lat)),Math.cos(THREE.MathUtils.degToRad(s.lat))*Math.cos(THREE.MathUtils.degToRad(s.lon))).applyAxisAngle(new THREE.Vector3(0,1,0),globe.rotation.y);labelItems.forEach(p=>{const world=p.obj.getWorldPosition(new THREE.Vector3()),front=world.clone().normalize().dot(camera.position.clone().sub(globe.position).normalize())>.15;p.el.classList.toggle('hidden',!front||(p.type==='city'&&zoom>3.5)||(p.type==='country'&&zoom<1.45));if(selectedLabel===p.name)p.el.classList.add('selected');else p.el.classList.remove('selected')});renderer.render(scene,camera);labels.render(scene,camera)}animate();
-</script></body></html>
+const $=id=>document.getElementById(id);
+const stars=$('stars'),sctx=stars.getContext('2d');
+let starPoints=[],w=0,h=0;
+function drawStars(){w=stars.width=Math.max(1,innerWidth*devicePixelRatio);h=stars.height=Math.max(1,innerHeight*devicePixelRatio);stars.style.width=innerWidth+'px';stars.style.height=innerHeight+'px';sctx.clearRect(0,0,w,h);starPoints=[];let n=Math.min(260,Math.floor(innerWidth*innerHeight/5000));for(let i=0;i<n;i++){let x=Math.random()*w,y=Math.random()*h,r=(Math.random()*.8+.2)*devicePixelRatio,a=Math.random()*.65+.12;starPoints.push({x,y,r,a,p:Math.random()*6.28});sctx.beginPath();sctx.fillStyle=`rgba(190,220,255,${a})`;sctx.arc(x,y,r,0,Math.PI*2);sctx.fill()}}
+drawStars();addEventListener('resize',drawStars);
+const canvas=$('globe');
+let THREE,renderer,scene,camera,earth,clouds,atmosphere,nightMat,dayMat,raf,dragging=false,paused=false,sunOnly=false,lastX=0,lastY=0,velX=0,velY=0,zoom=4.0,pointerDown=false,lastPinch=0;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduced)paused=true;
+function solarData(date){
+ const jd=date.getTime()/86400000+2440587.5,n=jd-2451545.0;
+ const L=(280.460+0.9856474*n)%360,g=(357.528+0.9856003*n)%360,gr=g*Math.PI/180;
+ const lambda=(L+1.915*Math.sin(gr)+0.020*Math.sin(2*gr))*Math.PI/180;
+ const eps=(23.439-0.0000004*n)*Math.PI/180;
+ const ra=Math.atan2(Math.cos(eps)*Math.sin(lambda),Math.cos(lambda));
+ const dec=Math.asin(Math.sin(eps)*Math.sin(lambda));
+ const gmst=((280.46061837+360.98564736629*(jd-2451545.0))%360+360)%360*Math.PI/180;
+ let lon=(ra-gmst)*180/Math.PI;lon=((lon+540)%360)-180;
+ return {dec,ra,lon,lat:dec*180/Math.PI,gmst};
+}
+function fmtLon(lon){return `${Math.abs(lon).toFixed(1)}° ${lon<0?'W':'E'}`}
+function fmtLat(lat){return `${Math.abs(lat).toFixed(1)}° ${lat<0?'S':'N'}`}
+function updateClock(){
+ const d=new Date(),s=solarData(d);
+ $('utc').textContent=d.toISOString().slice(11,19)+' UTC';
+ $('clock').textContent=d.toISOString().slice(11,19);
+ $('date').textContent=d.toLocaleDateString('en-GB',{timeZone:'UTC',weekday:'short',day:'2-digit',month:'short',year:'numeric'})+' · UTC';
+ $('subpoint').textContent=fmtLat(s.lat)+' / '+fmtLon(s.lon);
+ $('sunCoords').textContent=`Subsolar point ${fmtLat(s.lat)}, ${fmtLon(s.lon)}`;
+ const utcHour=d.getUTCHours()+d.getUTCMinutes()/60;
+ const localSolar=((utcHour+s.lon/15)%24+24)%24;
+ const phase=localSolar<5||localSolar>=19?'Night':localSolar<7||localSolar>=17?'Twilight':'Daylight';
+ $('phase').textContent=phase;
+ $('phaseDesc').textContent=phase==='Night'?'The Sun is below the horizon at the subsolar opposite side.':phase==='Twilight'?'The day-night boundary is passing through dawn or dusk.':'The subsolar region is receiving direct sunlight.';
+}
+updateClock();setInterval(updateClock,1000);
+async function init(){
+ try{
+  THREE=await import('https://cdn.jsdelivr.net/npm/three@0.165.0/+esm');
+  renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(35,canvas.clientWidth/canvas.clientHeight,.1,100);camera.position.set(0,0,zoom);
+  const ambient=new THREE.AmbientLight(0xffffff,0.16);scene.add(ambient);
+  const loader=new THREE.TextureLoader();
+  const tex=async(url,color=false)=>{const t=await loader.loadAsync(url);if(color)t.colorSpace=THREE.SRGBColorSpace;return t};
+  const base='https://threejs.org/examples/textures/planets/';
+  const [day,night,normal,spec]=await Promise.all([
+   tex(base+'earth_atmos_2048.jpg',true),
+   tex(base+'earth_lights_2048.png',true),
+   tex(base+'earth_normal_2048.jpg'),
+   tex(base+'earth_specular_2048.jpg')
+  ]);
+  const geo=new THREE.SphereGeometry(1,96,96);
+  dayMat=new THREE.ShaderMaterial({
+   uniforms:{dayMap:{value:day},nightMap:{value:night},normalMap:{value:normal},sunDir:{value:new THREE.Vector3(1,0,0)},sunOnly:{value:0}},
+   vertexShader:`varying vec2 vUv; varying vec3 vNormal; varying vec3 vWorld; void main(){vUv=uv; vec4 world=modelMatrix*vec4(position,1.0);vWorld=world.xyz;vNormal=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*viewMatrix*world;}`,
+   fragmentShader:`uniform sampler2D dayMap;uniform sampler2D nightMap;uniform sampler2D normalMap;uniform vec3 sunDir;uniform float sunOnly;varying vec2 vUv;varying vec3 vNormal;varying vec3 vWorld;void main(){vec3 n=normalize(vNormal);vec3 l=normalize(sunDir);float ndl=dot(n,l);float day=smoothstep(-0.12,0.18,ndl);vec3 d=texture2D(dayMap,vUv).rgb;vec3 lights=texture2D(nightMap,vUv).rgb;vec3 bump=texture2D(normalMap,vUv).rgb*2.0-1.0;float detail=clamp(0.88+bump.z*0.20,0.72,1.08);d*=detail;float glow=pow(max(ndl,0.0),24.0)*0.22;vec3 nightCol=vec3(0.006,0.012,0.028)+lights*vec3(1.0,0.63,0.27)*1.7;vec3 dayCol=d*(0.26+0.92*max(ndl,0.0));vec3 col=mix(nightCol,dayCol,day);col+=vec3(0.15,0.38,0.72)*glow; if(sunOnly>0.5)col=dayCol+vec3(0.15,0.38,0.72)*glow;gl_FragColor=vec4(col,1.0);}`,
+  });
+  earth=new THREE.Mesh(geo,dayMat);scene.add(earth);
+  const cloudTex=await tex(base+'earth_clouds_1024.png',true).catch(()=>null);
+  if(cloudTex){clouds=new THREE.Mesh(new THREE.SphereGeometry(1.008,64,64),new THREE.MeshPhongMaterial({map:cloudTex,transparent:true,opacity:.16,depthWrite:false}));scene.add(clouds)}
+  const atGeo=new THREE.SphereGeometry(1.045,64,64);
+  atmosphere=new THREE.Mesh(atGeo,new THREE.ShaderMaterial({vertexShader:`varying vec3 vN;varying vec3 vV;void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}`,fragmentShader:`varying vec3 vN;varying vec3 vV;void main(){float rim=pow(1.0-max(dot(normalize(vN),normalize(vV)),0.0),3.0);gl_FragColor=vec4(0.17,0.52,1.0,rim*0.38);}`,transparent:true,blending:THREE.AdditiveBlending,side:THREE.BackSide,depthWrite:false}));scene.add(atmosphere);
+  $('loadStatus').textContent='Planet textures loaded · solar position updating';
+  $('error').style.display='none';
+  setupControls();
+  addEventListener('resize',resize);
+  animate();
+ }catch(e){console.error(e);$('error').style.display='block';$('loadStatus').textContent='3D library or textures unavailable';}
+}
+function resize(){if(!renderer||!camera)return;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);camera.aspect=canvas.clientWidth/canvas.clientHeight;camera.updateProjectionMatrix()}
+function setupControls(){
+ const activePointers=new Map();
+ canvas.addEventListener('pointerdown',e=>{activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(activePointers.size===1){pointerDown=true;dragging=true;lastX=e.clientX;lastY=e.clientY;}else if(activePointers.size===2){const p=[...activePointers.values()];lastPinch=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);pointerDown=false;}canvas.setPointerCapture?.(e.pointerId)});
+ canvas.addEventListener('pointermove',e=>{if(!activePointers.has(e.pointerId))return;activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(activePointers.size>=2){const p=[...activePointers.values()];const dist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(lastPinch>0){zoom=Math.max(1.45,Math.min(12,zoom+(lastPinch-dist)*.012));camera.position.z=zoom;}lastPinch=dist;return;}if(!pointerDown)return;let dx=e.clientX-lastX,dy=e.clientY-lastY;earth.rotation.y+=dx*.006;earth.rotation.x=Math.max(-1.35,Math.min(1.35,earth.rotation.x+dy*.004));velX=dx*.0007;velY=dy*.0005;lastX=e.clientX;lastY=e.clientY;});
+ const stop=e=>{activePointers.delete(e.pointerId);pointerDown=false;dragging=false;lastPinch=0;if(activePointers.size===1){const p=[...activePointers.values()][0];lastX=p.x;lastY=p.y;pointerDown=true;dragging=true;}};canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);
+ canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(1.45,Math.min(12,zoom+e.deltaY*.004));camera.position.z=zoom},{passive:false});
+ $('pause').addEventListener('click',()=>{paused=!paused;$('pause').setAttribute('aria-pressed',String(paused));$('pause').textContent=paused?'▶ Resume rotation':'Ⅱ Pause rotation';$('motionState').textContent=paused?'Rotation paused':'Auto-rotation on'});
+ $('reset').addEventListener('click',()=>{earth.rotation.set(0,0,0);if(clouds)clouds.rotation.set(0,0,0);zoom=4.0;camera.position.set(0,0,zoom);velX=velY=0;});
+ $('zoomIn').addEventListener('click',()=>{zoom=Math.max(1.45,zoom-.65);camera.position.z=zoom});
+ $('zoomOut').addEventListener('click',()=>{zoom=Math.min(12,zoom+.65);camera.position.z=zoom});$('zoomInFloat').addEventListener('click',()=>{zoom=Math.max(1.45,zoom-.65);camera.position.z=zoom});$('zoomOutFloat').addEventListener('click',()=>{zoom=Math.min(12,zoom+.65);camera.position.z=zoom});
+ $('sunView').addEventListener('click',()=>{sunOnly=!sunOnly;dayMat.uniforms.sunOnly.value=sunOnly?1:0;$('sunView').setAttribute('aria-pressed',String(sunOnly));$('sunView').textContent=sunOnly?'◐ Show night lights':'☼ Sunlit view'});
+}
+function animate(t=0){
+ raf=requestAnimationFrame(animate);
+ if(!renderer||!earth)return;
+ const d=new Date(),s=solarData(d);
+ // Map geographic solar coordinates to the sphere's local coordinates; Earth's texture longitude uses Three.js UV orientation.
+ const sunLon=-s.lon*Math.PI/180;
+ const sunLat=s.lat*Math.PI/180;
+ const sun=new THREE.Vector3(Math.cos(sunLat)*Math.sin(sunLon),Math.sin(sunLat),Math.cos(sunLat)*Math.cos(sunLon));
+ // Rotate solar direction with Earth so the illumination boundary tracks the actual UTC time.
+ const worldSun=sun.applyAxisAngle(new THREE.Vector3(0,1,0),earth.rotation.y);
+ dayMat.uniforms.sunDir.value.copy(worldSun);
+ if(!paused&&!dragging){earth.rotation.y+=reduced?0:0.00032;earth.rotation.x+=(0-earth.rotation.x)*.002; if(Math.abs(velX)>.00001){earth.rotation.y+=velX;velX*=.96}if(Math.abs(velY)>.00001){earth.rotation.x=Math.max(-1.35,Math.min(1.35,earth.rotation.x+velY));velY*=.96}}
+ if(clouds){clouds.rotation.copy(earth.rotation);if(!paused&&!dragging)clouds.rotation.y+=.00012}
+ renderer.render(scene,camera);
+}
+init();
+</script>
+</body>
+</html>
