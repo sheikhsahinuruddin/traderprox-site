@@ -404,7 +404,7 @@ function frame(t){
   const to=clamp((3.2-dist)/.5,0,1);clouds.rotation.y+=dt*.0015;const co=clamp((dist-1.1)/.4,0,1)*.85;cloudMat.opacity=co;clouds.visible=L('clouds')&&co>.01;
   borders.visible=L('borders')&&dist>1.04;if(L('borders')&&dist<1.4)loadStates();if(states)states.visible=dist<1.4;
   for(const x of tiles.values())if(x.vis){x.fade=Math.min(1,x.fade+dt*3.5);x.mat.uniforms.opacity.value=Math.min(to,x.fade)}
-  if(t-lastTile>250){lastTile=t;updateTiles(t);updateDyn();selectLabels();$('#attr').textContent=(to>.05&&L('tiles')?CFG.satAttr+' · '+CFG.tileAttr+' · ':'')+'Places: Natural Earth + OpenStreetMap (Overpass) · Textures: NASA-derived (three.js examples) · Search: Nominatim'}
+  if(t-lastTile>250){lastTile=t;updateTiles(t);updateDyn();selectLabels();$('#attr').textContent='EarthVision v5 · '+(to>.05&&L('tiles')?CFG.satAttr+' · '+CFG.tileAttr+' · ':'')+'Places: Natural Earth + OpenStreetMap (Overpass) · Textures: NASA-derived (three.js examples) · Search: Nominatim'}
   positionLabels();
   if(pin){tv.copy(pin).project(camera);const el=$('#pin'),vis=pin.dot(camDir.copy(camera.position).normalize())>1/dist+.005;el.style.display=vis?'block':'none';el.style.transform=`translate(${(tv.x+1)/2*innerWidth}px,${(1-tv.y)/2*innerHeight}px)`}
   if(t-lastInfo>500){lastInfo=t;const d=new Date(simMs);$('#utc').textContent=d.toISOString().slice(11,19);$('#utcd').textContent=d.toISOString().slice(0,10);
