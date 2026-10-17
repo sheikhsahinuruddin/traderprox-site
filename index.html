@@ -1,287 +1,324 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>RailRadar – India Live Train Tracker</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Hind:wght@400;500;600&display=swap">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>EarthVision – Explore Earth</title>
+<meta name="description" content="Interactive 3D Earth with live day/night, city lights, worldwide search and map-tile zoom.">
 <style>
-:root{--bg:#f3f5fb;--pn:#fff;--ln:#d6dcee;--tx:#101a3a;--mu:#5a6794;--yl:#ffc83d;--yt:#0d1630;--gr:#14a85a;--rd:#d9483a;--land:#e3e8f6;--trk:#98a5cf;--me:#2f6bff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1630;--pn:#14204a;--ln:#26366b;--tx:#eef1fb;--mu:#93a0c9;--gr:#3ddc84;--rd:#ff6b5e;--land:#1a2a5c;--trk:#4a5d98;--me:#6a9bff;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0d1630;--pn:#14204a;--ln:#26366b;--tx:#eef1fb;--mu:#93a0c9;--gr:#3ddc84;--rd:#ff6b5e;--land:#1a2a5c;--trk:#4a5d98;--me:#6a9bff;color-scheme:dark}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 Hind,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
-.w{max-width:1100px;margin:0 auto;padding:14px}
-.hd{display:flex;justify-content:space-between;align-items:center}
-.lg{font:700 26px/1 "Barlow Condensed",Impact,sans-serif;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
-.lg i{width:26px;height:26px;border-radius:7px;background:var(--yl);display:grid;place-items:center}
-.lv{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gr);font-weight:600}
-.lv b{width:8px;height:8px;border-radius:50%;background:var(--gr);animation:pl 1.6s infinite}
-@keyframes pl{50%{opacity:.25}}
-h1{font:700 clamp(32px,6vw,48px)/1.02 "Barlow Condensed",Impact,sans-serif;margin:18px 0 6px}
-.sub{margin:0 0 14px;color:var(--mu);max-width:58ch}
-.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.bar input{flex:1 1 220px;min-width:0;padding:12px 14px;border-radius:12px;border:1px solid var(--ln);background:var(--pn);color:var(--tx);font:inherit}
-button{font:600 15px Hind,sans-serif;cursor:pointer}
-button:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid var(--yl);outline-offset:2px}
-#nb{padding:12px 16px;border-radius:12px;border:0;background:var(--yl);color:var(--yt)}
-.tb{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.tb button{padding:7px 14px;border-radius:20px;border:1px solid var(--ln);background:var(--pn);color:var(--mu)}
-.tb button.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
-#nm{margin:0 0 12px;font-size:14px;color:var(--mu)}
-.g{display:grid;gap:14px}
-@media(min-width:900px){.g{grid-template-columns:1.15fr .85fr;align-items:start}.sticky{position:sticky;top:14px}}
-.mp{background:var(--pn);border:1px solid var(--ln);border-radius:18px;overflow:hidden}
-.mp svg{display:block;width:100%;height:auto;max-height:78vh}
-.st{display:flex;gap:18px;padding:10px 14px;border-top:1px solid var(--ln);font-size:14px;color:var(--mu);flex-wrap:wrap}
-.st b{font:700 22px "Barlow Condensed",sans-serif;color:var(--tx);margin-right:4px}
-.dt{margin-top:14px;border:1px solid var(--ln);border-radius:14px;background:var(--pn);padding:14px}
-.hint{color:var(--mu);margin:0}
-.dh{display:flex;gap:10px;align-items:center}
-.dh h2{margin:0;font:700 24px/1.1 "Barlow Condensed",sans-serif}
-.no{background:var(--yl);color:var(--yt);font:700 20px/1 "Barlow Condensed",sans-serif;padding:6px 9px;border-radius:6px;white-space:nowrap}
-.pg{height:6px;border-radius:3px;background:var(--ln);margin:12px 0}
-.pg div{height:100%;border-radius:3px;background:var(--yl)}
-.tl{list-style:none;margin:0;padding:0 0 0 4px}
-.tl li{display:flex;gap:12px;align-items:center;padding:6px 0;color:var(--mu)}
-.tl li::before{content:"";width:10px;height:10px;border-radius:50%;border:2px solid var(--trk);flex:none;background:var(--pn)}
-.tl li.p::before{background:var(--trk)}
-.tl li.n{color:var(--tx);font-weight:600}
-.tl li.n::before{border-color:var(--yl);background:var(--yl)}
-.tl li span{margin-left:auto;font-size:14px}
-.dy{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
-.dy span{padding:4px 9px;border-radius:6px;border:1px solid var(--ln);font-size:13px;color:var(--mu)}
-.dy span.on{background:var(--yl);color:var(--yt);border-color:var(--yl);font-weight:600}
-.nr{margin:10px 0 0;font-weight:600}
-.rl{background:var(--pn);border:1px solid var(--ln);border-radius:14px;overflow:hidden}
-.rl h3{margin:0;padding:12px 14px;font:700 20px "Barlow Condensed",sans-serif;border-bottom:1px solid var(--ln);display:flex;justify-content:space-between}
-.rl h3 small{font:400 13px Hind,sans-serif;color:var(--mu);align-self:center}
-.row{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--ln);cursor:pointer}
-.row:last-child{border-bottom:0}
-.row.on{background:color-mix(in srgb,var(--yl) 14%,transparent)}
-.row .m{flex:1;min-width:0}
-.nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rt,.nx{font-size:13.5px;color:var(--mu)}
-.tag{font-size:13px;font-weight:600;color:var(--gr);white-space:nowrap;text-align:right}
-.tag.late{color:var(--rd)}.tag.off{color:var(--mu)}
-.empty{padding:18px 14px;color:var(--mu)}
-.ft{margin:16px 0 4px;font-size:13px;color:var(--mu)}
-.ring{fill:var(--me);fill-opacity:.1;stroke:var(--me);stroke-opacity:.5}
-.lv.est{color:var(--mu)}.lv.est b{background:var(--yl)}
-.how{display:grid;gap:10px;margin:0 0 14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.how div{background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:10px 12px;font-size:14px;color:var(--mu)}
-.how b{display:block;color:var(--tx);font:700 17px "Barlow Condensed",sans-serif;margin-bottom:2px}
-.lgd{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--mu);margin:0 0 12px}
-.lgd i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
-.lkb{margin:10px 0 0;padding:10px 14px;border-radius:10px;border:0;background:var(--yl);color:var(--yt)}
-.lvx{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:14px}
-@media(prefers-reduced-motion:reduce){.lv b{animation:none}}
+:root{--bg:#02040a;--fg:#eaf1ff;--dim:#8fa3c7;--acc:#4da3ff;--glass:rgba(12,20,38,.58);--line:rgba(120,170,255,.2)}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+canvas#gl{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block;cursor:grab}
+canvas#gl:active{cursor:grabbing}
+.glass{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:14px}
+button{font:inherit;color:var(--fg);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;transition:.2s}
+button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
+.top{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;right:10px;display:flex;gap:10px;align-items:flex-start;z-index:5;pointer-events:none}
+.top>*{pointer-events:auto}
+.logo{height:44px;padding:0 14px;display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
+.logo i{color:var(--acc);font-style:normal;font-size:18px}
+.search{position:relative;flex:1;max-width:520px;margin:0 auto}
+.search input{width:100%;height:44px;background:transparent;border:0;outline:0;color:var(--fg);font:inherit;padding:0 16px;border-radius:14px}
+.search input::placeholder{color:var(--dim)}
+.results{position:absolute;top:50px;left:0;right:0;max-height:50vh;overflow:auto;padding:6px}
+.results div{padding:9px 10px;border-radius:9px;cursor:pointer}.results div:hover{background:rgba(77,163,255,.18)}
+.results small{display:block;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clock{height:44px;padding:0 12px;display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.live{font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:99px;background:rgba(40,210,120,.18);color:#4be39a}
+.live.sim{background:rgba(255,170,40,.18);color:#ffb84a}
+.stack{position:fixed;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 58px);display:flex;flex-direction:column;gap:8px;z-index:5}
+.stack .t{display:none}
+.timebar{position:fixed;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));width:min(560px,calc(100% - 20px));padding:8px 10px;display:flex;align-items:center;gap:10px;z-index:5}
+.timebar input{flex:1;accent-color:var(--acc);height:28px}
+.timebar span{min-width:74px;text-align:center;color:var(--dim);font-size:12px}
+.timebar button{height:36px;min-width:60px;font-weight:700;font-size:12px}
+#info{position:fixed;left:10px;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 64px);width:min(340px,calc(100% - 78px));padding:14px 16px;z-index:5}
+#info h2{margin:0 24px 2px 0;font-size:18px}#info .sub{color:var(--dim);margin-bottom:8px}
+#info dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:13px}#info dt{color:var(--dim)}#info dd{margin:0}
+#info .x{position:absolute;top:6px;right:6px;height:30px;min-width:30px;border:0;background:none}
+#menu{position:fixed;right:64px;top:calc(max(10px,env(safe-area-inset-top)) + 58px);width:min(300px,calc(100% - 84px));max-height:calc(100% - 140px);overflow:auto;padding:14px;z-index:6}
+#menu h3{margin:12px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}#menu h3:first-child{margin-top:0}
+#menu label{display:flex;align-items:center;gap:10px;padding:7px 0;min-height:36px}
+#menu input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc)}#menu input[type=range]{width:100%;accent-color:var(--acc)}
+#menu p{font-size:12px;color:var(--dim);margin:6px 0}
+#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.lb{position:absolute;left:0;top:0;display:none;font-size:12px;text-shadow:0 0 4px #000,0 0 8px #000;white-space:nowrap;pointer-events:auto;cursor:pointer;padding:3px 2px 3px 10px}
+.lb:before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 6px #ffb84a}
+.lb.c{font-weight:600}
+#pin{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:2px solid #fff;background:rgba(77,163,255,.5);box-shadow:0 0 14px var(--acc);display:none;pointer-events:none;z-index:3;animation:p 1.6s infinite}
+@keyframes p{50%{box-shadow:0 0 0 10px rgba(77,163,255,0)}}
+#attr{position:fixed;right:8px;bottom:max(2px,env(safe-area-inset-bottom));font-size:10px;color:var(--dim);opacity:.8;z-index:4;max-width:55%;text-align:right;pointer-events:none}
+#toast{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 58px);left:50%;transform:translateX(-50%);padding:9px 14px;z-index:9;display:none;max-width:90%;text-align:center}
+#loader{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,#0a1430,#02040a 70%);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .8s}
+#loader .o{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--acc);animation:s 1s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
+#nogl{position:fixed;inset:0;background:var(--bg);z-index:30;display:none;align-items:center;justify-content:center;text-align:center;padding:30px}
+[hidden]{display:none!important}
+@media(min-width:760px){.stack .t{display:inline}.stack button{padding:0 14px}}
+@media(max-width:600px){.logo b{display:none}.clock #utcd{display:none}.top{flex-wrap:wrap}.search{order:3;flex:1 1 100%;max-width:none}.clock{margin-left:auto}}
 </style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<style>
-.rm{background:var(--pn);border:1px solid var(--ln);border-radius:14px;padding:12px;margin:0 0 16px}
-.rm h2{margin:0 0 8px;font:700 20px "Barlow Condensed",sans-serif}.rm h2 small{font:400 12px sans-serif;color:var(--mu);margin-left:8px}
-.rbar{display:flex;gap:8px;margin:0 0 8px;flex-wrap:wrap}.rbar input{flex:1 1 180px;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid var(--ln);background:var(--bg);color:var(--tx);font-size:15px}
-.rbar button,.rl button{padding:10px 14px;border-radius:10px;border:0;background:var(--yl);color:var(--yt);font-weight:700;cursor:pointer}
-#rmap{height:min(62vh,460px);border-radius:12px;border:1px solid var(--ln);margin:4px 0 8px;background:var(--bg)}
-.rl{display:flex;flex-direction:column;gap:6px;margin-top:8px}.rl button{text-align:left;font-weight:500}
-</style>
-</head>
-<body>
-<div class="w">
-  <div class="hd">
-    <div class="lg"><i><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d1630" stroke-width="2.4" stroke-linecap="round"><path d="M6 3h12a2 2 0 0 1 2 2v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2zM4 11h16M8 21l2-3m6 3-2-3"/></svg></i>RailRadar</div>
-    <div class="lv est" id="lv"><b></b><span>Estimated</span></div>
-  </div>
-  <h1>Which train is passing near you?</h1>
-  <p class="sub">Track trains across India's railway network. See the train number, where it started, where it's headed, and when it runs next.</p>
-  <section class="rm"><h2>Real map <small id="rsrc">Data: RailKit · Map: OpenStreetMap</small></h2>
-<div class="rbar"><input id="rq" placeholder="Train number or name (12951 / rajdhani)" inputmode="search"><button id="rgo">Track</button></div>
-<div class="rbar"><input id="pq" placeholder="City, town, village or station" inputmode="search"><button id="pgo">Find place</button><button id="gps">📍 Locate me</button></div>
-<div id="rmap"></div><div class="lvx" id="rinfo">Search a train number to see its real running status and route. Train marker = last reported station, not exact GPS.</div><div class="lvx" id="gpsi" style="display:none"></div></section>
-<div class="how"><div><b>1 · Search</b>Type a train number (like 12951), name or station.</div><div><b>2 · Tap a train</b>See route, next stop, speed and delay on the map.</div><div><b>3 · Live status</b>Any train number gets real running status from RailKit.</div></div>
-  <div class="lgd"><span><i style="background:var(--gr)"></i>On time</span><span><i style="background:var(--rd)"></i>Late 20+ min</span><span><i style="background:var(--yl)"></i>Selected</span><span><i style="background:var(--me)"></i>You</span></div>
-  <div class="bar">
-    <input id="q" type="search" placeholder="Search by train number, name or station" aria-label="Search trains">
-    <button id="nb" type="button">Trains near me</button>
-  </div>
-  <div class="tb" id="tb"><button data-f="all" class="on">All</button><button data-f="run">Running now</button><button data-f="off">Not running today</button></div>
-  <p id="nm"></p>
-  <div class="g">
-    <div class="sticky">
-      <div class="mp">
-        <svg id="map" viewBox="0 0 600 630" role="img" aria-label="India railway map with live trains"><g id="rts"></g><g id="tr"></g><g id="us"></g></svg>
-        <div class="st"><span><b id="s0">0</b>total</span><span><b id="s1">0</b>running now</span><span><b id="s2">0</b>not running today</span><span><b id="s3">0</b>delayed</span></div>
-      </div>
-      <div class="dt" id="dt"></div><div class="dt" id="lvx" style="display:none"></div>
-    </div>
-    <div class="rl"><h3>Trains <small id="cnt"></small></h3><div id="ls"></div></div>
-  </div>
-  <p class="ft">Positions on the map are <b>estimated</b> from sample timetables. Real running status (RailKit) shows in the box below the map. The key sits in <code>CFG</code> in the script; for a public site move it to a small proxy.</p>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/tz.js" async onerror="void 0"></script>
+</head><body>
+<canvas id="gl"></canvas><div id="labels"></div><div id="pin"></div>
+<header class="top">
+  <div class="logo glass"><i>◉</i><b>EarthVision</b></div>
+  <div class="search glass"><input id="q" type="search" placeholder="Search any country, state, city, village…" autocomplete="off" enterkeyhint="search" aria-label="Search places"><div id="res" class="results glass" hidden></div></div>
+  <div class="clock glass"><span><span id="utcd"></span> <span id="utc">--:--:--</span> UTC</span><span id="live" class="live">LIVE</span></div>
+</header>
+<div class="stack">
+  <button id="b-loc" title="My Location">◎<span class="t">My Location</span></button>
+  <button id="b-in" title="Zoom in" aria-label="Zoom in">＋</button>
+  <button id="b-out" title="Zoom out" aria-label="Zoom out">－</button>
+  <button id="b-reset" title="Reset camera / global view" aria-label="Reset">⌂</button>
+  <button id="b-rot" title="Pause rotation" aria-label="Pause or resume rotation">⏸</button>
+  <button id="b-fs" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+  <button id="b-menu" title="Layers & settings" aria-label="Layers and settings">☰</button>
 </div>
-<script>
-const $=s=>document.querySelector(s),R=Math.PI/180;
-const ST={Delhi:[77.21,28.64,'New Delhi'],Mumbai:[72.83,18.97,'Mumbai'],Surat:[72.83,21.17,'Surat'],Vadodara:[73.18,22.31,'Vadodara'],Kota:[75.84,25.18,'Kota'],Ahmedabad:[72.6,23.03,'Ahmedabad'],Kolkata:[88.34,22.58,'Howrah'],Gaya:[85,24.8,'Gaya'],Prayagraj:[81.85,25.43,'Prayagraj'],Kanpur:[80.35,26.45,'Kanpur'],Bengaluru:[77.57,12.98,'Bengaluru'],Hyderabad:[78.5,17.43,'Secunderabad'],Nagpur:[79.09,21.15,'Nagpur'],Bhopal:[77.41,23.26,'Bhopal'],Jhansi:[78.57,25.45,'Jhansi'],Agra:[78.01,27.16,'Agra'],Chennai:[80.27,13.08,'Chennai'],Vijayawada:[80.62,16.52,'Vijayawada'],Guwahati:[91.75,26.18,'Guwahati'],NJP:[88.43,26.68,'New Jalpaiguri'],Patna:[85.1,25.6,'Patna'],Dibrugarh:[94.91,27.47,'Dibrugarh'],Amritsar:[74.87,31.63,'Amritsar'],Ludhiana:[75.85,30.9,'Ludhiana'],Ambala:[76.78,30.36,'Ambala'],Trivandrum:[76.95,8.49,'Thiruvananthapuram'],Kochi:[76.29,9.97,'Ernakulam'],Mangaluru:[74.85,12.87,'Mangaluru'],Bhubaneswar:[85.84,20.27,'Bhubaneswar'],Puri:[85.83,19.8,'Puri'],Visakhapatnam:[83.29,17.72,'Visakhapatnam'],Pune:[73.87,18.53,'Pune'],Jaipur:[75.79,26.92,'Jaipur'],Varanasi:[82.99,25.32,'Varanasi']};
-const METRO=['Delhi','Mumbai','Kolkata','Chennai','Bengaluru','Hyderabad'];
-const A='0123456',DY=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const D=[
-['Mumbai Rajdhani',12951,12952,'Mumbai,Surat,Vadodara,Kota,Delhi',90,0,A],
-['Howrah Rajdhani',12301,12302,'Kolkata,Gaya,Prayagraj,Kanpur,Delhi',90,12,A],
-['Karnataka Express',12627,12628,'Bengaluru,Hyderabad,Nagpur,Bhopal,Jhansi,Agra,Delhi',62,0,A],
-['Tamil Nadu Express',12621,12622,'Chennai,Vijayawada,Nagpur,Bhopal,Agra,Delhi',64,25,A],
-['Grand Trunk Express',12615,12616,'Chennai,Vijayawada,Nagpur,Bhopal,Agra,Delhi',60,6,A],
-['Kerala Express',12625,12626,'Trivandrum,Kochi,Chennai,Vijayawada,Nagpur,Bhopal,Agra,Delhi',62,18,A],
-['Telangana Express',12723,12724,'Hyderabad,Nagpur,Bhopal,Jhansi,Agra,Delhi',62,0,A],
-['Coromandel Express',12841,12842,'Kolkata,Bhubaneswar,Visakhapatnam,Vijayawada,Chennai',70,10,A],
-['Gitanjali Express',12859,12860,'Mumbai,Nagpur,Kolkata',66,0,A],
-['Golden Temple Mail',12903,12904,'Mumbai,Surat,Vadodara,Kota,Delhi,Ambala,Ludhiana,Amritsar',66,30,A],
-['Paschim Express',12925,12926,'Mumbai,Surat,Vadodara,Kota,Delhi,Ambala,Amritsar',64,4,A],
-['August Kranti Rajdhani',12953,12954,'Mumbai,Surat,Vadodara,Kota,Delhi',90,0,A],
-['Purushottam Express',12801,12802,'Puri,Bhubaneswar,Gaya,Prayagraj,Kanpur,Delhi',62,15,A],
-['Poorva Express',12303,12304,'Kolkata,Gaya,Prayagraj,Kanpur,Delhi',66,0,'1346'],
-['Dibrugarh Rajdhani',12423,12424,'Dibrugarh,Guwahati,NJP,Patna,Kanpur,Delhi',80,40,'135'],
-['Trivandrum Rajdhani',12431,12432,'Trivandrum,Kochi,Mangaluru,Mumbai,Vadodara,Kota,Delhi',80,0,'24'],
-['Udyan Express',11301,11302,'Mumbai,Pune,Bengaluru',60,8,A],
-['Deccan Express',11007,11008,'Mumbai,Pune',60,0,A],
-['Lalbagh Express',12607,12608,'Chennai,Bengaluru',60,3,A],
-['Mumbai Shatabdi',12009,12010,'Mumbai,Surat,Vadodara,Ahmedabad',85,5,'123456'],
-['Bhopal Shatabdi',12001,12002,'Delhi,Agra,Jhansi,Bhopal',90,0,A],
-['Amritsar Shatabdi',12013,12014,'Delhi,Ambala,Ludhiana,Amritsar',85,8,'123456'],
-['Gatimaan Express',12049,12050,'Delhi,Agra,Jhansi',100,0,'012346'],
-['Jaipur Double Decker',12985,12986,'Delhi,Jaipur',80,0,A],
-['Bengaluru Rajdhani',22691,22692,'Bengaluru,Hyderabad,Nagpur,Bhopal,Jhansi,Agra,Delhi',88,0,'0136'],
-['Chennai Rajdhani',12433,12434,'Chennai,Vijayawada,Nagpur,Bhopal,Jhansi,Agra,Delhi',86,0,'1346'],
-['Howrah Chennai Mail',12839,12840,'Kolkata,Bhubaneswar,Visakhapatnam,Vijayawada,Chennai',68,12,A],
-['Vande Bharat Varanasi',22435,22436,'Delhi,Kanpur,Prayagraj,Varanasi',110,0,'012456']];
-const LAND=[[74.3,34.8],[76.8,35.6],[78.5,34.5],[78.9,32.5],[80.2,30.8],[81,30.2],[80.1,28.8],[81.9,27.9],[84.1,27.4],[86,26.6],[88.1,26.5],[88.2,27.6],[89,27.3],[92.1,26.9],[93.4,28.2],[95.3,28.9],[97.2,28],[95.5,26],[94.6,24],[93.4,22.9],[92.6,24],[91.8,24.2],[91.2,25.2],[90,25.2],[89,26.3],[88.4,25.3],[88.9,24],[89.1,22],[87,21.5],[86.8,20.3],[85,19.3],[83,17.6],[81.2,16.3],[80.3,15.2],[80.2,13.4],[79.9,11.7],[79.3,10.3],[78.2,8.9],[77.5,8.1],[76.6,8.9],[75.8,11.3],[74.9,12.9],[74,15],[73.3,17.2],[72.8,19.1],[72.8,21],[72.6,21.9],[72.2,21],[70.9,20.7],[69,22.2],[68.7,23.2],[70,24.2],[70.5,25.6],[69.6,26.6],[70.3,27.9],[71.9,27.9],[72.9,29],[74.3,30],[74.6,31.1],[74.5,32.4],[75.4,33.2]];
-const P=(o,a)=>[(o-67.5)*19.5,(37-a)*20.5];
-const hv=(a,b,c,d)=>{const x=(c-a)*R*Math.cos((b+d)*R/2),y=(d-b)*R;return 6371*Math.hypot(x,y)};
-const sn=k=>ST[k][2];
-const T=D.map((a,i)=>{const t={name:a[0],n:[a[1],a[2]],r:a[3].split(','),v:a[4],dl:a[5],days:a[6].split('').map(Number),o:(i*.137+.05)%1};
- t.g=t.r.map(k=>ST[k]);t.cum=[0];for(let j=1;j<t.g.length;j++){const p=t.g[j-1],q=t.g[j];t.cum[j]=t.cum[j-1]+hv(p[0],p[1],q[0],q[1])*1.15}t.L=t.cum[t.cum.length-1];return t});
-const isRun=t=>t.days.includes(new Date().getDay());
-function nextRun(t){for(let k=1;k<=7;k++){const d=new Date();d.setDate(d.getDate()+k);if(t.days.includes(d.getDay()))return d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}return'—'}
-function at(t,d){let j=1;while(j<t.cum.length-1&&t.cum[j]<d)j++;const f=(d-t.cum[j-1])/(t.cum[j]-t.cum[j-1]),a=t.g[j-1],b=t.g[j];return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]}
-function state(t,now){
- const h=now/1000*30/3600,p=(h*t.v+t.o*2*t.L)%(2*t.L),dir=p>t.L?1:0,d=dir?2*t.L-p:p;
- const order=t.r.map((_,i)=>dir?t.r.length-1-i:i);
- let nx=order.find(i=>dir?t.cum[i]<d-.01:t.cum[i]>d+.01);if(nx===undefined)nx=order[order.length-1];
- return{d,dir,pos:at(t,d),order,nx,eta:Math.abs(t.cum[nx]-d)/t.v,sp:Math.round(t.v+Math.sin(now/4000+t.o*9)*6)};
+<div id="menu" class="glass" hidden>
+  <h3>Layers</h3>
+  <label><input type="checkbox" id="l-shade" checked>Day / night (calculated)</label>
+  <label><input type="checkbox" id="l-lights" checked>City lights (static satellite imagery)</label>
+  <label><input type="checkbox" id="l-clouds" checked>Clouds (static, visual simulation)</label>
+  <label><input type="checkbox" id="l-borders" checked>Country &amp; state borders</label>
+  <label><input type="checkbox" id="l-labels" checked>Place labels</label>
+  <label><input type="checkbox" id="l-tiles" checked>Detailed map (OpenStreetMap tiles)</label>
+  <label><input type="checkbox" id="l-quakes">Earthquakes (USGS, live feed)</label>
+  <p id="qinfo"></p>
+  <p>Weather: not enabled – it needs a provider/API key. See README.</p>
+  <h3>Settings</h3>
+  <label style="display:block">Rotation speed: <b id="spv">4</b>°/s<input type="range" id="speed" min="0" max="20" step="0.5" value="4"></label>
+  <label><input type="checkbox" id="hq">High-quality rendering (more GPU)</label>
+  <h3>About the data</h3>
+  <p><b>Calculated live:</b> clock, sun position, day/night boundary, sunrise/sunset.<br><b>Static imagery (not live):</b> surface &amp; night-light textures (satellite-derived, not current electricity use), clouds.<br><b>Live external:</b> earthquakes (USGS) when enabled; search via Nominatim.</p>
+</div>
+<section id="info" class="glass" hidden>
+  <button class="x" id="b-x" aria-label="Close">✕</button>
+  <h2 id="i-name"></h2><div class="sub" id="i-sub"></div>
+  <dl><dt>Lat / Lon</dt><dd id="i-ll"></dd><dt>Local time</dt><dd id="i-t"></dd><dt>Sun</dt><dd id="i-sun"></dd><dt>Sunrise / set</dt><dd id="i-rs"></dd></dl>
+</section>
+<div class="timebar glass"><span id="t-lab">LIVE</span><input id="t" type="range" min="-1440" max="1440" step="5" value="0" aria-label="Time offset"><button id="b-live">LIVE</button></div>
+<div id="attr"></div><div id="toast" class="glass"></div>
+<div id="loader"><div class="o"></div><div style="letter-spacing:.3em;font-weight:600">EARTHVISION</div><div style="color:var(--dim);font-size:12px">Loading planet…</div></div>
+<div id="nogl"><div><h2>WebGL is unavailable</h2><p style="color:var(--dim)">EarthVision needs WebGL. Enable hardware acceleration or try a recent Chrome, Edge, Firefox or Safari.</p></div></div>
+
+<script type="module">
+import * as THREE from 'three';
+const $=s=>document.querySelector(s), R=Math.PI/180, TAU=Math.PI*2, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const wrapPi=a=>{a%=TAU;if(a>Math.PI)a-=TAU;if(a<-Math.PI)a+=TAU;return a};
+// Asset locations: swap for ./assets/ copies for fully self-hosted use (see README).
+const TEX='https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/';
+const NE='https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@v5.1.2/geojson/';
+const mobile=matchMedia('(pointer:coarse)').matches;
+const vec=(lat,lon,r=1)=>new THREE.Vector3(r*Math.cos(lat)*Math.cos(lon),r*Math.sin(lat),-r*Math.cos(lat)*Math.sin(lon));
+function toast(m,ms=3500){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',ms)}
+
+let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:!mobile,powerPreference:'high-performance'});}
+catch(e){$('#nogl').style.display='flex';$('#loader').remove();throw e}
+const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(40,1,.1,300);
+const mgr=new THREE.LoadingManager(), tl=new THREE.TextureLoader(mgr); tl.setCrossOrigin('anonymous');
+const aniso=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+const tex=(f,srgb=true)=>{const t=tl.load(TEX+f);if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=aniso;return t};
+let loaded=false;const hideLoader=()=>{if(loaded)return;loaded=true;const l=$('#loader');l.style.opacity=0;setTimeout(()=>l.remove(),900)};
+mgr.onLoad=hideLoader;mgr.onError=u=>toast('Could not load a texture – check your connection.');setTimeout(hideLoader,15000);
+
+// ---------- Astronomy (live calculations) ----------
+function sunAt(ms){
+  const d=ms/864e5-10957.5, L=((280.460+0.9856474*d)%360+360)%360, g=(357.528+0.9856003*d)*R;
+  const lam=(L+1.915*Math.sin(g)+0.02*Math.sin(2*g))*R, eps=(23.439-4e-7*d)*R;
+  const dec=Math.asin(Math.sin(eps)*Math.sin(lam)), ra=Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam));
+  const gmst=((280.46061837+360.98564736629*d)%360+360)%360;
+  const sub=wrapPi(ra-gmst*R), eot=4*wrapPi((L*R)-ra)/R;
+  return{dec,sub,eot,v:vec(dec,sub)};
 }
-const fm=h=>{const m=Math.max(1,Math.round(h*60));return m<60?m+' min':Math.floor(m/60)+'h '+m%60+'m'};
-const CFG={base:'https://YOUR-WORKER.workers.dev'}; // Cloudflare Worker URL (key lives there, never here)
-const istDate=()=>{const d=new Date(Date.now()+new Date().getTimezoneOffset()*6e4+19800000),p=n=>String(n).padStart(2,'0');return p(d.getDate())+'-'+p(d.getMonth()+1)+'-'+d.getFullYear()};
-const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let lk=null;
-async function live(no){if(!CFG.base||/YOUR-WORKER/.test(CFG.base))throw Error('nokey');const c=new AbortController(),t=setTimeout(()=>c.abort(),12000);let r;try{r=await fetch(CFG.base+'/api/v1/trains/'+no+'/live/'+istDate(),{signal:c.signal})}finally{clearTimeout(t)}let j;try{j=await r.json()}catch(e){throw Error('HTTP '+r.status)}if(!j||!j.success)throw Error((j&&j.error)||'HTTP '+r.status);return j.data}
-function lvHtml(d){const u=(d.timeline||[]).filter(p=>p.type==='stoppage'&&p.status!=='passed').slice(0,6);return'<b>'+esc(d.trainName||'')+' ('+esc(d.trainNo||'')+')</b><br>'+esc(d.statusNote||'—')+'<br><small>Updated: '+esc(d.lastUpdate||'—')+'</small>'+(u.length?'<ul class="tl">'+u.map(p=>'<li class="'+(p.status==='current'?'n':'')+'">'+esc(p.stationName||'')+(p.platform?' · PF '+esc(p.platform):'')+'<span>'+esc((p.arrival&&p.arrival.actual!=='SRC'?p.arrival.actual:(p.departure&&p.departure.actual)||'')+' '+((p.arrival&&p.arrival.delay)||(p.departure&&p.departure.delay)||''))+'</span></li>').join('')+'</ul>':'')}
-const errMsg=e=>e.message==='nokey'?'Live proxy not set up yet (CFG.base).':/Failed to fetch|NetworkError|Load failed/.test(e.message)?'Browser could not reach RailKit (CORS block or wrong base URL). Open console (F12) and send me the error.':'Live status failed: '+esc(e.message);
-async function lookup(no,box,tag){box.style.display='';box.innerHTML='Checking live status of '+esc(no)+'…';try{const d=await live(no);box.innerHTML=lvHtml(d);if(tag)tag(d)}catch(e){box.innerHTML=errMsg(e)}}
-if(CFG.base&&!/YOUR-WORKER/.test(CFG.base)){const l=$('#lv');l.classList.remove('est');l.querySelector('span').textContent='Live'}
-let sel=null,near=null,cur=[],q='',flt='all';
-function drawMap(){
- const S=sel!=null?T[sel]:null;
- let h='<path d="M'+LAND.map(p=>P(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join('L')+'Z" fill="var(--land)" stroke="var(--ln)" stroke-width="1.5" stroke-linejoin="round"/>';
- T.forEach((t,i)=>{if(i===sel)return;h+='<polyline points="'+t.g.map(p=>P(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join(' ')+'" fill="none" stroke="var(--trk)" stroke-width="1.3" stroke-linejoin="round" opacity="'+(S?.35:.9)+'"/>'});
- if(S)h+='<polyline points="'+S.g.map(p=>P(p[0],p[1]).map(v=>v.toFixed(1)).join(',')).join(' ')+'" fill="none" stroke="var(--yl)" stroke-width="3" stroke-linejoin="round"/>';
- const lab=new Set(METRO);if(S)S.r.forEach(k=>lab.add(k));
- Object.keys(ST).forEach(k=>{const[x,y]=P(ST[k][0],ST[k][1]);h+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.8" fill="var(--pn)" stroke="var(--mu)" stroke-width="1.2"/>';if(lab.has(k))h+='<text x="'+(x+6).toFixed(1)+'" y="'+(y+3).toFixed(1)+'" font-size="10.5" font-weight="600" fill="var(--tx)" stroke="var(--land)" stroke-width="3" paint-order="stroke" font-family="Hind,sans-serif">'+sn(k)+'</text>'});
- $('#rts').innerHTML=h;
- document.querySelectorAll('.tn').forEach(g=>{const i=+g.dataset.i,on=i===sel,c=g.querySelector('.d');c.setAttribute('r',on?8:5.5);c.setAttribute('fill',on?'var(--yl)':T[i].dl>=20?'var(--rd)':'var(--gr)')});
+function sunTimes(ms,lat,lon){
+  const s=sunAt(ms),la=lat*R,c=(Math.sin(-.833*R)-Math.sin(la)*Math.sin(s.dec))/(Math.cos(la)*Math.cos(s.dec));
+  if(c>1)return'Polar night';if(c<-1)return'Polar day';
+  const H=Math.acos(c)/R/15,noon=12-lon/15-s.eot/60,d0=Math.floor(ms/864e5)*864e5;return[d0+(noon-H)*36e5,d0+(noon+H)*36e5];
 }
-function drawUser(){
- if(!near){$('#us').innerHTML='';return}
- const[x,y]=P(near.lo,near.la);
- $('#us').innerHTML='<circle class="ring" cx="'+x+'" cy="'+y+'" r="39"/><circle cx="'+x+'" cy="'+y+'" r="6" fill="var(--me)" stroke="var(--pn)" stroke-width="2.5"/>';
+const tzOf=(lat,lon)=>{try{return typeof tzlookup==='function'?tzlookup(lat,lon):null}catch{return null}};
+function fmt(ms,lat,lon,o){const tz=tzOf(lat,lon);try{return tz?new Intl.DateTimeFormat('en-GB',{...o,timeZone:tz}).format(ms):new Intl.DateTimeFormat('en-GB',{...o,timeZone:'UTC'}).format(ms+lon*240000)}catch{return'–'}}
+const FULL={weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'}, HM={hour:'2-digit',minute:'2-digit'};
+
+// ---------- Scene ----------
+const earthMat=new THREE.ShaderMaterial({
+  uniforms:{day:{value:tex('earth_atmos_2048.jpg')},night:{value:tex('earth_lights_2048.png')},spec:{value:tex('earth_specular_2048.jpg',false)},sun:{value:new THREE.Vector3(1,0,0)},cam:{value:new THREE.Vector3()},lights:{value:1},shade:{value:1}},
+  vertexShader:`varying vec3 vN,vP;varying vec2 vUv;void main(){vUv=uv;vN=normalize(position);vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`uniform sampler2D day,night,spec;uniform vec3 sun,cam;uniform float lights,shade;varying vec3 vN,vP;varying vec2 vUv;
+  void main(){
+    float ndl=dot(vN,sun); if(shade<.5)ndl=1.;
+    float dm=smoothstep(-.12,.18,ndl);
+    vec3 d=texture2D(day,vUv).rgb; vec3 V=normalize(cam-vP); vec3 H=normalize(sun+V);
+    vec3 c=d*(.03+dm*(.3+.85*clamp(ndl,0.,1.)));
+    c+=vec3(1.,.45,.2)*exp(-pow(ndl*6.,2.))*.10*d;
+    c+=vec3(.85,.93,1.)*pow(max(dot(vN,H),0.),70.)*texture2D(spec,vUv).r*dm*.55;
+    vec3 n=texture2D(night,vUv).rgb; c+=n*vec3(1.,.72,.34)*1.9*(1.-dm)*lights;
+    c+=vec3(.25,.5,1.)*pow(1.-max(dot(vN,V),0.),3.)*dm*.35;
+    gl_FragColor=vec4(c,1.);
+    #include <colorspace_fragment>
+  }`});
+const earth=new THREE.Mesh(new THREE.SphereGeometry(1,256,128),earthMat);scene.add(earth);
+const atmoMat=new THREE.ShaderMaterial({transparent:true,side:THREE.BackSide,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{sun:earthMat.uniforms.sun,fade:{value:1}},
+  vertexShader:`varying vec3 vN,vW;void main(){vN=normalize(normalMatrix*normal);vW=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`uniform vec3 sun;uniform float fade;varying vec3 vN,vW;void main(){float i=pow(max(.64-dot(vN,vec3(0,0,1)),0.),3.2)*2.2;float s=smoothstep(-.35,.4,dot(vW,sun));gl_FragColor=vec4(vec3(.3,.58,1.)*i*(.2+s)*fade,1.);}`});
+const atmo=new THREE.Mesh(new THREE.SphereGeometry(1.07,96,64),atmoMat);scene.add(atmo);
+const cloudMat=new THREE.MeshLambertMaterial({map:tex('earth_clouds_1024.png'),transparent:true,depthWrite:false,opacity:.85});
+const clouds=new THREE.Mesh(new THREE.SphereGeometry(1.007,96,64),cloudMat);scene.add(clouds);
+const sunLight=new THREE.DirectionalLight(0xffffff,3),amb=new THREE.AmbientLight(0x8fa6d6,.55);scene.add(sunLight,amb);
+{const p=[];for(let i=0;i<2200;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(90);p.push(v.x,v.y,v.z)}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));
+ scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:1.4,sizeAttenuation:false,color:0xcfdcff,transparent:true,opacity:.8,depthWrite:false})))}
+
+// ---------- Borders (Natural Earth, lazy) ----------
+const borders=new THREE.Group();scene.add(borders);
+function geoLines(gj,r,color,op){
+  const pos=[];const ring=c=>{for(let i=1;i<c.length;i++){const a=c[i-1],b=c[i],dl=b[0]-a[0];if(Math.abs(dl)>180)continue;const n=Math.max(1,Math.ceil(Math.hypot(dl,b[1]-a[1])/1.5));let p=a;for(let k=1;k<=n;k++){const q=[a[0]+dl*k/n,a[1]+(b[1]-a[1])*k/n],u=vec(p[1]*R,p[0]*R,r),v=vec(q[1]*R,q[0]*R,r);pos.push(u.x,u.y,u.z,v.x,v.y,v.z);p=q}}};
+  for(const f of gj.features){const g=f.geometry;if(!g)continue;
+    if(g.type==='Polygon')g.coordinates.forEach(ring);else if(g.type==='MultiPolygon')g.coordinates.forEach(p=>p.forEach(ring));
+    else if(g.type==='LineString')ring(g.coordinates);else if(g.type==='MultiLineString')g.coordinates.forEach(ring)}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  return new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity:op,depthWrite:false}));
 }
-$('#tr').innerHTML=T.map((t,i)=>'<g class="tn" data-i="'+i+'" style="cursor:pointer"><circle r="13" fill="transparent"/><circle class="d" r="5.5" fill="var(--gr)" stroke="var(--pn)" stroke-width="2"/></g>').join('');
-const GS=[...document.querySelectorAll('.tn')];
-function frame(now){cur=T.map((t,i)=>{const s=state(t,now),g=GS[i];if(isRun(t)){const[x,y]=P(s.pos[0],s.pos[1]);g.setAttribute('transform','translate('+x.toFixed(1)+','+y.toFixed(1)+')');g.style.display=''}else g.style.display='none';return s})}
-function list(){
- let idx=T.map((t,i)=>i).filter(i=>{const t=T[i],r=isRun(t),txt=(t.n.join(' ')+' '+t.name+' '+t.r.map(sn).join(' ')).toLowerCase();return txt.includes(q)&&(flt==='all'||(flt==='run')===r)});
- if(near){idx.forEach(i=>{cur[i].km=isRun(T[i])?hv(near.lo,near.la,cur[i].pos[0],cur[i].pos[1]):1e9});idx.sort((a,b)=>cur[a].km-cur[b].km)}
- $('#cnt').textContent=idx.length+' of '+T.length;
- $('#ls').innerHTML=idx.length?idx.map(i=>{const t=T[i],s=cur[i],run=isRun(t),f=t.r[run?s.order[0]:0],e=t.r[run?s.order[s.order.length-1]:t.r.length-1],no=t.n[run?s.dir:0];
-  const info=run?'Next stop: '+sn(t.r[s.nx])+', '+fm(s.eta)+(near?' · '+Math.round(s.km)+' km away':''):'Runs '+t.days.map(d=>DY[d]).join(', ')+' · Next run: '+nextRun(t);
-  const tag=run?(t.dl?'+'+t.dl+' min late':'On time'):'Not running today';
-  return'<div class="row'+(i===sel?' on':'')+'" data-i="'+i+'" tabindex="0"><span class="no">'+no+'</span><div class="m"><div class="nm">'+t.name+'</div><div class="rt">'+sn(f)+' to '+sn(e)+'</div><div class="nx">'+info+'</div></div><span class="tag'+(!run?' off':t.dl>=20?' late':'')+'">'+tag+'</span></div>'}).join(''):'<div class="empty">No train in our map list matches. '+(/^\d{5}$/.test(q)?'You can still check train <b>'+q+'</b> live.<br><button class="lkb" id="lk">Check live status</button><div class="lvx" id="lkr" style="display:none"></div>':'Try another train number, name or station.')+'</div>';
- const run=T.filter(isRun).length;$('#s0').textContent=T.length;$('#s1').textContent=run;$('#s2').textContent=T.length-run;$('#s3').textContent=T.filter(t=>isRun(t)&&t.dl>0).length;
- if(near){const b=T.map((t,i)=>[isRun(t)?hv(near.lo,near.la,cur[i].pos[0],cur[i].pos[1]):1e9,i]).sort((a,b)=>a[0]-b[0])[0];$('#nm').textContent=(near.real?'Closest to you: ':"Couldn't read your location, showing from New Delhi. Closest: ")+T[b[1]].name+' ('+Math.round(b[0])+' km away)'}else $('#nm').textContent='';
+fetch(NE+'ne_110m_admin_0_countries.geojson').then(r=>r.json()).then(j=>borders.add(geoLines(j,1.0004,0x7fb6ff,.55))).catch(()=>toast('Country borders unavailable.'));
+let states=null,statesBusy=false;
+function loadStates(){if(states||statesBusy)return;statesBusy=true;toast('Loading state/province boundaries (large file)…');
+  fetch(NE+'ne_50m_admin_1_states_provinces.geojson').then(r=>r.json()).then(j=>{states=geoLines(j,1.0004,0x5f8fd0,.4);borders.add(states)}).catch(()=>{statesBusy=false;toast('State boundaries unavailable.')})}
+
+// ---------- Places / labels (Natural Earth populated places, lazy) ----------
+let places=[];
+fetch(NE+'ne_10m_populated_places_simple.geojson').then(r=>r.json()).then(j=>{
+  places=j.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coordinates;return{n:p.name,c:p.adm0name,pop:p.pop_max||0,cap:/capital/i.test(p.featurecla||''),lat:la,lon:lo,p:vec(la*R,lo*R),rank:(p.pop_max||0)+(/Admin-0 capital/i.test(p.featurecla||'')?3e6:0)}}).sort((a,b)=>b.rank-a.rank)
+}).catch(()=>toast('Place labels unavailable – search still works.'));
+const labBox=$('#labels'),pool=[];for(let i=0;i<(mobile?45:80);i++){const d=document.createElement('div');d.className='lb';labBox.appendChild(d);pool.push(d)}
+labBox.addEventListener('click',e=>{const el=e.target.closest('.lb');if(el&&el._p){const p=el._p;select({name:p.n,sub:p.c+(p.pop?' · pop. '+p.pop.toLocaleString('en'):''),lat:p.lat,lon:p.lon,dist:1+clamp(.0035+.02*(1-Math.log10(Math.max(p.pop,1e4))/7.2)*10,.003,.08)})}});
+const labels={rects:[]};
+function updateLabels(){
+  const on=$('#l-labels').checked&&dist>1.006&&places.length;
+  if(!on){pool.forEach(d=>d.style.display='none');return}
+  const minPop=dist>3?4e6:dist>2.2?1.2e6:dist>1.6?3e5:dist>1.2?6e4:dist>1.05?8e3:0, cd=camera.position.clone().normalize(), lim=1/dist+.012,W=innerWidth,H=innerHeight,rects=[];let n=0;
+  for(const p of places){
+    if(n>=pool.length)break;if(p.pop<minPop&&!(p.cap&&dist>1.35&&p.pop>=minPop*.2))continue;if(p.p.dot(cd)<lim)continue;
+    const v=p.p.clone().project(camera),x=(v.x+1)/2*W,y=(1-v.y)/2*H;if(x<0||x>W-20||y<70||y>H-60)continue;
+    const w=p.n.length*7+16,h=18;let hit=false;for(const r of rects)if(x<r[0]+r[2]&&x+w>r[0]&&y<r[1]+r[3]&&y+h>r[1]){hit=true;break}if(hit)continue;
+    rects.push([x,y-9,w,h]);const d=pool[n++];if(d._p!==p){d._p=p;d.textContent=p.n;d.className='lb'+(p.cap?' c':'')}
+    d.style.display='block';d.style.transform=`translate(${x|0}px,${(y-10)|0}px)`;
+  }
+  for(let i=n;i<pool.length;i++)pool[i].style.display='none';
 }
-function detail(){
- const el=$('#dt');if(sel==null){el.innerHTML='<p class="hint">Tap a train on the map or in the list to see its route, next stop and schedule.</p>';return}
- const t=T[sel],s=cur[sel],run=isRun(t);
- if(!run){el.innerHTML='<div class="dh"><span class="no">'+t.n[0]+'</span><h2>'+t.name+'</h2></div><div class="rt" style="margin-top:6px">'+sn(t.r[0])+' to '+sn(t.r[t.r.length-1])+' · Not running today</div><p class="nr">Next run: '+nextRun(t)+'</p><div class="dy">'+DY.map((d,i)=>'<span class="'+(t.days.includes(i)?'on':'')+'">'+d+'</span>').join('')+'</div><ul class="tl">'+t.r.map(k=>'<li>'+sn(k)+'</li>').join('')+'</ul>';return}
- const pct=Math.round((s.dir?t.L-s.d:s.d)/t.L*100),k=s.order.indexOf(s.nx);
- el.innerHTML='<div class="dh"><span class="no">'+t.n[s.dir]+'</span><h2>'+t.name+'</h2></div><div class="rt" style="margin-top:6px">'+sn(t.r[s.order[0]])+' to '+sn(t.r[s.order[s.order.length-1]])+' · '+s.sp+' km/h · '+(t.dl?t.dl+' min late':'On time')+'</div><div class="pg"><div style="width:'+pct+'%"></div></div><ul class="tl">'+s.order.map((si,j)=>'<li class="'+(j<k?'p':j===k?'n':'')+'">'+sn(t.r[si])+'<span>'+(j<k?'Departed':fm(Math.abs(t.cum[si]-s.d)/t.v))+'</span></li>').join('')+'</ul>';
+
+// ---------- OSM tiles (progressive; only the visible area) ----------
+const tileGroup=new THREE.Group();scene.add(tileGroup);const tiles=new Map();
+const tl2=new THREE.TextureLoader();tl2.setCrossOrigin('anonymous');
+const mercLat=(y,z)=>Math.atan(Math.sinh(Math.PI*(1-2*y/2**z)));
+function makeTile(z,x,y){
+  const seg=z<=9?16:4,n=2**z,pos=[],uv=[],idx=[];
+  for(let j=0;j<=seg;j++)for(let i=0;i<=seg;i++){const lat=mercLat(y+j/seg,z),lon=((x+i/seg)/n*2-1)*Math.PI,v=vec(lat,lon,1.0002);pos.push(v.x,v.y,v.z);uv.push(i/seg,1-j/seg)}
+  for(let j=0;j<seg;j++)for(let i=0;i<seg;i++){const a=j*(seg+1)+i,b=a+1,c=a+seg+1,d=c+1;idx.push(a,c,b,b,c,d)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(pos.map(v=>v/1.0002),3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);
+  const mat=new THREE.MeshLambertMaterial({transparent:true,opacity:0,depthWrite:false}),mesh=new THREE.Mesh(g,mat);mesh.renderOrder=z;
+  const t={mesh,mat,ok:false},xm=((x%n)+n)%n;
+  tl2.load(`https://tile.openstreetmap.org/${z}/${xm}/${y}.png`,tx=>{tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=aniso;mat.map=tx;mat.needsUpdate=true;t.ok=true},undefined,()=>{t.ok=true;mat.visible=false});
+  return t;
 }
-function pick(i,scroll){sel=sel===i?null:i;drawMap();list();detail();const lb=$('#lvx');lb.style.display='none';if(sel!=null&&CFG.base&&!/YOUR-WORKER/.test(CFG.base))lookup(T[sel].n[cur[sel].dir],lb);if(scroll&&sel!=null)$('#dt').scrollIntoView({block:'nearest'})}
-$('#tr').addEventListener('click',e=>{const g=e.target.closest('.tn');if(g)pick(+g.dataset.i)});
-$('#ls').addEventListener('click',e=>{const r=e.target.closest('.row');if(r)pick(+r.dataset.i,1)});
-$('#ls').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const r=e.target.closest('.row');if(r){e.preventDefault();pick(+r.dataset.i,1)}}});
-$('#ls').addEventListener('click',e=>{if(e.target.id==='lk')lookup(q,$('#lkr'))});
-$('#q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();list()});
-$('#tb').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;flt=b.dataset.f;document.querySelectorAll('#tb button').forEach(x=>x.classList.toggle('on',x===b));list()});
-$('#nb').addEventListener('click',()=>{
- const set=(lo,la,real)=>{near={lo,la,real:real&&lo>68&&lo<98&&la>7&&la<36};if(!near.real){near.lo=77.21;near.la=28.61}drawUser();list()};
- try{navigator.geolocation.getCurrentPosition(p=>set(p.coords.longitude,p.coords.latitude,true),()=>set(77.21,28.61,false),{timeout:6000})}catch(e){set(77.21,28.61,false)}
-});
-frame(Date.now());drawMap();list();detail();
-setInterval(()=>frame(Date.now()),100);
-setInterval(()=>{const r=$('#lkr');if(!(r&&r.style.display===''))list();detail()},1000);
+function updateTiles(){
+  const on=$('#l-tiles').checked&&dist<1.55;tileGroup.visible=on;if(!on)return;
+  const z=clamp(Math.round(Math.log2(TAU*Math.max(.2,Math.cos(lat))/((dist-1)*.35))),4,17),n=2**z;
+  const cx=Math.floor((lon+Math.PI)/TAU*n),cy=Math.floor((1-Math.asinh(Math.tan(lat))/Math.PI)/2*n),r=z<=7?2:1,keys=new Set();let pending=0;
+  for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){const y=cy+dy;if(y<0||y>=n)continue;const k=z+'/'+(cx+dx)+'/'+y;keys.add(k);let t=tiles.get(k);if(!t){t=makeTile(z,cx+dx,y);tiles.set(k,t);tileGroup.add(t.mesh)}if(!t.ok)pending++}
+  if(!pending||tiles.size>160)for(const[k,t]of tiles)if(!keys.has(k)){tileGroup.remove(t.mesh);t.mesh.geometry.dispose();t.mat.map&&t.mat.map.dispose();t.mat.dispose();tiles.delete(k)}
+}
+
+// ---------- Earthquakes (USGS live feed, lazy) ----------
+let quakes=null;
+async function loadQuakes(){
+  const qi=$('#qinfo');qi.textContent='Loading USGS feed…';
+  try{const j=await(await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson')).json(),p=[];
+    j.features.forEach(f=>{const[lo,la]=f.geometry.coordinates,v=vec(la*R,lo*R,1.003);p.push(v.x,v.y,v.z)});
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));
+    quakes=new THREE.Points(g,new THREE.PointsMaterial({size:8,sizeAttenuation:false,color:0xff5a4a,transparent:true,opacity:.9,depthWrite:false}));scene.add(quakes);
+    qi.textContent=`USGS M2.5+ past 24 h: ${j.features.length} events. Feed generated ${new Date(j.metadata.generated).toUTCString()}.`;
+  }catch(e){qi.textContent='USGS feed unavailable right now.';$('#l-quakes').checked=false}
+}
+$('#l-quakes').onchange=e=>{if(e.target.checked){quakes?quakes.visible=true:loadQuakes()}else if(quakes)quakes.visible=false};
+
+// ---------- Camera / interaction ----------
+const MIN=1.0003;let lat=20*R,lon=78*R,dist=mobile?4.6:3.6,latT=lat,lonT=lon,distT=dist,paused=false,idle=0,dragging=false;
+const home=()=>innerWidth<innerHeight?4.6:3.5;
+function flyTo(la,lo,d){latT=clamp(la*R,-1.45,1.45);lonT=lon+wrapPi(lo*R-lon);distT=clamp(d,MIN,14);idle=performance.now()+3500}
+const cv=$('#gl'),ptrs=new Map();let pinch0=0,pd0=1;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,e);dragging=true;if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch0=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);pd0=dist-1}});
+cv.addEventListener('pointermove',e=>{const o=ptrs.get(e.pointerId);if(!o)return;ptrs.set(e.pointerId,e);
+  if(ptrs.size===1){const s=(dist-1)*.0031/ (innerHeight/900>1?innerHeight/900:1);lon-=(e.clientX-o.clientX)*s/Math.max(.15,Math.cos(lat));lat=clamp(lat+(e.clientY-o.clientY)*s,-1.45,1.45);lon=wrapPi(lon);latT=lat;lonT=lon}
+  else if(ptrs.size===2){const[a,b]=[...ptrs.values()],h=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);distT=dist=clamp(1+pd0*pinch0/h,MIN,14)}});
+const up=e=>{ptrs.delete(e.pointerId);if(!ptrs.size){dragging=false;idle=performance.now()+2500}else if(ptrs.size===1){pinch0=0}};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();distT=clamp(1+(distT-1)*Math.exp(e.deltaY*.0013),MIN,14);idle=performance.now()+2500},{passive:false});
+$('#b-in').onclick=()=>{distT=clamp(1+(distT-1)*.55,MIN,14)};$('#b-out').onclick=()=>{distT=clamp(1+(distT-1)*1.8,MIN,14)};
+$('#b-reset').onclick=()=>{flyTo(20,lon/R,home());pin=null;$('#pin').style.display='none';$('#info').hidden=true};
+$('#b-rot').onclick=()=>{paused=!paused;$('#b-rot').textContent=paused?'▶':'⏸';$('#b-rot').title=paused?'Resume rotation':'Pause rotation'};
+$('#b-fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.().catch(()=>toast('Fullscreen not supported here.'));
+$('#b-menu').onclick=()=>$('#menu').hidden=!$('#menu').hidden;
+$('#speed').oninput=e=>$('#spv').textContent=e.target.value;
+$('#hq').onchange=resize;
+
+// ---------- Selection / search ----------
+let sel=null,pin=null;
+function select(s){sel=s;pin=vec(s.lat*R,s.lon*R,1.002);$('#i-name').textContent=s.name;$('#i-sub').textContent=s.sub||'';
+  $('#i-ll').textContent=`${s.lat.toFixed(4)}°, ${s.lon.toFixed(4)}°`;$('#info').hidden=false;$('#res').hidden=true;$('#menu').hidden=true;flyTo(s.lat,s.lon,s.dist);updateInfo()}
+function updateInfo(){if(!sel)return;const ms=simMs;$('#i-t').textContent=fmt(ms,sel.lat,sel.lon,FULL)+(tzOf(sel.lat,sel.lon)?' ('+tzOf(sel.lat,sel.lon)+')':' · solar time, approx.');
+  const up=vec(sel.lat*R,sel.lon*R).dot(sunAt(ms).v);$('#i-sun').textContent=up>0.0145?'☀ Daytime':up>-.105?'🌅 Twilight':'🌙 Night';
+  const t=sunTimes(ms,sel.lat,sel.lon);$('#i-rs').textContent=typeof t==='string'?t:fmt(t[0],sel.lat,sel.lon,HM)+' / '+fmt(t[1],sel.lat,sel.lon,HM)}
+$('#b-x').onclick=()=>{sel=null;pin=null;$('#info').hidden=true;$('#pin').style.display='none'};
+$('#b-loc').onclick=()=>{if(!navigator.geolocation)return toast('Geolocation is not supported by this browser.');toast('Requesting location permission…');
+  navigator.geolocation.getCurrentPosition(p=>select({name:'My location',sub:`Accuracy ≈ ${Math.round(p.coords.accuracy)} m · stays on your device`,lat:p.coords.latitude,lon:p.coords.longitude,dist:1.004}),
+  e=>toast(e.code===1?'Location permission denied.':e.code===2?'Location unavailable.':'Location request timed out.'),{enableHighAccuracy:false,timeout:12000,maximumAge:60000})};
+const q=$('#q'),res=$('#res'),cache=new Map();let st,ctl,last=[];
+q.addEventListener('input',()=>{clearTimeout(st);const v=q.value.trim();if(v.length<3){res.hidden=true;return}st=setTimeout(()=>search(v),700)});
+q.addEventListener('keydown',e=>{if(e.key==='Enter'){clearTimeout(st);const v=q.value.trim();if(last.length&&!res.hidden)pick(last[0]);else if(v.length>=3)search(v,true)}});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.search'))res.hidden=true});
+async function search(v,go){
+  let r=cache.get(v.toLowerCase());
+  if(!r){ctl&&ctl.abort();ctl=new AbortController();
+    try{r=await(await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&addressdetails=1&accept-language=en&q='+encodeURIComponent(v),{signal:ctl.signal})).json();cache.set(v.toLowerCase(),r)}
+    catch(e){if(e.name!=='AbortError'){res.hidden=false;res.textContent='Search service unavailable. Try again shortly.'}return}}
+  last=r;res.replaceChildren();res.hidden=false;
+  if(!r.length){res.textContent='No matches found.';return}
+  r.forEach(x=>{const d=document.createElement('div'),parts=x.display_name.split(', '),s=document.createElement('small');d.textContent=x.name||parts[0];s.textContent=(x.addresstype||x.type||'')+' · '+parts.slice(1).join(', ');d.appendChild(s);d.onclick=()=>pick(x);res.appendChild(d)});
+  if(go)pick(r[0]);
+}
+function pick(x){const la=+x.lat,lo=+x.lon,b=x.boundingbox?x.boundingbox.map(Number):null;let span=.0004;
+  if(b)span=Math.max((b[1]-b[0])*R,(b[3]-b[2])*R*Math.cos(la*R));const parts=x.display_name.split(', ');
+  select({name:x.name||parts[0],sub:parts.slice(1,4).join(', ')+(x.addresstype?' · '+x.addresstype:''),lat:la,lon:lo,dist:1+clamp(span*1.7,.0012,2.4)});q.value=x.name||parts[0];q.blur()}
+
+// ---------- Time ----------
+let off=0,simMs=Date.now();
+$('#t').oninput=e=>{off=+e.target.value};$('#b-live').onclick=()=>{off=0;$('#t').value=0};
+
+// ---------- Loop ----------
+function resize(){const dpr=Math.min(devicePixelRatio||1,$('#hq').checked?2:mobile?1.5:1.5);renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+let lastT=performance.now(),frameN=0,lastTile=0,lastInfo=0;const L=k=>$('#l-'+k).checked;
+function frame(t){
+  requestAnimationFrame(frame);const dt=Math.min((t-lastT)/1e3,.1);lastT=t;frameN++;
+  simMs=Date.now()+off*6e4;const s=sunAt(simMs);
+  earthMat.uniforms.sun.value.copy(s.v);sunLight.position.copy(s.v).multiplyScalar(10);
+  earthMat.uniforms.lights.value=L('lights')?1:0;earthMat.uniforms.shade.value=L('shade')?1:0;
+  if(!dragging&&!paused&&t>idle){const sp=+$('#speed').value*R*dt*Math.min(1,(dist-1)/1.2);lon-=sp;lonT-=sp}
+  if(!dragging){const k=1-Math.exp(-dt*4.5);lon+=wrapPi(lonT-lon)*k;lat+=(latT-lat)*k;dist=1+Math.exp(Math.log(dist-1)+(Math.log(distT-1)-Math.log(dist-1))*k)}
+  lon=wrapPi(lon);lonT=lon+wrapPi(lonT-lon);
+  camera.position.copy(vec(lat,lon,dist));camera.up.set(0,1,0);camera.near=Math.max(1e-5,(dist-1)*.2);camera.far=300;camera.updateProjectionMatrix();camera.lookAt(0,0,0);
+  earthMat.uniforms.cam.value.copy(camera.position);
+  atmoMat.uniforms.fade.value=clamp((dist-1.01)/.25,0,1);atmo.visible=atmoMat.uniforms.fade.value>.01;
+  clouds.rotation.y+=dt*.0015;const co=clamp((dist-1.03)/.25,0,1)*.85;cloudMat.opacity=co;clouds.visible=L('clouds')&&co>.01;
+  borders.visible=L('borders');if(L('borders')&&dist<1.9)loadStates();if(states)states.visible=dist<1.9;
+  const to=clamp((1.55-dist)/.3,0,1);tiles.forEach(x=>x.mat.opacity=x.ok?to:0);
+  if(t-lastTile>300){lastTile=t;updateTiles();$('#attr').textContent=(to>.05&&L('tiles')?'Map © OpenStreetMap contributors · ':'')+'Textures: NASA-derived (three.js examples) · Boundaries/places: Natural Earth · Search: Nominatim'}
+  if(frameN%3===0)updateLabels();
+  if(pin){const v=pin.clone().project(camera),el=$('#pin'),vis=pin.dot(camera.position.clone().normalize())>1/dist+.005;el.style.display=vis?'block':'none';el.style.transform=`translate(${(v.x+1)/2*innerWidth}px,${(1-v.y)/2*innerHeight}px)`}
+  if(t-lastInfo>500){lastInfo=t;const d=new Date(simMs);$('#utc').textContent=d.toISOString().slice(11,19);$('#utcd').textContent=d.toISOString().slice(0,10);
+    const live=off===0;$('#live').textContent=live?'LIVE':'SIM';$('#live').classList.toggle('sim',!live);
+    $('#t-lab').textContent=live?'LIVE':(off>0?'+':'−')+Math.floor(Math.abs(off)/60)+'h '+String(Math.abs(off)%60).padStart(2,'0')+'m';updateInfo()}
+  renderer.render(scene,camera);
+}
+requestAnimationFrame(frame);
 </script>
-<script>
-(()=>{
-const R=$('#rinfo'),say=h=>{R.style.display='';R.innerHTML=h};
-if(!window.L){$('#rmap').textContent='Map could not load (offline or blocked). Check your connection.';return}
-const map=L.map('rmap',{minZoom:4,worldCopyJump:false}).setView([22.8,79],5),layer=L.layerGroup().addTo(map),pl=L.layerGroup().addTo(map);
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-const EM={401:'API key rejected',403:'API key inactive',404:'Not found (check number/date)',429:'Rate limit reached, try again later'};
-async function api(p){if(!CFG.base||/YOUR-WORKER/.test(CFG.base))throw Error('Live proxy not set up yet (CFG.base).');if(!navigator.onLine)throw Error('You are offline.');
- const c=new AbortController(),t=setTimeout(()=>c.abort(),12000);let r,j;try{r=await fetch(CFG.base+p,{signal:c.signal});j=await r.json().catch(()=>null)}catch(e){throw Error(e.name==='AbortError'?'Request timed out.':'Could not reach the live-data proxy.')}finally{clearTimeout(t)}
- if(!r.ok||!j||!j.success)throw Error(EM[r.status]||(r.status>=500?'Provider error, retry shortly.':(j&&j.error)||'HTTP '+r.status));return j.data}
-let cur=null,tm=null;
-const hm=()=>new Date().toLocaleTimeString();
-async function track(no,quiet){cur=no;if(!quiet)say('Loading train '+esc(no)+'…');
- try{const[lv,inf]=await Promise.all([api('/api/v1/trains/'+no+'/live/'+istDate()),api('/api/v1/trains/'+no+'/info').catch(()=>null)]);
-  layer.clearLayers();const co={},route=(inf&&inf.route)||[];
-  route.forEach(x=>{const c=x.coordinates;if(c&&isFinite(c.latitude)&&isFinite(c.longitude))co[x.stnCode]=[c.latitude,c.longitude]});
-  const pts=route.map(x=>co[x.stnCode]).filter(Boolean);
-  if(pts.length>1)L.polyline(pts,{color:'#facc15',weight:3,dashArray:'6 8'}).addTo(layer).bindPopup('Line joins stations in order. It is not the exact track.');
-  route.forEach(x=>{const p=co[x.stnCode];if(p)L.circleMarker(p,{radius:4,color:'#3b82f6',fillOpacity:.9}).addTo(layer).bindPopup('<b>'+esc(x.stnName)+'</b> ('+esc(x.stnCode)+')<br>Arr '+esc(x.arrival)+' · Dep '+esc(x.departure)+'<br>Halt '+esc(x.halt||'-'))});
-  const tl=lv.timeline||[];let at=tl.find(p=>p.status==='current'&&co[p.stationCode]);if(!at)at=[...tl].reverse().find(p=>p.status==='passed'&&co[p.stationCode]);
-  if(at){const m=L.marker(co[at.stationCode],{icon:L.divIcon({html:'<div style="font-size:26px">🚆</div>',className:'',iconSize:[28,28],iconAnchor:[14,14]})}).addTo(layer);
-   m.bindPopup('<b>'+esc(lv.trainName)+' ('+esc(lv.trainNo)+')</b><br>'+esc(lv.statusNote||'')+'<br>Near: '+esc(at.stationName)+'<br>Speed: not provided by this API<br><small>Position = last reported station, not exact GPS.</small>').openPopup()}
-  if(pts.length>1)map.fitBounds(pts,{padding:[20,20]});else if(at)map.setView(co[at.stationCode],9);
-  say(lvHtml(lv)+'<br><small>Source: RailKit · fetched '+hm()+(at?'':' · station coordinates unavailable, no marker')+'</small>');
-  clearInterval(tm);tm=setInterval(()=>{if(!document.hidden&&cur===no)track(no,true)},90000);
- }catch(e){say('⚠ '+esc(e.message))}}
-async function go(){const q=$('#rq').value.trim();if(/^\d{5}$/.test(q))return track(q);
- if(q.length<3||q.length>40)return say('Type a 5-digit train number or at least 3 letters of the name.');
- say('Searching…');try{const d=await api('/api/v1/trains/search?name='+encodeURIComponent(q)),t=(d&&d.trains)||[];
-  say(t.length?'<div class="rl">'+t.map(x=>'<button data-no="'+esc(x.trainNo)+'">'+esc(x.trainNo)+' · '+esc(x.trainName)+'</button>').join('')+'</div>':'No train found for “'+esc(q)+'”.')}catch(e){say('⚠ '+esc(e.message))}}
-$('#rgo').onclick=go;$('#rq').onkeydown=e=>{if(e.key==='Enter')go()};
-R.addEventListener('click',e=>{const b=e.target.closest('button[data-no]');if(b)track(b.dataset.no)});
-let lp=0;async function place(){const q=$('#pq').value.trim();if(q.length<3||q.length>60)return say('Type at least 3 letters of a place name.');
- const w=1100-(Date.now()-lp);if(w>0)await new Promise(r=>setTimeout(r,w));lp=Date.now();say('Searching places…');
- try{const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=in&addressdetails=1&limit=6&q='+encodeURIComponent(q));if(!r.ok)throw Error('Place search busy (HTTP '+r.status+')');const a=await r.json();
-  say(a.length?'<div class="rl">'+a.map((x,i)=>{const d=x.address||{};return'<button data-i="'+i+'">'+esc(x.name||q)+' — '+esc([d.state_district||d.county,d.state].filter(Boolean).join(', '))+'</button>'}).join('')+'</div><small>Places © OpenStreetMap (Nominatim)</small>':'No place found for “'+esc(q)+'”.');
-  R._pl=a}catch(e){say('⚠ '+esc(e.message))}}
-$('#pgo').onclick=place;$('#pq').onkeydown=e=>{if(e.key==='Enter')place()};
-R.addEventListener('click',e=>{const b=e.target.closest('button[data-i]');if(!b||!R._pl)return;const x=R._pl[+b.dataset.i];pl.clearLayers();const ll=[+x.lat,+x.lon];L.marker(ll).addTo(pl).bindPopup(esc(x.display_name)).openPopup();map.flyTo(ll,x.type==='station'?14:12)});
-let wid=null,me=null,ring=null;const G=$('#gpsi'),gb=$('#gps');
-function stop(){if(wid!=null)navigator.geolocation.clearWatch(wid);wid=null;pl.removeLayer(me||L.layerGroup());if(me)map.removeLayer(me);if(ring)map.removeLayer(ring);me=ring=null;gb.textContent='📍 Locate me';G.style.display='none'}
-const GE={1:'Location permission denied. Allow it in browser settings.',2:'Position unavailable (no GPS signal).',3:'Location request timed out.'};
-gb.onclick=()=>{if(wid!=null)return stop();if(!window.isSecureContext||!navigator.geolocation){G.style.display='';G.textContent='GPS needs HTTPS and a browser with location support.';return}
- if(!confirm('Allow RailRadar to read your location? It is used only in your browser.'))return;gb.textContent='⏹ Stop GPS';let first=true;
- wid=navigator.geolocation.watchPosition(p=>{const c=p.coords,ll=[c.latitude,c.longitude];if(!me){me=L.circleMarker(ll,{radius:8,color:'#fff',weight:2,fillColor:'#2563eb',fillOpacity:1}).addTo(map).bindPopup('You (your phone GPS)');ring=L.circle(ll,{radius:c.accuracy,weight:1}).addTo(map)}else{me.setLatLng(ll);ring.setLatLng(ll).setRadius(c.accuracy)}
-  if(first){map.flyTo(ll,13);first=false}
-  const sp=typeof c.speed==='number'&&isFinite(c.speed)&&c.speed>=0?(c.speed*3.6).toFixed(0)+' km/h':'not available';
-  G.style.display='';G.innerHTML='<b>Your GPS</b> (not a train): '+c.latitude.toFixed(5)+', '+c.longitude.toFixed(5)+' · accuracy ±'+Math.round(c.accuracy)+' m'+(c.accuracy>100?' (low accuracy)':'')+'<br>Your speed: '+sp},
-  e=>{G.style.display='';G.textContent=GE[e.code]||'GPS error.';if(e.code===1)stop()},{enableHighAccuracy:true,maximumAge:5000,timeout:20000})};
-})();
-</script>
-</body>
-</html>
+</body></html>
