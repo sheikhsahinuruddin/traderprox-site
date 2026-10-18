@@ -50,3 +50,11 @@ Drag = rotate (≈55 % of 1:1 finger tracking, 4 px tap slop, no inertia). Wheel
 - **The "white wash" had two causes, both fixed:** the map shader could over-expose (brightness up to 126 %), and the static cloud layer sat on top of the map. Clouds and city lights now appear only when zoomed out; when you zoom in the map shows its own colours (day/night shading fades out below ~1 Earth-radius altitude).
 - **Esri tiles:** free for light use with attribution (shown in the app). For a busy/commercial site use an Esri API key or another provider. Satellite detail depends on Esri's coverage; some rural areas stop at lower zoom. Google Maps imagery cannot be used directly (licence), so it isn't included.
 - Mobile layout: controls no longer overlap the search bar on narrow screens.
+
+## v7: tap a country, weather & air quality, Live satellite, smoother globe
+- **Tap a country** (zoomed out) → the globe flies to it. **Tap the ground when zoomed in** → the exact place is named (Nominatim reverse lookup, ≤1 request/second) and its info opens. Tapping a label selects that place; state/region names appear at country zoom (after the state boundaries load).
+- **Info panel (any selected place):** local time (real IANA timezone from Open-Meteo), day length, sunrise/sunset, live weather, air quality (US AQI, PM2.5), UV index, time difference vs you, distance from you (after ◎ My Location), and a **Share** button (link opens straight on that place).
+- **Live map type:** yesterday's NASA GIBS MODIS Terra true-colour mosaic (real clouds/weather as seen from space), date shown in the credits. Native detail stops at zoom 9 – switch to Satellite for buildings. The static cloud overlay is hidden in this mode.
+- **Smoother:** dragging now glides to the finger position (no inertia), pinch/zoom smoothed, taps never nudge the globe.
+- **Privacy/data:** selecting a place sends its coordinates rounded to ~1 km to Open-Meteo (weather/air quality); tapping near the ground sends that point to Nominatim. Nothing is sent until you select/tap. Open-Meteo is free for non-commercial use (a licence is needed for commercial traffic).
+- **Honest limits:** places come from Natural Earth + OpenStreetMap, so small-village coverage varies by area; districts are searchable but not drawn; weather/AQI are model data for a ~1 km point, not a station reading.

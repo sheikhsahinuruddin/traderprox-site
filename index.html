@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>EarthVision – Explore Earth</title>
+<meta name="theme-color" content="#02040a"><meta property="og:title" content="EarthVision – live 3D Earth explorer"><meta property="og:description" content="Tap any country, zoom to your street, see weather, air quality, day/night and daily satellite imagery."><meta property="og:type" content="website">
 <meta name="description" content="Interactive 3D Earth with live day/night, city lights, worldwide search and map-tile zoom.">
 <style>
 :root{--bg:#02040a;--fg:#eaf1ff;--dim:#8fa3c7;--acc:#4da3ff;--glass:rgba(12,20,38,.58);--line:rgba(120,170,255,.2)}
@@ -68,13 +69,15 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
 .mt.on i{border-color:#1fb5b0}.mt.on{color:#4fd8d3}
 #attr{bottom:calc(max(2px,env(safe-area-inset-bottom)) + 62px)}
 @media(max-width:600px){.stack{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}#menu{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}#busy{top:calc(max(10px,env(safe-area-inset-top)) + 120px)}#toast{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}}
+#info{max-height:55vh;overflow:auto}#info dd{word-break:break-word}.srcl{font-size:10px;color:var(--dim);margin-top:6px}
+.lb.st{font-size:10px;font-weight:400;letter-spacing:.1em;color:#a9c0ee}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/tz.js" async onerror="void 0"></script>
 </head><body>
 <canvas id="gl"></canvas><div id="labels"></div><div id="pin"></div>
 <header class="top">
-  <div class="logo glass"><i>◉</i><b>EarthVision</b><small style="color:var(--dim);font-size:10px;margin-left:2px">v6</small></div>
+  <div class="logo glass"><i>◉</i><b>EarthVision</b><small style="color:var(--dim);font-size:10px;margin-left:2px">v7</small></div>
   <div class="search glass"><input id="q" type="search" placeholder="Search any country, state, city, village…" autocomplete="off" enterkeyhint="search" aria-label="Search places"><div id="res" class="results glass" hidden></div></div>
   <div class="clock glass"><span><span id="utcd"></span> <span id="utc">--:--:--</span> UTC</span><span id="live" class="live">LIVE</span></div>
 </header>
@@ -103,22 +106,24 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
   <label style="display:block">Rotation speed: <b id="spv">0.40</b>°/s<input type="range" id="speed" min="0" max="3" step="0.05" value="0.4"></label>
   <label><input type="checkbox" id="hq" checked>High-quality rendering (more GPU)</label>
   <h3>About the data</h3>
-  <p><b>Calculated live:</b> clock, sun position, day/night boundary, sunrise/sunset.<br><b>Reference imagery (not real-time):</b> surface, night lights (satellite-derived, not current electricity use) and clouds.<br><b>Live feeds:</b> earthquakes (USGS) when enabled.<br><b>Map &amp; places:</b> OpenStreetMap, Natural Earth.</p>
+  <p><b>Calculated live:</b> clock, sun position, day/night boundary, sunrise/sunset.<br><b>Reference imagery (not real-time):</b> surface, night lights (satellite-derived, not current electricity use) and clouds.<br><b>Live feeds:</b> earthquakes (USGS); weather &amp; air quality (Open-Meteo) for a selected place; the Live map type shows yesterday’s NASA satellite photo. Selecting a place sends its approximate coordinates (≈1 km) to Open-Meteo, and tapping the map near the ground sends that point to Nominatim for its name.<br><b>Map &amp; places:</b> OpenStreetMap, Natural Earth.</p>
 </div>
 <section id="info" class="glass" hidden>
   <button class="x" id="b-x" aria-label="Close">✕</button>
   <h2 id="i-name"></h2><div class="sub" id="i-sub"></div>
-  <dl><dt>Lat / Lon</dt><dd id="i-ll"></dd><dt>Local time</dt><dd id="i-t"></dd><dt>Sun</dt><dd id="i-sun"></dd><dt>Sunrise / set</dt><dd id="i-rs"></dd></dl>
-  <button id="b-global" style="margin-top:10px;height:36px;width:100%">Back to global view</button>
+  <dl><dt>Lat / Lon</dt><dd id="i-ll"></dd><dt>Local time</dt><dd id="i-t"></dd><dt>Sun</dt><dd id="i-sun"></dd><dt>Sunrise / set</dt><dd id="i-rs"></dd><dt>Day length</dt><dd id="i-dl"></dd><dt>Weather</dt><dd id="i-w"></dd><dt>Air quality</dt><dd id="i-aq"></dd><dt>UV index</dt><dd id="i-uv"></dd><dt>Time vs you</dt><dd id="i-diff"></dd><dt>From you</dt><dd id="i-dist"></dd></dl>
+  <div id="i-src" class="srcl"></div>
+  <div style="display:flex;gap:8px;margin-top:10px"><button id="b-share" style="flex:1;height:36px">Share</button><button id="b-global" style="flex:1;height:36px">Global view</button></div>
 </section>
 <div class="timebar glass"><span id="t-lab">LIVE</span><input id="t" type="range" min="-1440" max="1440" step="5" value="0" aria-label="Time offset"><button id="b-live">LIVE</button></div>
 <div id="mt" class="glass" hidden><div class="mth"><b>Map type</b><button id="mt-x" aria-label="Close">✕</button></div><div class="mtr">
   <button class="mt" data-m="default"><i style="background:linear-gradient(135deg,#a8dcf5 0 34%,#f6f3ec 34% 68%,#93d6a8 68%)"></i>Default</button>
   <button class="mt" data-m="satellite"><i style="background:linear-gradient(135deg,#2b4328,#5d6b40 38%,#3f3f3f 58%,#1d2c1b)"></i>Satellite</button>
-  <button class="mt" data-m="terrain"><i style="background:linear-gradient(135deg,#d2cba8,#9db78b 48%,#dcd3b0 75%,#b7c9a0)"></i>Terrain</button></div></div>
+  <button class="mt" data-m="terrain"><i style="background:linear-gradient(135deg,#d2cba8,#9db78b 48%,#dcd3b0 75%,#b7c9a0)"></i>Terrain</button>
+  <button class="mt" data-m="live" title="Yesterday's NASA satellite photo"><i style="background:radial-gradient(circle at 30% 30%,#fff 0 16%,transparent 17%),radial-gradient(circle at 72% 62%,#e8f2ff 0 20%,transparent 21%),linear-gradient(135deg,#2c6fb5,#1b3f78)"></i>Live</button></div></div>
 <div id="busy" class="glass" hidden>Loading map…</div><div id="attr"></div><div id="toast" class="glass"></div>
 <div id="loader"><div class="o"></div><div style="letter-spacing:.3em;font-weight:600">EARTHVISION</div><div style="color:var(--dim);font-size:12px">Loading planet…</div></div>
 <div id="nogl"><div><h2>WebGL is unavailable</h2><p style="color:var(--dim)">EarthVision needs WebGL. Enable hardware acceleration or try a recent Chrome, Edge, Firefox or Safari.</p></div></div>
 
-<script type="module" src="./main.js?v=6"></script>
+<script type="module" src="./main.js?v=7"></script>
 </body></html>
