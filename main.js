@@ -3,10 +3,12 @@ import * as THREE from 'three';
 const CFG=Object.assign({
   texBase:'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/',
   neBase:'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@v5.1.2/geojson/',
-  tileUrl:'https://tile.openstreetmap.org/{z}/{x}/{y}.png', tileAttr:'Map © OpenStreetMap contributors',
-  tileMaxZoom:18, tileConcurrency:6, tileCacheMax:matchMedia('(pointer:coarse)').matches?220:320,
-  // NASA GIBS Blue Marble (public domain satellite imagery, Web-Mercator XYZ). Used for zoom <= satMaxZoom, OpenStreetMap above that.
-  satUrl:'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/BlueMarble_ShadedRelief_Bathymetry/default//EPSG3857_500m/{z}/{y}/{x}.jpeg', satMaxZoom:8, satAttr:'Imagery: NASA GIBS',
+  // Map types (all Web-Mercator XYZ). Swap URLs/keys here to use your own provider.
+  layers:{
+    default:{url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors',max:18},
+    satellite:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'Imagery © Esri, Maxar, Earthstar Geographics, GIS User Community',max:18},
+    terrain:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',attr:'Tiles © Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors',max:18}},
+  tileConcurrency:6, tileCacheMax:matchMedia('(pointer:coarse)').matches?220:320,
   overpass:'https://overpass-api.de/api/interpreter', nominatim:'https://nominatim.openstreetmap.org/search'
 },window.EARTHVISION_CONFIG||{});
 const $=s=>document.querySelector(s), R=Math.PI/180, TAU=Math.PI*2, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
@@ -85,7 +87,7 @@ const earthMat=new THREE.ShaderMaterial({
   fragmentShader:`uniform sampler2D day,night,spec;uniform vec3 sun,cam;uniform float lights,shade;varying vec3 vN,vP;varying vec2 vUv;
   void main(){float ndl=dot(vN,sun);if(shade<.5)ndl=1.;float dm=smoothstep(-.12,.18,ndl);
     vec3 d=texture2D(day,vUv).rgb,V=normalize(cam-vP),H=normalize(sun+V);
-    vec3 c=d*(.03+dm*(.3+.85*clamp(ndl,0.,1.)));c+=vec3(1.,.45,.2)*exp(-pow(ndl*6.,2.))*.10*d;
+    vec3 c=d*(.03+dm*(.2+.77*clamp(ndl,0.,1.)));c+=vec3(1.,.45,.2)*exp(-pow(ndl*6.,2.))*.10*d;
     c+=vec3(.85,.93,1.)*pow(max(dot(vN,H),0.),70.)*texture2D(spec,vUv).r*dm*.55;
     c+=vec3(.25,.5,1.)*pow(1.-max(dot(vN,V),0.),3.)*dm*.35;gl_FragColor=vec4(c,1.);
     #include <colorspace_fragment>
@@ -212,12 +214,13 @@ function positionLabels(){                      // every frame, with this frame'
 const tileGroup=new THREE.Group();scene.add(tileGroup);
 const tiles=new Map(),tq=[];let inflight=0,curZ=0;
 const mercLat=(y,z)=>Math.atan(Math.sinh(Math.PI*(1-2*y/2**z)));
-const useSat=z=>!!CFG.satUrl&&z<=CFG.satMaxZoom;
-const tileSrc=(z,x,y,sat)=>{const n=2**z,xx=((x%n)+n)%n;return(sat?CFG.satUrl:CFG.tileUrl).replace('{z}',z).replace('{x}',xx).replace('{y}',y)};
+let mode=(()=>{try{const s=localStorage.getItem('ev_mode');return CFG.layers[s]?s:'default'}catch{return'default'}})();
+const LY=()=>CFG.layers[mode],flatU={value:0};
+const tileSrc=(z,x,y)=>{const n=2**z,xx=((x%n)+n)%n;return LY().url.replace('{z}',z).replace('{x}',xx).replace('{y}',y)};
 const TILE_VS=`varying vec3 vN;varying vec2 vUv;void main(){vUv=uv;vN=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const TILE_FS=`uniform sampler2D map;uniform vec3 sun;uniform float shade,opacity;varying vec3 vN;varying vec2 vUv;
+const TILE_FS=`uniform sampler2D map;uniform vec3 sun;uniform float shade,opacity,flatK;varying vec3 vN;varying vec2 vUv;
 void main(){float nd=dot(normalize(vN),sun);if(shade<.5)nd=1.;float dm=smoothstep(-.12,.18,nd);vec3 d=texture2D(map,vUv).rgb;
-  vec3 c=d*(.11+dm*(.3+.85*clamp(nd,0.,1.)));c+=vec3(1.,.45,.2)*exp(-pow(nd*6.,2.))*.10*d;gl_FragColor=vec4(c,opacity);
+  float l=.14+.86*dm*clamp(.4+.85*nd,0.,1.);vec3 c=d*l;c+=vec3(1.,.45,.2)*exp(-pow(nd*6.,2.))*.06*d;c=mix(c,d,flatK);gl_FragColor=vec4(c,opacity);
   #include <colorspace_fragment>
 }`;
 function makeTile(z,x,y){
@@ -226,7 +229,7 @@ function makeTile(z,x,y){
   for(let j=0;j<=seg;j++){const la=mercLat(y+j/seg,z);for(let i=0;i<=seg;i++){const lo=((x+i/seg)/n*2-1)*Math.PI,u=vec(la,lo,1),p=u.clone().multiplyScalar(rad);pos.push(p.x,p.y,p.z);nor.push(u.x,u.y,u.z);uv.push(i/seg,1-j/seg)}}
   for(let j=0;j<seg;j++)for(let i=0;i<seg;i++){const p=j*(seg+1)+i,q=p+1,r=p+seg+1,s=r+1;idx.push(p,r,q,q,r,s)}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);
-  const mat=new THREE.ShaderMaterial({uniforms:{map:{value:null},sun:earthMat.uniforms.sun,shade:earthMat.uniforms.shade,opacity:{value:0}},vertexShader:TILE_VS,fragmentShader:TILE_FS,transparent:true,depthWrite:false}),mesh=new THREE.Mesh(g,mat);mesh.renderOrder=z;mesh.visible=false;tileGroup.add(mesh);
+  const mat=new THREE.ShaderMaterial({uniforms:{map:{value:null},sun:earthMat.uniforms.sun,shade:earthMat.uniforms.shade,opacity:{value:0},flatK:flatU},vertexShader:TILE_VS,fragmentShader:TILE_FS,transparent:true,depthWrite:false}),mesh=new THREE.Mesh(g,mat);mesh.renderOrder=z;mesh.visible=false;tileGroup.add(mesh);
   return{z,x,y,mesh,mat,state:'idle',last:0,fade:0,want:false,vis:false};
 }
 function pumpTiles(){
@@ -236,19 +239,24 @@ function pumpTiles(){
     img.onload=()=>{inflight--;if(t.dead){pumpTiles();return}
       const tx=new THREE.Texture(img);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=aniso;tx.minFilter=THREE.LinearMipmapLinearFilter;tx.wrapS=tx.wrapT=THREE.ClampToEdgeWrapping;tx.needsUpdate=true;
       t.mat.uniforms.map.value=tx;t.state='ok';pumpTiles()};
-    img.onerror=()=>{if(t.sat&&!t.fb){t.fb=true;img.src=tileSrc(t.z,t.x,t.y,false);return}inflight--;t.state='err';pumpTiles()};   // satellite tile missing → fall back to OSM
-    t.sat=useSat(t.z);img.src=tileSrc(t.z,t.x,t.y,t.sat);
+    img.onerror=()=>{inflight--;t.state='err';pumpTiles()};
+    img.src=tileSrc(t.z,t.x,t.y);
   }
 }
+function setMode(k){
+  if(!CFG.layers[k]||k===mode)return;mode=k;try{localStorage.setItem('ev_mode',k)}catch{}
+  for(const[key,t]of[...tiles])disposeTile(key,t);tq.length=0;curZ=0;lastTile=0;markMode();
+}
+function markMode(){document.querySelectorAll('.mt').forEach(b=>b.classList.toggle('on',b.dataset.m===mode))}
 function disposeTile(k,t){t.dead=true;tileGroup.remove(t.mesh);t.mesh.geometry.dispose();if(t.mat.uniforms.map.value)t.mat.uniforms.map.value.dispose();t.mat.dispose();tiles.delete(k)}
 function updateTiles(now){
   const on=L('tiles')&&dist<3.3;tileGroup.visible=on;if(!on){$('#busy').hidden=!dyn.busy;return}
   const zf=Math.log2(TAU*Math.max(.2,Math.cos(lat))/((dist-1)*.35))+.6;
-  if(!curZ||Math.abs(zf-curZ)>.7)curZ=clamp(Math.round(zf),3,CFG.tileMaxZoom);          // hysteresis: no z thrash while zooming
+  if(!curZ||Math.abs(zf-curZ)>.7)curZ=clamp(Math.round(zf),3,LY().max);          // hysteresis: no z thrash while zooming
   const z=curZ,n=2**z,cx=Math.floor((lon+Math.PI)/TAU*n),cy=Math.floor((1-Math.asinh(Math.tan(lat))/Math.PI)/2*n),r=z<=6?3:z<=9?2:1;
   for(const t of tiles.values())t.want=false;
   let pending=0;
-  for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){const y=cy+dy;if(y<0||y>=n)continue;const k=z+'/'+(cx+dx)+'/'+y;
+  for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){const y=cy+dy;if(y<0||y>=n)continue;const k=mode+':'+z+'/'+(cx+dx)+'/'+y;
     let t=tiles.get(k);if(!t){t=makeTile(z,cx+dx,y);tiles.set(k,t)}
     t.want=true;t.last=now;if(t.state==='idle'){t.state='queued';tq.push(t)}if(t.state==='queued'||t.state==='loading')pending++}
   for(const t of tiles.values()){t.vis=t.state==='ok'&&(t.want||(pending>0&&now-t.last<5000));t.mesh.visible=t.vis}   // keep previous imagery until replacements arrive
@@ -299,6 +307,8 @@ const globalView=()=>{sel=null;pin=null;$('#pin').style.display='none';$('#info'
 $('#b-reset').onclick=globalView;$('#b-global').onclick=globalView;
 $('#b-rot').onclick=()=>setPaused(!paused);
 $('#b-fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.().catch(()=>toast('Fullscreen not supported here.'));
+document.querySelectorAll('.mt').forEach(b=>b.onclick=()=>setMode(b.dataset.m));markMode();
+$('#b-map').onclick=()=>{$('#mt').hidden=!$('#mt').hidden;$('#menu').hidden=true};$('#mt-x').onclick=()=>$('#mt').hidden=true;
 $('#b-menu').onclick=()=>$('#menu').hidden=!$('#menu').hidden;
 $('#speed').oninput=e=>$('#spv').textContent=(+e.target.value).toFixed(2);
 $('#hq').onchange=resize;
@@ -400,11 +410,11 @@ function frame(t){
   lon=wrapPi(lon);lonT=lon+wrapPi(lonT-lon);
   camera.position.copy(vec(lat,lon,dist));camera.up.set(0,1,0);camera.near=Math.max(1e-5,(dist-1)*.2);camera.far=300;camera.updateProjectionMatrix();camera.lookAt(0,0,0);camera.updateMatrixWorld();
   sky.position.copy(camera.position);earthMat.uniforms.cam.value.copy(camera.position);
-  atmoMat.uniforms.fade.value=clamp((dist-1.01)/.25,0,1);atmo.visible=atmoMat.uniforms.fade.value>.01;lightsMat.uniforms.fade.value=clamp((dist-1.15)/.3,0,1);lightsMesh.visible=L('lights')&&lightsMat.uniforms.fade.value>.01;
-  const to=clamp((3.2-dist)/.5,0,1);clouds.rotation.y+=dt*.0015;const co=clamp((dist-1.1)/.4,0,1)*.85;cloudMat.opacity=co;clouds.visible=L('clouds')&&co>.01;
+  atmoMat.uniforms.fade.value=clamp((dist-1.01)/.25,0,1);atmo.visible=atmoMat.uniforms.fade.value>.01;lightsMat.uniforms.fade.value=clamp((dist-2.4)/.8,0,1);lightsMesh.visible=L('lights')&&lightsMat.uniforms.fade.value>.01;
+  const to=clamp((3.2-dist)/.5,0,1);flatU.value=clamp((2.2-dist)/1,0,1);clouds.rotation.y+=dt*.0015;const co=clamp((dist-2.6)/.7,0,1)*.7;cloudMat.opacity=co;clouds.visible=L('clouds')&&co>.01;
   borders.visible=L('borders')&&dist>1.04;if(L('borders')&&dist<1.4)loadStates();if(states)states.visible=dist<1.4;
   for(const x of tiles.values())if(x.vis){x.fade=Math.min(1,x.fade+dt*3.5);x.mat.uniforms.opacity.value=Math.min(to,x.fade)}
-  if(t-lastTile>250){lastTile=t;updateTiles(t);updateDyn();selectLabels();$('#attr').textContent='EarthVision v5 · '+(to>.05&&L('tiles')?CFG.satAttr+' · '+CFG.tileAttr+' · ':'')+'Places: Natural Earth + OpenStreetMap (Overpass) · Textures: NASA-derived (three.js examples) · Search: Nominatim'}
+  if(t-lastTile>250){lastTile=t;updateTiles(t);updateDyn();selectLabels();$('#attr').textContent='EarthVision v6 · '+(to>.05&&L('tiles')?LY().attr+' · ':'')+'Places: Natural Earth + OpenStreetMap (Overpass) · Textures: NASA-derived (three.js examples) · Search: Nominatim'}
   positionLabels();
   if(pin){tv.copy(pin).project(camera);const el=$('#pin'),vis=pin.dot(camDir.copy(camera.position).normalize())>1/dist+.005;el.style.display=vis?'block':'none';el.style.transform=`translate(${(tv.x+1)/2*innerWidth}px,${(1-tv.y)/2*innerHeight}px)`}
   if(t-lastInfo>500){lastInfo=t;const d=new Date(simMs);$('#utc').textContent=d.toISOString().slice(11,19);$('#utcd').textContent=d.toISOString().slice(0,10);

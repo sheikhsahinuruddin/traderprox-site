@@ -44,3 +44,9 @@ Drag = rotate (≈55 % of 1:1 finger tracking, 4 px tap slop, no inertia). Wheel
 - **Portrait phones:** the default view distance is computed from the screen shape so the whole globe fits.
 - **Search:** suggestions appear instantly while typing (countries, states/regions, ~7,300 cities/capitals, plus any towns/villages already loaded). ↑/↓/Enter work, recent searches show when the box is empty. Online (Nominatim) results for villages, streets and other places load when you tap "Search worldwide…" or press Enter with no local match (and automatically only when local suggestions are thin) – this keeps within Nominatim's usage policy.
 - The base 2048 px Earth texture (shown only when fully zoomed out) is unchanged; replace the files in `CFG.texBase` with higher-resolution NASA Blue Marble/Black Marble images if you host them yourself.
+
+## v6: map types and true colours
+- **Map type button (◧):** Default (OpenStreetMap), Satellite (Esri World Imagery) and Terrain (Esri World Topographic), chosen like Google Maps and remembered on the device. Providers are set in `CFG.layers`.
+- **The "white wash" had two causes, both fixed:** the map shader could over-expose (brightness up to 126 %), and the static cloud layer sat on top of the map. Clouds and city lights now appear only when zoomed out; when you zoom in the map shows its own colours (day/night shading fades out below ~1 Earth-radius altitude).
+- **Esri tiles:** free for light use with attribution (shown in the app). For a busy/commercial site use an Esri API key or another provider. Satellite detail depends on Esri's coverage; some rural areas stop at lower zoom. Google Maps imagery cannot be used directly (licence), so it isn't included.
+- Mobile layout: controls no longer overlap the search bar on narrow screens.
