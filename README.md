@@ -58,3 +58,12 @@ Drag = rotate (≈55 % of 1:1 finger tracking, 4 px tap slop, no inertia). Wheel
 - **Smoother:** dragging now glides to the finger position (no inertia), pinch/zoom smoothed, taps never nudge the globe.
 - **Privacy/data:** selecting a place sends its coordinates rounded to ~1 km to Open-Meteo (weather/air quality); tapping near the ground sends that point to Nominatim. Nothing is sent until you select/tap. Open-Meteo is free for non-commercial use (a licence is needed for commercial traffic).
 - **Honest limits:** places come from Natural Earth + OpenStreetMap, so small-village coverage varies by area; districts are searchable but not drawn; weather/AQI are model data for a ~1 km point, not a station reading.
+
+## v8: fixes after real-device feedback
+- **Weather / air quality were blank:** the forecast request asked Open-Meteo for a variable it does not offer as "current" (UV), so the whole request failed. Now only valid variables are used; weather, air quality and UV load independently, show the real error if one fails, and time out after 10 s.
+- **Taps stopped working after the first selection:** the info card covered half the screen. It is now a compact bottom sheet (name + weather + AQI; "Details" expands it) and the globe is shifted up so the selected place stays visible.
+- **Place names vanished when zoomed in:** the horizon test rejected every label closer than ~76 km altitude. Fixed, so town / village / colony / neighbourhood names appear while zooming in (OpenStreetMap, loaded around your view). Satellite mode now also gets place-name label tiles (CARTO, from OpenStreetMap) near the ground, since satellite photos have no names.
+- **Zoom buttons now accumulate** when tapped repeatedly (each tap used to cancel the previous one).
+- **Blue dot:** ◎ My Location starts live tracking (accuracy circle, pulsing dot like Google Maps). Untick "My location" in ☰ to stop. The position stays on the device; it is only sent (rounded to ~1 km) to Open-Meteo if you select "My location" to see weather.
+- **Two-finger twist** rotates the whole globe (heading); pinch still zooms; a compass ▲ appears and resets north. Desktop: Shift + drag rotates.
+- **Tested in headless Chromium** with mocked network (Three.js replaced by a small maths-accurate stand-in, so layout/logic is tested, not GPU rendering): tap country, tap city label, tap ground (reverse name), weather/AQI/UV panel, blue dot, twist gesture, compass, satellite label requests, colony labels while zooming, search suggestions – all passing, no console errors.

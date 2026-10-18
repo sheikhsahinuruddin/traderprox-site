@@ -71,17 +71,26 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
 @media(max-width:600px){.stack{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}#menu{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}#busy{top:calc(max(10px,env(safe-area-inset-top)) + 120px)}#toast{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}}
 #info{max-height:55vh;overflow:auto}#info dd{word-break:break-word}.srcl{font-size:10px;color:var(--dim);margin-top:6px}
 .lb.st{font-size:10px;font-weight:400;letter-spacing:.1em;color:#a9c0ee}
+#me{position:fixed;left:0;top:0;pointer-events:none;z-index:3;display:none}
+#me .acc{position:absolute;left:0;top:0;border-radius:50%;background:rgba(66,133,244,.18);border:1px solid rgba(66,133,244,.4);transform:translate(-50%,-50%)}
+#me .dot{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-sizing:border-box;animation:mp 2s infinite}
+@keyframes mp{0%{box-shadow:0 0 0 0 rgba(26,115,232,.55),0 1px 4px rgba(0,0,0,.5)}70%,100%{box-shadow:0 0 0 14px rgba(26,115,232,0),0 1px 4px rgba(0,0,0,.5)}}
+#info{max-height:none;overflow:visible}#info .det{display:none}#info.open{max-height:52vh;overflow:auto}#info.open .det{display:block}
+.sum{font-size:13px;margin:0 0 4px}.moreb{height:30px;min-width:0;border:0;background:none;color:var(--acc);padding:0;margin-top:2px}
+@media(min-width:760px){#info .det{display:block}.moreb{display:none}}
+.top{z-index:9}.results{z-index:10}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/tz.js" async onerror="void 0"></script>
 </head><body>
-<canvas id="gl"></canvas><div id="labels"></div><div id="pin"></div>
+<canvas id="gl"></canvas><div id="labels"></div><div id="pin"></div><div id="me"><div class="acc" style="display:none"></div><div class="dot"></div></div>
 <header class="top">
-  <div class="logo glass"><i>◉</i><b>EarthVision</b><small style="color:var(--dim);font-size:10px;margin-left:2px">v7</small></div>
+  <div class="logo glass"><i>◉</i><b>EarthVision</b><small style="color:var(--dim);font-size:10px;margin-left:2px">v8</small></div>
   <div class="search glass"><input id="q" type="search" placeholder="Search any country, state, city, village…" autocomplete="off" enterkeyhint="search" aria-label="Search places"><div id="res" class="results glass" hidden></div></div>
   <div class="clock glass"><span><span id="utcd"></span> <span id="utc">--:--:--</span> UTC</span><span id="live" class="live">LIVE</span></div>
 </header>
 <div class="stack">
+  <button id="b-north" hidden title="Reset north" aria-label="Reset north"><span id="np" style="display:inline-block;font-size:18px;color:#ff6b6b">▲</span></button>
   <button id="b-loc" title="My Location">◎<span class="t">My Location</span></button>
   <button id="b-in" title="Zoom in" aria-label="Zoom in">＋</button>
   <button id="b-out" title="Zoom out" aria-label="Zoom out">－</button>
@@ -99,21 +108,25 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
   <label><input type="checkbox" id="l-borders" checked>Country &amp; state borders</label>
   <label><input type="checkbox" id="l-labels" checked>Place labels</label>
   <label><input type="checkbox" id="l-tiles" checked>Detailed map (OpenStreetMap tiles)</label>
+  <label><input type="checkbox" id="l-me" checked>My location (blue dot)</label>
   <label><input type="checkbox" id="l-quakes">Earthquakes (USGS, live feed)</label>
   <p id="qinfo"></p>
   <p>Small towns &amp; villages load progressively from OpenStreetMap as you zoom in. Weather: not enabled – it needs a provider/API key. See README.</p>
   <h3>Settings</h3>
   <label style="display:block">Rotation speed: <b id="spv">0.40</b>°/s<input type="range" id="speed" min="0" max="3" step="0.05" value="0.4"></label>
   <label><input type="checkbox" id="hq" checked>High-quality rendering (more GPU)</label>
+  <h3>Gestures</h3>
+  <p>One finger: rotate · Two fingers: pinch to zoom, twist to rotate (compass ▲ resets north) · Tap a country to fly there.</p>
   <h3>About the data</h3>
   <p><b>Calculated live:</b> clock, sun position, day/night boundary, sunrise/sunset.<br><b>Reference imagery (not real-time):</b> surface, night lights (satellite-derived, not current electricity use) and clouds.<br><b>Live feeds:</b> earthquakes (USGS); weather &amp; air quality (Open-Meteo) for a selected place; the Live map type shows yesterday’s NASA satellite photo. Selecting a place sends its approximate coordinates (≈1 km) to Open-Meteo, and tapping the map near the ground sends that point to Nominatim for its name.<br><b>Map &amp; places:</b> OpenStreetMap, Natural Earth.</p>
 </div>
 <section id="info" class="glass" hidden>
   <button class="x" id="b-x" aria-label="Close">✕</button>
   <h2 id="i-name"></h2><div class="sub" id="i-sub"></div>
-  <dl><dt>Lat / Lon</dt><dd id="i-ll"></dd><dt>Local time</dt><dd id="i-t"></dd><dt>Sun</dt><dd id="i-sun"></dd><dt>Sunrise / set</dt><dd id="i-rs"></dd><dt>Day length</dt><dd id="i-dl"></dd><dt>Weather</dt><dd id="i-w"></dd><dt>Air quality</dt><dd id="i-aq"></dd><dt>UV index</dt><dd id="i-uv"></dd><dt>Time vs you</dt><dd id="i-diff"></dd><dt>From you</dt><dd id="i-dist"></dd></dl>
+  <div id="i-sum" class="sum"></div><button id="b-more" class="moreb">Details ▾</button>
+  <div class="det"><dl><dt>Lat / Lon</dt><dd id="i-ll"></dd><dt>Local time</dt><dd id="i-t"></dd><dt>Sun</dt><dd id="i-sun"></dd><dt>Sunrise / set</dt><dd id="i-rs"></dd><dt>Day length</dt><dd id="i-dl"></dd><dt>Weather</dt><dd id="i-w"></dd><dt>Air quality</dt><dd id="i-aq"></dd><dt>UV index</dt><dd id="i-uv"></dd><dt>Time vs you</dt><dd id="i-diff"></dd><dt>From you</dt><dd id="i-dist"></dd></dl>
   <div id="i-src" class="srcl"></div>
-  <div style="display:flex;gap:8px;margin-top:10px"><button id="b-share" style="flex:1;height:36px">Share</button><button id="b-global" style="flex:1;height:36px">Global view</button></div>
+  <div style="display:flex;gap:8px;margin-top:10px"><button id="b-share" style="flex:1;height:36px">Share</button><button id="b-global" style="flex:1;height:36px">Global view</button></div></div>
 </section>
 <div class="timebar glass"><span id="t-lab">LIVE</span><input id="t" type="range" min="-1440" max="1440" step="5" value="0" aria-label="Time offset"><button id="b-live">LIVE</button></div>
 <div id="mt" class="glass" hidden><div class="mth"><b>Map type</b><button id="mt-x" aria-label="Close">✕</button></div><div class="mtr">
@@ -125,5 +138,5 @@ button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
 <div id="loader"><div class="o"></div><div style="letter-spacing:.3em;font-weight:600">EARTHVISION</div><div style="color:var(--dim);font-size:12px">Loading planet…</div></div>
 <div id="nogl"><div><h2>WebGL is unavailable</h2><p style="color:var(--dim)">EarthVision needs WebGL. Enable hardware acceleration or try a recent Chrome, Edge, Firefox or Safari.</p></div></div>
 
-<script type="module" src="./main.js?v=7"></script>
+<script type="module" src="./main.js?v=8"></script>
 </body></html>
