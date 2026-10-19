@@ -67,3 +67,20 @@ Drag = rotate (≈55 % of 1:1 finger tracking, 4 px tap slop, no inertia). Wheel
 - **Blue dot:** ◎ My Location starts live tracking (accuracy circle, pulsing dot like Google Maps). Untick "My location" in ☰ to stop. The position stays on the device; it is only sent (rounded to ~1 km) to Open-Meteo if you select "My location" to see weather.
 - **Two-finger twist** rotates the whole globe (heading); pinch still zooms; a compass ▲ appears and resets north. Desktop: Shift + drag rotates.
 - **Tested in headless Chromium** with mocked network (Three.js replaced by a small maths-accurate stand-in, so layout/logic is tested, not GPU rendering): tap country, tap city label, tap ground (reverse name), weather/AQI/UV panel, blue dot, twist gesture, compass, satellite label requests, colony labels while zooming, search suggestions – all passing, no console errors.
+
+## v0.5 (clean baseline – version numbers restart here)
+- **Popup shows everything by default** (lat/lon, local time, sun, sunrise/sunset, day length, weather, air quality, UV, time difference, distance); "Hide details" collapses it. It is limited to 46 % of the screen and scrolls.
+- **Place names that never loaded:** the town/village loader stopped for good after 3 failures. It now retries forever with back-off, falls back through backup Overpass servers, and keeps fetched areas on the device for 30 days (instant next time). Village cells are smaller (0.25°), nearest first. A small "Place names: server busy, retrying…" pill shows when the server is slow.
+- **Area chip** (📍 under the search bar): the neighbourhood / city / state under the centre of the screen while you pan (Nominatim, ≤1 request per 2.5 s, cached) – works even when the name server above is busy.
+- **Rotate view slider** in ☰ (plus compass ▲), so rotation works even if the two-finger twist feels awkward; lost "finger up" events can no longer jam the gestures.
+- **Connection check** in ☰: tests tiles, satellite, labels, NASA photo, Overpass, weather, air quality, search, earthquakes and borders on the device and shows ✓/✗ with the reason – send a screenshot of this if anything is blank.
+- Tested in headless Chromium with mocked network (including a failing primary Overpass server). Real-network behaviour on your phone still needs your confirmation.
+
+## v0.6
+- **CARTO API key:** the only CARTO service used is the raster PNG place-name label tiles drawn over Satellite imagery (`dark_only_labels`). The key is now sent as `?key=` on every such tile (set in `CFG.cartoKey`; empty = no key parameter). No other provider or URL was changed (Voyager/vector styles are not used). The key is a public browser key, so it is visible in the page source – restrict it to your domain in the CARTO dashboard. ☰ → Connection check now tests the CARTO tile with the key and reports "key rejected / domain not allowed" if CARTO refuses it.
+- **Blue dot / pin drifting:** markers were placed 2.5–13 km above the ground, so they slid away from the real spot when you zoomed in. They are now placed exactly on the map surface; GPS fixes are smoothed, and a much worse fix (cell/IP guess) is ignored for 3 minutes so the dot does not jump.
+- **Zoom:** closest altitude ≈ 190 m (was ≈ 1 km); Default and Terrain tiles go to level 19 (Satellite level 18, then smoothly over-zooms).
+- **Sea / ocean names** (Natural Earth marine areas) appear on the globe at continent zoom, are searchable and tappable.
+- **Smoothness:** state boundaries are parsed in a Web Worker (no freeze), DOM lookups are cached, resolution adapts automatically on slower phones, and the time slider / LIVE glides instead of jumping. Sun position and day/night shading are unchanged.
+- **Bug fixed during testing:** a trailing comment had swallowed the camera declarations (page would not start) – caught by the browser test, not by a syntax check.
+- Browser test (headless Chromium, mocked network): 38 checks pass, including API key on all 37 CARTO requests, sea names, worker-loaded states, dot-to-ground offset, GPS filter and smooth time.
