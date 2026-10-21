@@ -1,764 +1,171 @@
-<!DOCTYPE html>
-<html lang="en"><head>
+<!doctype html>
+<html lang="en">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>EarthVision – Explore Earth</title>
-<meta name="theme-color" content="#02040a"><meta property="og:title" content="EarthVision – live 3D Earth explorer"><meta property="og:description" content="Tap any country, zoom to your street, see weather, air quality, day/night and daily satellite imagery."><meta property="og:type" content="website">
-<meta name="description" content="Interactive 3D Earth with live day/night, city lights, worldwide search and map-tile zoom.">
+<meta name="theme-color" content="#0a0d0c">
+<meta name="description" content="LifePilot AI helps you turn goals into clear daily actions, track progress, and make better plans.">
+<title>LifePilot AI — Your next step, made clear.</title>
 <style>
-:root{--bg:#02040a;--fg:#eaf1ff;--dim:#8fa3c7;--acc:#4da3ff;--glass:rgba(12,20,38,.58);--line:rgba(120,170,255,.2)}
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-canvas#gl{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block;cursor:grab}
-canvas#gl:active{cursor:grabbing}
-.glass{background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:14px}
-button{font:inherit;color:var(--fg);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;transition:.2s}
-button:hover{border-color:var(--acc);background:rgba(40,80,150,.45)}
-.top{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;right:10px;display:flex;gap:10px;align-items:flex-start;z-index:5;pointer-events:none}
-.top>*{pointer-events:auto}
-.logo{height:44px;padding:0 14px;display:flex;align-items:center;gap:8px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
-.logo i{color:var(--acc);font-style:normal;font-size:18px}
-.search{position:relative;flex:1;max-width:520px;margin:0 auto}
-.search input{width:100%;height:44px;background:transparent;border:0;outline:0;color:var(--fg);font:inherit;padding:0 16px;border-radius:14px}
-.search input::placeholder{color:var(--dim)}
-.results{position:absolute;top:50px;left:0;right:0;max-height:50vh;overflow:auto;padding:6px}
-.results div{padding:9px 10px;border-radius:9px;cursor:pointer}.results div:hover{background:rgba(77,163,255,.18)}
-.results small{display:block;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.clock{height:44px;padding:0 12px;display:flex;align-items:center;gap:10px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.live{font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:99px;background:rgba(40,210,120,.18);color:#4be39a}
-.live.sim{background:rgba(255,170,40,.18);color:#ffb84a}
-.stack{position:fixed;right:10px;top:calc(max(10px,env(safe-area-inset-top)) + 58px);display:flex;flex-direction:column;gap:8px;z-index:5}
-.stack .t{display:none}
-.timebar{position:fixed;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));width:min(560px,calc(100% - 20px));padding:8px 10px;display:flex;align-items:center;gap:10px;z-index:5}
-.timebar input{flex:1;accent-color:var(--acc);height:28px}
-.timebar span{min-width:74px;text-align:center;color:var(--dim);font-size:12px}
-.timebar button{height:36px;min-width:60px;font-weight:700;font-size:12px}
-#info{position:fixed;left:10px;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 64px);width:min(340px,calc(100% - 78px));padding:14px 16px;z-index:5}
-#info h2{margin:0 24px 2px 0;font-size:18px}#info .sub{color:var(--dim);margin-bottom:8px}
-#info dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:13px}#info dt{color:var(--dim)}#info dd{margin:0}
-#info .x{position:absolute;top:6px;right:6px;height:30px;min-width:30px;border:0;background:none}
-#menu{position:fixed;right:64px;top:calc(max(10px,env(safe-area-inset-top)) + 58px);width:min(300px,calc(100% - 84px));max-height:calc(100% - 140px);overflow:auto;padding:14px;z-index:6}
-#menu h3{margin:12px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}#menu h3:first-child{margin-top:0}
-#menu label{display:flex;align-items:center;gap:10px;padding:7px 0;min-height:36px}
-#menu input[type=checkbox]{width:20px;height:20px;accent-color:var(--acc)}#menu input[type=range]{width:100%;accent-color:var(--acc)}
-#menu p{font-size:12px;color:var(--dim);margin:6px 0}
-#labels{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:2}
-.lb{position:absolute;left:0;top:0;display:none;font-size:12px;text-shadow:0 0 4px #000,0 0 8px #000;white-space:nowrap;pointer-events:auto;cursor:pointer;padding:3px 2px 3px 10px}
-.lb{pointer-events:none!important;transition:opacity .25s;will-change:transform}
-.lb.cn{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#bcd3ff;padding:0}
-.lb.cn:before{display:none}
-.results .act{background:rgba(77,163,255,.22)}
-.results .more{color:var(--acc);font-size:13px}
-.lb.sm{font-size:11px;opacity:.9}
-.lb:before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 6px #ffb84a}
-.lb.c{font-weight:600}
-#pin{position:fixed;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;border:2px solid #fff;background:rgba(77,163,255,.5);box-shadow:0 0 14px var(--acc);display:none;pointer-events:none;z-index:3;animation:p 1.6s infinite}
-@keyframes p{50%{box-shadow:0 0 0 10px rgba(77,163,255,0)}}
-#busy{position:fixed;left:50%;transform:translateX(-50%);top:calc(max(10px,env(safe-area-inset-top)) + 100px);padding:5px 12px;font-size:12px;color:var(--dim);z-index:4;pointer-events:none}
-#attr{position:fixed;right:8px;bottom:max(2px,env(safe-area-inset-bottom));font-size:10px;color:var(--dim);opacity:.8;z-index:4;max-width:55%;text-align:right;pointer-events:none}
-#toast{position:fixed;top:calc(max(10px,env(safe-area-inset-top)) + 58px);left:50%;transform:translateX(-50%);padding:9px 14px;z-index:9;display:none;max-width:90%;text-align:center}
-#loader{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,#0a1430,#02040a 70%);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .8s}
-#loader .o{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--acc);animation:s 1s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
-#nogl{position:fixed;inset:0;background:var(--bg);z-index:30;display:none;align-items:center;justify-content:center;text-align:center;padding:30px}
-[hidden]{display:none!important}
-@media(min-width:760px){.stack .t{display:inline}.stack button{padding:0 14px}}
-@media(max-width:600px){.logo b{display:none}.clock #utcd{display:none}.top{flex-wrap:wrap}.search{order:3;flex:1 1 100%;max-width:none}.clock{margin-left:auto}}
-#mt{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(10px,env(safe-area-inset-bottom)) + 66px);width:min(440px,calc(100% - 20px));padding:12px 14px;z-index:7}
-.mth{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.mth button{border:0;background:none;height:32px;min-width:32px}
-.mtr{display:flex;justify-content:space-around}
-.mt{flex-direction:column;height:auto;border:0;background:none;padding:4px;gap:6px;font-size:13px}.mt i{width:64px;height:64px;border-radius:12px;border:3px solid transparent;display:block}
-.mt.on i{border-color:#1fb5b0}.mt.on{color:#4fd8d3}
-#attr{bottom:calc(max(2px,env(safe-area-inset-bottom)) + 62px)}
-@media(max-width:600px){.stack{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}#menu{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}#busy{top:calc(max(10px,env(safe-area-inset-top)) + 120px)}#toast{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}}
-#info{max-height:55vh;overflow:auto}#info dd{word-break:break-word}.srcl{font-size:10px;color:var(--dim);margin-top:6px}
-.lb.st{font-size:10px;font-weight:400;letter-spacing:.1em;color:#a9c0ee}
-#me{position:fixed;left:0;top:0;pointer-events:none;z-index:3;display:none}
-#me .acc{position:absolute;left:0;top:0;border-radius:50%;background:rgba(66,133,244,.18);border:1px solid rgba(66,133,244,.4);transform:translate(-50%,-50%)}
-#me .dot{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-sizing:border-box;animation:mp 2s infinite}
-@keyframes mp{0%{box-shadow:0 0 0 0 rgba(26,115,232,.55),0 1px 4px rgba(0,0,0,.5)}70%,100%{box-shadow:0 0 0 14px rgba(26,115,232,0),0 1px 4px rgba(0,0,0,.5)}}
-#info{max-height:none;overflow:visible}#info .det{display:none}#info.open{max-height:52vh;overflow:auto}#info.open .det{display:block}
-.sum{font-size:13px;margin:0 0 4px}.moreb{height:30px;min-width:0;border:0;background:none;color:var(--acc);padding:0;margin-top:2px}
-@media(min-width:760px){#info .det{display:block}.moreb{display:none}}
-.top{z-index:9}.results{z-index:10}
-#where{position:fixed;left:10px;top:calc(max(10px,env(safe-area-inset-top)) + 62px);max-width:calc(100% - 84px);padding:6px 12px;font-size:13px;z-index:4;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#info{max-height:46vh;overflow:auto}#info.min{max-height:none;overflow:visible}#info .det{display:block}#info.min .det{display:none}.moreb{display:inline-block}
-@media(max-width:600px){#where{top:calc(max(10px,env(safe-area-inset-top)) + 116px)}#busy{top:calc(max(10px,env(safe-area-inset-top)) + 156px)}}
-.lb.sea{font-style:italic;font-weight:400;letter-spacing:.14em;text-transform:none;color:#8fc1ff}
+:root{--bg:#090c0b;--panel:#101513;--panel2:#141b17;--line:#222c26;--text:#f0f5f1;--muted:#98a69d;--green:#b8f36a;--green2:#83d83e;--red:#ff817b;--yellow:#f4d477;--radius:20px;--shadow:0 18px 50px #0005}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 70% -20%,#1b3020 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:3px}a{color:inherit;text-decoration:none}.app{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:100vh}.sidebar{border-right:1px solid var(--line);padding:26px 17px;display:flex;flex-direction:column;gap:28px;background:#0b100df2;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:11px;padding:0 10px}.brand-mark{width:38px;height:38px;border-radius:13px;background:var(--green);color:#10180b;display:grid;place-items:center;font-size:22px;font-weight:900;box-shadow:0 0 25px #b8f36a22}.brand-name{font-size:17px;font-weight:750;letter-spacing:-.5px}.brand-name span{color:var(--green)}.nav-label{font-size:10px;letter-spacing:1.7px;color:#6e7e73;font-weight:800;padding:0 12px;margin-bottom:8px}.nav{display:grid;gap:5px}.nav-btn{display:flex;align-items:center;gap:12px;border:1px solid transparent;background:transparent;color:#9eaaa2;padding:12px 13px;border-radius:12px;text-align:left;width:100%;transition:.2s}.nav-btn .ico{width:20px;text-align:center;font-size:17px}.nav-btn:hover,.nav-btn.active{background:#18221a;color:var(--text);border-color:#29392b}.nav-btn.active .ico{color:var(--green)}.sidebar-bottom{margin-top:auto}.upgrade{border:1px solid #34452b;background:linear-gradient(145deg,#1b2918,#101612);padding:16px;border-radius:16px}.upgrade .spark{color:var(--green);font-size:20px}.upgrade h3{margin:7px 0 5px;font-size:14px}.upgrade p{color:var(--muted);font-size:12px;margin:0 0 13px}.tiny{font-size:11px;color:#728078;margin:14px 9px 0}.main{min-width:0;padding:25px clamp(18px,3vw,44px) 100px;max-width:1600px;width:100%;margin:0 auto}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:32px}.crumb{font-size:12px;color:var(--muted)}.crumb strong{color:#e4ece6;font-weight:600}.top-actions{display:flex;align-items:center;gap:10px}.icon-btn{width:40px;height:40px;border:1px solid var(--line);border-radius:13px;background:#101512;color:#c8d4cb;display:grid;place-items:center}.avatar{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;background:#273629;color:var(--green);font-weight:800;border:1px solid #3a4d3b}.page{display:none;animation:rise .28s ease}.page.active{display:block}@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.7px;color:var(--green);font-weight:800}.heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:23px}.heading-row h1{font-size:clamp(27px,3vw,39px);letter-spacing:-1.5px;line-height:1.12;margin:8px 0}.heading-row p{color:var(--muted);margin:0;max-width:620px}.date-pill{border:1px solid var(--line);padding:10px 13px;border-radius:12px;color:#b8c4bc;font-size:12px;white-space:nowrap}.hero{position:relative;overflow:hidden;border:1px solid #2a3b2a;border-radius:24px;background:linear-gradient(115deg,#17231a 0%,#101713 54%,#142019 100%);padding:clamp(23px,3vw,38px);display:grid;grid-template-columns:1.4fr .6fr;gap:25px;align-items:center;box-shadow:var(--shadow)}.hero:after{content:"";position:absolute;width:300px;height:300px;right:4%;top:-180px;border-radius:50%;border:1px solid #b8f36a15;box-shadow:0 0 0 28px #b8f36a05,0 0 0 58px #b8f36a04}.hero h2{font-size:clamp(25px,3vw,37px);line-height:1.15;letter-spacing:-1.3px;margin:10px 0 12px;max-width:560px}.hero h2 em{color:var(--green);font-style:normal}.hero p{color:#a6b4a9;max-width:550px;margin:0 0 22px}.hero-actions{display:flex;flex-wrap:wrap;gap:10px}.btn{border:1px solid transparent;border-radius:12px;padding:11px 16px;font-weight:750;font-size:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,background .15s}.btn:hover{transform:translateY(-1px)}.btn-primary{background:var(--green);color:#14200e}.btn-primary:hover{background:#c8ff80}.btn-secondary{background:#ffffff08;border-color:#35433a;color:#e2eae4}.btn-quiet{background:transparent;border-color:var(--line);color:#c7d2ca}.hero-visual{min-height:160px;display:grid;place-items:center;position:relative;z-index:1}.orbit{width:160px;height:160px;border:1px solid #55704480;border-radius:50%;display:grid;place-items:center;position:relative}.orbit:before,.orbit:after{content:"";position:absolute;border:1px solid #55704450;border-radius:50%;inset:17px}.orbit:after{inset:36px}.orbit-core{width:76px;height:76px;border-radius:24px;background:linear-gradient(145deg,#c8ff85,#83c93e);color:#17240e;display:grid;place-items:center;font-size:32px;box-shadow:0 0 40px #b8f36a30;transform:rotate(-8deg)}.orbit-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:var(--green);box-shadow:0 0 16px #b8f36a;top:17px;right:30px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0 26px}.stat-card,.card{background:linear-gradient(145deg,#111714,#0f1411);border:1px solid var(--line);border-radius:var(--radius)}.stat-card{padding:17px 18px}.stat-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}.stat-icon{width:30px;height:30px;border-radius:10px;background:#1c2a1d;color:var(--green);display:grid;place-items:center}.stat-value{font-size:27px;font-weight:780;letter-spacing:-1px;margin:10px 0 3px}.stat-foot{font-size:11px;color:#839188}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:28px 0 14px}.section-head h2{font-size:17px;letter-spacing:-.4px;margin:0}.text-btn{border:0;background:none;color:var(--green);font-size:12px;font-weight:750;padding:7px}.content-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:16px}.card{padding:20px;min-width:0}.card-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.card-title h3{margin:0;font-size:15px}.muted{color:var(--muted)}.small{font-size:12px}.task-list{display:grid;gap:9px}.task{display:flex;align-items:center;gap:12px;border:1px solid #222c26;background:#0d120f;border-radius:13px;padding:12px}.check{appearance:none;flex:0 0 19px;width:19px;height:19px;border:1.5px solid #536256;border-radius:6px;background:transparent;display:grid;place-items:center;cursor:pointer}.check:checked{background:var(--green);border-color:var(--green)}.check:checked:after{content:"✓";font-size:13px;font-weight:900;color:#15210e}.task-copy{flex:1;min-width:0}.task-copy strong{display:block;font-size:12px;font-weight:650;overflow-wrap:anywhere}.task-copy span{display:block;color:#7f8c83;font-size:11px;margin-top:2px}.task.done .task-copy strong{text-decoration:line-through;color:#718076}.tag{font-size:10px;border-radius:7px;padding:5px 7px;background:#1b2a1b;color:var(--green);white-space:nowrap}.tag.yellow{background:#2b2515;color:var(--yellow)}.tag.blue{background:#17252b;color:#86c7e0}.progress-ring{width:108px;height:108px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--progress,0%),#273129 0);position:relative;margin:7px auto 14px}.progress-ring:before{content:"";position:absolute;inset:8px;border-radius:50%;background:#111713}.ring-text{position:relative;text-align:center}.ring-text strong{display:block;font-size:23px;letter-spacing:-1px}.ring-text span{font-size:10px;color:var(--muted)}.progress-caption{text-align:center;font-size:12px;color:#a5b0a8}.quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.quick{border:1px solid var(--line);background:#111714;border-radius:16px;padding:16px;text-align:left;color:var(--text);transition:.2s;min-width:0}.quick:hover{border-color:#506548;background:#162019;transform:translateY(-2px)}.quick .qico{width:38px;height:38px;border-radius:12px;background:#1d2b1e;color:var(--green);display:grid;place-items:center;font-size:18px;margin-bottom:12px}.quick strong{display:block;font-size:12px;margin-bottom:4px}.quick span{font-size:11px;color:var(--muted);line-height:1.4;display:block}.goal-card{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid #222c26}.goal-card:last-child{border:0;padding-bottom:0}.goal-icon{width:39px;height:39px;border-radius:12px;background:#1b281c;display:grid;place-items:center;color:var(--green);font-size:18px}.goal-info{flex:1;min-width:0}.goal-info strong{display:block;font-size:12px}.goal-info span{font-size:11px;color:var(--muted)}.mini-bar{height:5px;background:#273129;border-radius:99px;margin-top:8px;overflow:hidden}.mini-bar i{display:block;height:100%;width:0;background:var(--green);border-radius:99px}.field{display:grid;gap:7px;margin:14px 0}.field label{font-size:12px;color:#b7c3ba;font-weight:650}.input,.select,.textarea{width:100%;border:1px solid #2b372f;background:#0a0f0c;color:var(--text);border-radius:12px;padding:12px 13px;outline:none}.input::placeholder,.textarea::placeholder{color:#5e6b62}.textarea{min-height:110px;resize:vertical}.input:focus,.select:focus,.textarea:focus{border-color:#8fcf54}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.tool-card{background:#111714;border:1px solid var(--line);border-radius:18px;padding:20px}.tool-card h3{margin:10px 0 5px;font-size:16px}.tool-card p{margin:0;color:var(--muted);font-size:12px}.tool-card .btn{margin-top:15px}.result{background:#17221a;border:1px solid #30422e;border-radius:13px;padding:14px;margin-top:14px;color:#dcebdc;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}.result strong{color:var(--green)}.empty{padding:24px;text-align:center;color:var(--muted);font-size:13px;border:1px dashed #2a372e;border-radius:14px}.notice{padding:12px 14px;border:1px solid #3b3622;background:#201d13;color:#d9ca91;border-radius:12px;font-size:12px;margin:14px 0}.goal-item{border:1px solid var(--line);background:#101612;border-radius:15px;padding:15px;margin:10px 0}.goal-item-top{display:flex;justify-content:space-between;gap:10px}.goal-item h3{margin:0;font-size:14px}.goal-item p{margin:5px 0;color:var(--muted);font-size:12px}.goal-controls{display:flex;align-items:center;gap:8px;margin-top:12px}.goal-controls input[type=range]{flex:1;accent-color:var(--green)}.goal-controls span{font-size:12px;color:var(--green);min-width:36px;text-align:right}.remove{border:1px solid #47302e;background:#211614;color:#ff9b92;border-radius:9px;padding:5px 8px;font-size:11px}.modal-backdrop{position:fixed;inset:0;background:#000a;z-index:50;display:none;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{width:min(540px,100%);max-height:90vh;overflow:auto;border:1px solid #354438;background:#111713;border-radius:22px;padding:24px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.modal-head h2{font-size:20px;margin:0}.xbtn{border:1px solid var(--line);background:#1a211c;color:#dce5de;width:34px;height:34px;border-radius:10px}.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:100;background:#d0ffa0;color:#14200e;padding:11px 16px;border-radius:12px;font-size:12px;font-weight:800;box-shadow:var(--shadow);transition:.25s;max-width:calc(100% - 30px)}.toast.show{opacity:1;transform:translate(-50%,0)}.footer-note{margin-top:28px;color:#647269;font-size:11px;text-align:center}.mobile-nav{display:none}.profile-line{display:flex;gap:12px;align-items:center}.profile-line .avatar{width:45px;height:45px}.profile-line strong{display:block;font-size:13px}.profile-line span{color:var(--muted);font-size:11px}.settings-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 0;border-bottom:1px solid var(--line)}.settings-row:last-child{border-bottom:0}.settings-row strong{display:block;font-size:13px}.settings-row p{margin:3px 0 0;font-size:11px;color:var(--muted)}.kbd{font-size:10px;color:#8d9a91;border:1px solid #344037;border-radius:6px;padding:3px 6px}.hidden{display:none!important}
+@media(max-width:1050px){.app{grid-template-columns:215px minmax(0,1fr)}.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{grid-template-columns:1fr .45fr}.orbit{width:130px;height:130px}.orbit-core{width:64px;height:64px}}
+@media(max-width:760px){.app{display:block}.sidebar{display:none}.main{padding:18px 15px 100px}.topbar{margin-bottom:25px}.top-actions .icon-btn{width:37px;height:37px}.heading-row{align-items:flex-start;flex-direction:column;margin-bottom:18px}.date-pill{display:none}.hero{grid-template-columns:1fr;padding:23px 20px}.hero-visual{display:none}.hero h2{font-size:30px}.stats{gap:9px;margin:13px 0 22px}.stat-card{padding:13px 12px}.stat-top{font-size:10px;gap:5px}.stat-icon{width:26px;height:26px}.stat-value{font-size:23px}.stat-foot{font-size:10px}.content-grid{grid-template-columns:1fr}.quick-grid{gap:9px}.quick{padding:13px}.quick .qico{width:34px;height:34px;margin-bottom:9px}.tool-grid{grid-template-columns:1fr}.card{padding:16px}.mobile-nav{position:fixed;z-index:20;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:8px 5px calc(8px + env(safe-area-inset-bottom));background:#0c110ef5;border-top:1px solid var(--line);backdrop-filter:blur(16px)}.mobile-nav .nav-btn{padding:7px 3px;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;font-size:9px;border-radius:9px}.mobile-nav .nav-btn .ico{font-size:17px}.mobile-nav .nav-btn.active{background:#18231a}.footer-note{margin-bottom:8px}.form-row{grid-template-columns:1fr}.section-head{margin-top:23px}.topbar .crumb{font-size:11px}}
+@media(max-width:380px){.stats{grid-template-columns:1fr}.stat-card{display:flex;align-items:center;gap:12px}.stat-value{margin:0}.stat-top{flex:1}.stat-foot{display:none}.quick-grid{grid-template-columns:1fr 1fr}.hero-actions .btn{flex:1}.topbar{gap:8px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 </style>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
-<script src="https://cdn.jsdelivr.net/npm/tz-lookup@6.1.25/tz.js" async onerror="void 0"></script>
-</head><body>
-<canvas id="gl"></canvas><div id="labels"></div><div id="where" class="glass" hidden></div><div id="pin"></div><div id="me"><div class="acc" style="display:none"></div><div class="dot"></div></div>
-<header class="top">
-  <div class="logo glass"><i>◉</i><b>EarthVision</b><small style="color:var(--dim);font-size:10px;margin-left:2px">v0.6</small></div>
-  <div class="search glass"><input id="q" type="search" placeholder="Search any country, state, city, village…" autocomplete="off" enterkeyhint="search" aria-label="Search places"><div id="res" class="results glass" hidden></div></div>
-  <div class="clock glass"><span><span id="utcd"></span> <span id="utc">--:--:--</span> UTC</span><span id="live" class="live">LIVE</span></div>
-</header>
-<div class="stack">
-  <button id="b-north" hidden title="Reset north" aria-label="Reset north"><span id="np" style="display:inline-block;font-size:18px;color:#ff6b6b">▲</span></button>
-  <button id="b-loc" title="My Location">◎<span class="t">My Location</span></button>
-  <button id="b-in" title="Zoom in" aria-label="Zoom in">＋</button>
-  <button id="b-out" title="Zoom out" aria-label="Zoom out">－</button>
-  <button id="b-reset" title="Reset camera / global view" aria-label="Reset">⌂</button>
-  <button id="b-map" title="Map type" aria-label="Map type">◧<span class="t">Map type</span></button>
-  <button id="b-rot" title="Pause rotation" aria-label="Pause or resume rotation">⏸</button>
-  <button id="b-fs" title="Fullscreen" aria-label="Fullscreen">⛶</button>
-  <button id="b-menu" title="Layers & settings" aria-label="Layers and settings">☰</button>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <a class="brand" href="#" aria-label="LifePilot AI home" data-page="dashboard"><span class="brand-mark">✦</span><span class="brand-name">LifePilot <span>AI</span></span></a>
+  <div><div class="nav-label">WORKSPACE</div><nav class="nav" aria-label="Main navigation">
+    <button class="nav-btn active" data-page="dashboard"><span class="ico">⌂</span>Overview</button>
+    <button class="nav-btn" data-page="goals"><span class="ico">◎</span>My goals</button>
+    <button class="nav-btn" data-page="planner"><span class="ico">▦</span>Daily planner</button>
+    <button class="nav-btn" data-page="tools"><span class="ico">✳</span>Smart tools</button>
+  </nav></div>
+  <div><div class="nav-label">PERSONAL</div><nav class="nav">
+    <button class="nav-btn" data-page="settings"><span class="ico">⚙</span>Settings</button>
+  </nav></div>
+  <div class="sidebar-bottom">
+    <div class="upgrade"><div class="spark">✦</div><h3>Make room for more</h3><p>Explore the LifePilot concept. Premium AI features can be connected when a secure backend is ready.</p><button class="btn btn-primary" style="width:100%" data-page="settings">Explore premium ↗</button></div>
+    <div class="tiny">LifePilot AI · Your next step, made clear.</div>
+  </div>
+</aside>
+<main class="main">
+  <header class="topbar"><div class="crumb">Workspace <span style="color:#506055">/</span> <strong id="crumbPage">Overview</strong></div><div class="top-actions"><button class="icon-btn" id="todayBtn" title="Show today's date" aria-label="Today's date">◷</button><button class="icon-btn" id="helpBtn" title="About LifePilot" aria-label="About LifePilot">?</button><div class="avatar" id="avatar">Y</div></div></header>
+
+  <section class="page active" id="page-dashboard">
+    <div class="heading-row"><div><div class="eyebrow" id="greeting">A LITTLE PROGRESS ADDS UP</div><h1 id="welcomeTitle">Let's make today count.</h1><p>Big goals get easier when you know the next small step.</p></div><div class="date-pill" id="datePill">Today</div></div>
+    <div class="hero"><div><div class="eyebrow">YOUR PERSONAL ACTION SPACE</div><h2>Less overwhelm.<br><em>More forward.</em></h2><p>Turn the things on your mind into clear next steps. Plan your day, build momentum, and keep your goals in sight.</p><div class="hero-actions"><button class="btn btn-primary" data-page="planner">✦ Build my day</button><button class="btn btn-secondary" data-page="goals">＋ Add a goal</button></div></div><div class="hero-visual" aria-hidden="true"><div class="orbit"><span class="orbit-dot"></span><div class="orbit-core">✦</div></div></div></div>
+    <div class="stats">
+      <div class="stat-card"><div class="stat-top"><span>Tasks completed</span><span class="stat-icon">✓</span></div><div class="stat-value" id="statDone">0</div><div class="stat-foot">Today's progress</div></div>
+      <div class="stat-card"><div class="stat-top"><span>Active goals</span><span class="stat-icon">◎</span></div><div class="stat-value" id="statGoals">0</div><div class="stat-foot">Things you're working toward</div></div>
+      <div class="stat-card"><div class="stat-top"><span>Completion</span><span class="stat-icon">↗</span></div><div class="stat-value" id="statPercent">0%</div><div class="stat-foot">Of today's planned tasks</div></div>
+    </div>
+    <div class="section-head"><h2>Your daily focus</h2><button class="text-btn" data-page="planner">Open planner ↗</button></div>
+    <div class="content-grid">
+      <div class="card"><div class="card-title"><h3>Today's action list</h3><span class="small muted" id="taskCount">0 tasks</span></div><div class="task-list" id="dashboardTasks"></div><div style="margin-top:14px"><button class="btn btn-quiet" id="addTaskInline">＋ Add a task</button></div></div>
+      <div class="card"><div class="card-title"><h3>Daily momentum</h3><span class="tag">YOUR PACE</span></div><div class="progress-ring" id="progressRing" style="--progress:0%"><div class="ring-text"><strong id="ringPercent">0%</strong><span>completed</span></div></div><div class="progress-caption" id="progressCaption">Start with one small action.</div><div class="section-head" style="margin:22px 0 8px"><h2 style="font-size:13px">Goals in motion</h2><button class="text-btn" data-page="goals">View all</button></div><div id="miniGoals"></div></div>
+    </div>
+    <div class="section-head"><h2>A little help, right where you need it</h2><span class="small muted">QUICK TOOLS</span></div>
+    <div class="quick-grid">
+      <button class="quick" data-tool="plan"><span class="qico">▦</span><strong>Make a plan</strong><span>Break a goal into doable steps.</span></button>
+      <button class="quick" data-tool="budget"><span class="qico">＄</span><strong>Budget check</strong><span>See where your money can go.</span></button>
+      <button class="quick" data-tool="study"><span class="qico">▤</span><strong>Study planner</strong><span>Turn a deadline into a schedule.</span></button>
+      <button class="quick" data-tool="ideas"><span class="qico">✧</span><strong>Idea starter</strong><span>Find a practical place to begin.</span></button>
+    </div>
+    <div class="footer-note">Your data stays in this browser on this device. This starter version does not send your information to an AI service.</div>
+  </section>
+
+  <section class="page" id="page-goals">
+    <div class="heading-row"><div><div class="eyebrow">YOUR BIG PICTURE</div><h1>Goals, made doable.</h1><p>Keep what matters in view, then move it forward one step at a time.</p></div><button class="btn btn-primary" id="openGoalModal">＋ New goal</button></div>
+    <div class="card"><div class="card-title"><h3>Your goals</h3><span class="small muted" id="goalCountLabel">0 goals</span></div><div id="goalList"></div></div>
+    <div class="notice">Tip: a useful goal has a clear outcome and a next action you can take this week. Progress is saved in this browser.</div>
+  </section>
+
+  <section class="page" id="page-planner">
+    <div class="heading-row"><div><div class="eyebrow">ONE DAY AT A TIME</div><h1>Your daily planner.</h1><p>Choose a few meaningful actions. You can always adjust the plan as life happens.</p></div><button class="btn btn-primary" id="openTaskModal">＋ Add task</button></div>
+    <div class="content-grid"><div class="card"><div class="card-title"><h3>Today's action list</h3><span class="small muted" id="plannerTaskCount">0 tasks</span></div><div class="task-list" id="plannerTasks"></div><div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-quiet" id="resetDay">Reset today's tasks</button><button class="btn btn-quiet" id="clearDone">Clear completed</button></div></div>
+    <div class="card"><div class="card-title"><h3>Plan a better day</h3><span class="tag">QUICK START</span></div><p class="muted small">Choose a focus and how much time you have. LifePilot will create a starter checklist you can edit.</p><div class="field"><label for="focusType">Today's focus</label><select class="select" id="focusType"><option value="balanced">Balanced day</option><option value="study">Study / learning</option><option value="work">Work / business</option><option value="wellbeing">Personal wellbeing</option><option value="money">Money & life admin</option></select></div><div class="field"><label for="timeAvailable">Time available</label><select class="select" id="timeAvailable"><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="120">2 hours</option><option value="240">4 hours</option></select></div><button class="btn btn-primary" id="generateDay">✦ Create starter plan</button><div id="planResult"></div></div></div>
+  </section>
+
+  <section class="page" id="page-tools">
+    <div class="heading-row"><div><div class="eyebrow">SMALL TOOLS, REAL MOMENTUM</div><h1>Smart tools.</h1><p>Practical helpers for planning, budgeting, learning, and getting unstuck.</p></div></div>
+    <div class="tool-grid">
+      <div class="tool-card"><span class="qico">✧</span><h3>Goal-to-plan builder</h3><p>Turn a goal into a short, actionable checklist.</p><div class="field"><label for="goalPrompt">What do you want to achieve?</label><textarea class="textarea" id="goalPrompt" placeholder="e.g. Learn the basics of graphic design in 30 days"></textarea></div><div class="field"><label for="goalDays">Timeframe</label><select class="select" id="goalDays"><option value="7">7 days</option><option value="14">14 days</option><option value="30" selected>30 days</option><option value="90">90 days</option></select></div><button class="btn btn-primary" id="buildGoalPlan">Build my plan ↗</button><div class="result hidden" id="goalPlanResult"></div></div>
+      <div class="tool-card"><span class="qico">＄</span><h3>Budget check</h3><p>Make a simple monthly budget from your own numbers.</p><div class="field"><label for="income">Monthly take-home income</label><input class="input" type="number" min="0" id="income" placeholder="e.g. 2500"></div><div class="form-row"><div class="field"><label for="needs">Needs & bills</label><input class="input" type="number" min="0" id="needs" placeholder="e.g. 1400"></div><div class="field"><label for="wants">Wants & extras</label><input class="input" type="number" min="0" id="wants" placeholder="e.g. 400"></div></div><div class="field"><label for="savings">Savings / debt payments</label><input class="input" type="number" min="0" id="savings" placeholder="e.g. 300"></div><button class="btn btn-primary" id="checkBudget">Check my budget ↗</button><div class="result hidden" id="budgetResult"></div></div>
+      <div class="tool-card"><span class="qico">▤</span><h3>Study sprint planner</h3><p>Turn a deadline into a realistic starting schedule.</p><div class="field"><label for="studySubject">What are you studying?</label><input class="input" id="studySubject" placeholder="e.g. Biology chapters 1–6"></div><div class="form-row"><div class="field"><label for="studyDays">Days until deadline</label><input class="input" type="number" min="1" max="365" id="studyDays" value="14"></div><div class="field"><label for="studyHours">Hours per day</label><input class="input" type="number" min="0.5" max="16" step="0.5" id="studyHours" value="2"></div></div><button class="btn btn-primary" id="makeStudyPlan">Create study plan ↗</button><div class="result hidden" id="studyResult"></div></div>
+      <div class="tool-card"><span class="qico">✦</span><h3>Idea starter</h3><p>Get a simple framework when you're not sure where to begin.</p><div class="field"><label for="stuckOn">What's got you stuck?</label><textarea class="textarea" id="stuckOn" placeholder="Describe the situation in a sentence or two"></textarea></div><button class="btn btn-primary" id="unstickMe">Find my next step ↗</button><div class="result hidden" id="ideaResult"></div></div>
+    </div>
+    <div class="notice">These are local planning helpers, not a connected AI service. They generate structured starter guidance in your browser. For real AI answers, a secure server-side API integration is needed; never place a private API key in this HTML file.</div>
+  </section>
+
+  <section class="page" id="page-settings">
+    <div class="heading-row"><div><div class="eyebrow">MAKE IT YOURS</div><h1>Your space.</h1><p>Manage your local profile and the data saved in this browser.</p></div></div>
+    <div class="content-grid"><div class="card"><div class="card-title"><h3>Profile</h3><span class="tag">ON THIS DEVICE</span></div><div class="profile-line"><div class="avatar" id="settingsAvatar">Y</div><div><strong id="profilePreview">Your LifePilot</strong><span>Personal workspace</span></div></div><div class="field"><label for="displayName">What should we call you?</label><input class="input" id="displayName" maxlength="40" placeholder="Your name"></div><button class="btn btn-primary" id="saveProfile">Save profile</button></div>
+    <div class="card"><div class="card-title"><h3>Data & privacy</h3><span class="tag">LOCAL-FIRST</span></div><div class="settings-row"><div><strong>Export your data</strong><p>Download your goals and tasks as a JSON file.</p></div><button class="btn btn-quiet" id="exportData">Export</button></div><div class="settings-row"><div><strong>Clear local data</strong><p>Remove this browser's saved goals, tasks, and profile.</p></div><button class="remove" id="clearData">Clear data</button></div><div class="notice">Your data is stored in this browser using local storage. It won't automatically sync to another device or browser. Avoid saving sensitive personal information.</div></div></div>
+    <div class="card" style="margin-top:16px"><div class="card-title"><h3>About LifePilot AI</h3><span class="tag">STARTER BUILD</span></div><p class="muted small">LifePilot helps turn goals into manageable next steps. This build includes responsive navigation, local goal/task storage, planning templates, and budgeting calculations. It does not yet include a live AI model, user accounts, cloud sync, payments, or production analytics.</p></div>
+  </section>
+</main>
 </div>
-<div id="menu" class="glass" hidden>
-  <h3>Layers</h3>
-  <label><input type="checkbox" id="l-shade" checked>Day / night</label>
-  <label><input type="checkbox" id="l-lights" checked>City lights</label>
-  <label><input type="checkbox" id="l-clouds" checked>Clouds</label>
-  <label><input type="checkbox" id="l-borders" checked>Country &amp; state borders</label>
-  <label><input type="checkbox" id="l-labels" checked>Place labels</label>
-  <label><input type="checkbox" id="l-tiles" checked>Detailed map (OpenStreetMap tiles)</label>
-  <label><input type="checkbox" id="l-me" checked>My location (blue dot)</label>
-  <label><input type="checkbox" id="l-quakes">Earthquakes (USGS, live feed)</label>
-  <p id="qinfo"></p>
-  <p>Small towns &amp; villages load progressively from OpenStreetMap as you zoom in. Weather: not enabled – it needs a provider/API key. See README.</p>
-  <h3>Settings</h3>
-  <label style="display:block">Rotation speed: <b id="spv">0.40</b>°/s<input type="range" id="speed" min="0" max="3" step="0.05" value="0.4"></label>
-  <label><input type="checkbox" id="hq" checked>High-quality rendering (more GPU)</label>
-  <h3>View</h3>
-  <label style="display:block">Rotate view: <b id="bv">0</b>°<input type="range" id="brg" min="-180" max="180" step="1" value="0"></label>
-  <h3>Connection check</h3>
-  <button id="b-diag" style="width:100%;height:38px">Run check</button><div id="diag" style="font-size:12px;line-height:1.6;margin-top:6px"></div>
-  <h3>Gestures</h3>
-  <p>One finger: rotate · Two fingers: pinch to zoom, twist to rotate (compass ▲ resets north) · Tap a country to fly there.</p>
-  <h3>About the data</h3>
-  <p><b>Calculated live:</b> clock, sun position, day/night boundary, sunrise/sunset.<br><b>Reference imagery (not real-time):</b> surface, night lights (satellite-derived, not current electricity use) and clouds.<br><b>Live feeds:</b> earthquakes (USGS); weather &amp; air quality (Open-Meteo) for a selected place; the Live map type shows yesterday’s NASA satellite photo. Selecting a place sends its approximate coordinates (≈1 km) to Open-Meteo, and tapping the map near the ground sends that point to Nominatim for its name.<br><b>Map &amp; places:</b> OpenStreetMap, Natural Earth.</p>
-</div>
-<section id="info" class="glass" hidden>
-  <button class="x" id="b-x" aria-label="Close">✕</button>
-  <h2 id="i-name"></h2><div class="sub" id="i-sub"></div>
-  <div id="i-sum" class="sum"></div><button id="b-more" class="moreb">Hide details ▴</button>
-  <div class="det"><dl><dt>Lat / Lon</dt><dd id="i-ll"></dd><dt>Local time</dt><dd id="i-t"></dd><dt>Sun</dt><dd id="i-sun"></dd><dt>Sunrise / set</dt><dd id="i-rs"></dd><dt>Day length</dt><dd id="i-dl"></dd><dt>Weather</dt><dd id="i-w"></dd><dt>Air quality</dt><dd id="i-aq"></dd><dt>UV index</dt><dd id="i-uv"></dd><dt>Time vs you</dt><dd id="i-diff"></dd><dt>From you</dt><dd id="i-dist"></dd></dl>
-  <div id="i-src" class="srcl"></div>
-  <div style="display:flex;gap:8px;margin-top:10px"><button id="b-share" style="flex:1;height:36px">Share</button><button id="b-global" style="flex:1;height:36px">Global view</button></div></div>
-</section>
-<div class="timebar glass"><span id="t-lab">LIVE</span><input id="t" type="range" min="-1440" max="1440" step="5" value="0" aria-label="Time offset"><button id="b-live">LIVE</button></div>
-<div id="mt" class="glass" hidden><div class="mth"><b>Map type</b><button id="mt-x" aria-label="Close">✕</button></div><div class="mtr">
-  <button class="mt" data-m="default"><i style="background:linear-gradient(135deg,#a8dcf5 0 34%,#f6f3ec 34% 68%,#93d6a8 68%)"></i>Default</button>
-  <button class="mt" data-m="satellite"><i style="background:linear-gradient(135deg,#2b4328,#5d6b40 38%,#3f3f3f 58%,#1d2c1b)"></i>Satellite</button>
-  <button class="mt" data-m="terrain"><i style="background:linear-gradient(135deg,#d2cba8,#9db78b 48%,#dcd3b0 75%,#b7c9a0)"></i>Terrain</button>
-  <button class="mt" data-m="live" title="Yesterday's NASA satellite photo"><i style="background:radial-gradient(circle at 30% 30%,#fff 0 16%,transparent 17%),radial-gradient(circle at 72% 62%,#e8f2ff 0 20%,transparent 21%),linear-gradient(135deg,#2c6fb5,#1b3f78)"></i>Live</button></div></div>
-<div id="busy" class="glass" hidden>Loading map…</div><div id="attr"></div><div id="toast" class="glass"></div>
-<div id="loader"><div class="o"></div><div style="letter-spacing:.3em;font-weight:600">EARTHVISION</div><div style="color:var(--dim);font-size:12px">Loading planet…</div></div>
-<div id="nogl"><div><h2>WebGL is unavailable</h2><p style="color:var(--dim)">EarthVision needs WebGL. Enable hardware acceleration or try a recent Chrome, Edge, Firefox or Safari.</p></div></div>
 
-<script type="module">
-import * as THREE from 'three';
-// ---------- Configuration (override with window.EARTHVISION_CONFIG before this script) ----------
-const CFG=Object.assign({
-  cartoKey:'cb1_4p60_1_6ad69cb6cea33bc35d8154ab',   // CARTO Basemaps API key (a public browser key – restrict it to your domain in the CARTO dashboard)
-  texBase:'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/',
-  neBase:'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@v5.1.2/geojson/',
-  // Map types (all Web-Mercator XYZ). Swap URLs/keys here to use your own provider.
-  layers:{
-    default:{url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors',max:19},
-    satellite:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',attr:'Imagery © Esri, Maxar, Earthstar Geographics, GIS User Community',max:18,
-      overlay:{url:'https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png?key={key}',attr:'Labels © CARTO, © OpenStreetMap contributors'}},
-    terrain:{url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',attr:'Tiles © Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors',max:19},
-    live:{url:'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/{date}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg',attr:'Daily satellite photo: NASA GIBS, MODIS Terra, {date} UTC',max:9}},
-  tileConcurrency:6, tileCacheMax:matchMedia('(pointer:coarse)').matches?220:320,
-  overpass:['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter','https://overpass.kumi.systems/api/interpreter'], nominatim:'https://nominatim.openstreetmap.org/search'
-},window.EARTHVISION_CONFIG||{});
-const _dc=new Map(),$=s=>{let e=_dc.get(s);if(!e){e=document.querySelector(s);if(e)_dc.set(s,e)}return e}, R=Math.PI/180, TAU=Math.PI*2, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
-const wrapPi=a=>{a%=TAU;if(a>Math.PI)a-=TAU;if(a<-Math.PI)a+=TAU;return a};
-const L=k=>$('#l-'+k).checked, mobile=matchMedia('(pointer:coarse)').matches;
-const vec=(lat,lon,r=1)=>new THREE.Vector3(r*Math.cos(lat)*Math.cos(lon),r*Math.sin(lat),-r*Math.cos(lat)*Math.sin(lon));
-function toast(m,ms=3500){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',ms)}
-function mulberry32(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  <button class="nav-btn active" data-page="dashboard"><span class="ico">⌂</span>Home</button>
+  <button class="nav-btn" data-page="goals"><span class="ico">◎</span>Goals</button>
+  <button class="nav-btn" data-page="planner"><span class="ico">▦</span>Planner</button>
+  <button class="nav-btn" data-page="tools"><span class="ico">✳</span>Tools</button>
+  <button class="nav-btn" data-page="settings"><span class="ico">⚙</span>Settings</button>
+</nav>
 
-let renderer,ctxLost=false;
-try{renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true,powerPreference:'high-performance'})}
-catch(e){$('#nogl').style.display='flex';$('#loader').remove();throw e}
-const cv=$('#gl');
-cv.addEventListener('webglcontextlost',e=>{e.preventDefault();ctxLost=true;toast('Graphics context lost – restoring…',8000)});
-cv.addEventListener('webglcontextrestored',()=>location.reload());
-const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(40,1,.1,300);
-const mgr=new THREE.LoadingManager(),tl=new THREE.TextureLoader(mgr);tl.setCrossOrigin('anonymous');
-const aniso=Math.min(16,renderer.capabilities.getMaxAnisotropy());
-const tex=(f,srgb=true)=>{const t=tl.load(CFG.texBase+f);if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=aniso;return t};
-let loaded=false;const hideLoader=()=>{if(loaded)return;loaded=true;const l=$('#loader');if(!l)return;l.style.opacity=0;setTimeout(()=>l.remove(),900)};
-mgr.onLoad=hideLoader;mgr.onError=()=>toast('Could not load a texture – check your connection.');setTimeout(hideLoader,15000);
-
-// ---------- Astronomy (live calculations) ----------
-function sunAt(ms){
-  const d=ms/864e5-10957.5,Ls=((280.460+0.9856474*d)%360+360)%360,g=(357.528+0.9856003*d)*R;
-  const lam=(Ls+1.915*Math.sin(g)+0.02*Math.sin(2*g))*R,eps=(23.439-4e-7*d)*R;
-  const dec=Math.asin(Math.sin(eps)*Math.sin(lam)),ra=Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam));
-  const gmst=((280.46061837+360.98564736629*d)%360+360)%360;
-  return{dec,sub:wrapPi(ra-gmst*R),eot:4*wrapPi(Ls*R-ra)/R,v:vec(dec,wrapPi(ra-gmst*R))};
+<div class="modal-backdrop" id="goalModal" role="dialog" aria-modal="true" aria-labelledby="goalModalTitle"><div class="modal"><div class="modal-head"><h2 id="goalModalTitle">Add a goal</h2><button class="xbtn" data-close="goalModal" aria-label="Close">✕</button></div><form id="goalForm"><div class="field"><label for="newGoalTitle">Goal name</label><input class="input" id="newGoalTitle" maxlength="100" required placeholder="e.g. Build a consistent reading habit"></div><div class="field"><label for="newGoalWhy">Why does it matter? (optional)</label><input class="input" id="newGoalWhy" maxlength="160" placeholder="What will this help you do?"></div><div class="form-row"><div class="field"><label for="newGoalCategory">Category</label><select class="select" id="newGoalCategory"><option>Personal</option><option>Study</option><option>Work</option><option>Money</option><option>Wellbeing</option></select></div><div class="field"><label for="newGoalTarget">Target date (optional)</label><input class="input" id="newGoalTarget" type="date"></div></div><button class="btn btn-primary" type="submit" style="width:100%">Create goal</button></form></div></div>
+<div class="modal-backdrop" id="taskModal" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle"><div class="modal"><div class="modal-head"><h2 id="taskModalTitle">Add a task</h2><button class="xbtn" data-close="taskModal" aria-label="Close">✕</button></div><form id="taskForm"><div class="field"><label for="newTaskTitle">What needs doing?</label><input class="input" id="newTaskTitle" maxlength="120" required placeholder="e.g. Spend 20 minutes on my course"></div><div class="form-row"><div class="field"><label for="newTaskTime">Time estimate</label><select class="select" id="newTaskTime"><option>5 min</option><option selected>15 min</option><option>30 min</option><option>1 hour</option><option>2 hours</option></select></div><div class="field"><label for="newTaskPriority">Priority</label><select class="select" id="newTaskPriority"><option value="Normal">Normal</option><option value="Important">Important</option><option value="Top priority">Top priority</option></select></div></div><button class="btn btn-primary" type="submit" style="width:100%">Add to today's list</button></form></div></div>
+<div class="modal-backdrop" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle"><div class="modal"><div class="modal-head"><h2 id="aboutTitle">A calmer way forward.</h2><button class="xbtn" data-close="aboutModal" aria-label="Close">✕</button></div><p class="muted">LifePilot AI turns goals into practical next steps, with a simple daily planner and tools to help you get unstuck.</p><div class="notice">This is a working front-end prototype. The planning helpers use local templates, not a live AI model. No account or payment information is collected.</div><button class="btn btn-primary" data-close="aboutModal">Got it</button></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+'use strict';
+const KEY='lifepilot_v1';
+const todayKey=()=>new Date().toISOString().slice(0,10);
+const defaultState=()=>({profile:'',goals:[],tasks:[],taskDate:todayKey()});
+let state;
+try { state=JSON.parse(localStorage.getItem(KEY)||'null')||defaultState(); } catch(e) { state=defaultState(); }
+if(!Array.isArray(state.goals)) state.goals=[];
+if(!Array.isArray(state.tasks)) state.tasks=[];
+if(state.taskDate!==todayKey()){state.tasks=[];state.taskDate=todayKey();save();}
+const $=id=>document.getElementById(id);
+const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){toast('Browser storage is full. Export your data and remove old items.');}}
+let toastTimer;
+function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2400);}
+function fmtDate(d=new Date()){return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
+function showPage(name){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));document.querySelectorAll('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));$('crumbPage').textContent=({dashboard:'Overview',goals:'My goals',planner:'Daily planner',tools:'Smart tools',settings:'Settings'})[name]||'Overview';window.scrollTo({top:0,behavior:'smooth'});if(name==='dashboard'||name==='goals'||name==='planner')render();}
+document.querySelectorAll('[data-page]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).classList.remove('open')));
+document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-backdrop.open').forEach(m=>m.classList.remove('open'));});
+$('helpBtn').addEventListener('click',()=>$('aboutModal').classList.add('open'));
+$('todayBtn').addEventListener('click',()=>toast(fmtDate()));
+document.querySelectorAll('[data-tool]').forEach(b=>b.addEventListener('click',()=>{showPage('tools');const map={plan:'goalPrompt',budget:'income',study:'studySubject',ideas:'stuckOn'};setTimeout(()=>$(map[b.dataset.tool])?.focus(),50)}));
+function addTask(title,time='15 min',priority='Normal',done=false){state.tasks.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),title,time,priority,done});save();render();}
+function taskHTML(t){return `<div class="task ${t.done?'done':''}"><input class="check" type="checkbox" data-task-check="${escapeHTML(t.id)}" ${t.done?'checked':''} aria-label="Mark ${escapeHTML(t.title)} complete"><div class="task-copy"><strong>${escapeHTML(t.title)}</strong><span>${escapeHTML(t.time||'15 min')} · ${escapeHTML(t.priority||'Normal')}</span></div><span class="tag ${t.priority==='Top priority'?'yellow':t.priority==='Important'?'blue':''}">${escapeHTML(t.priority||'Normal')}</span></div>`;}
+function bindTaskChecks(){document.querySelectorAll('[data-task-check]').forEach(c=>c.addEventListener('change',()=>{const t=state.tasks.find(t=>t.id===c.dataset.taskCheck);if(t){t.done=c.checked;save();render();}}));}
+function renderTasks(){const list=state.tasks;const html=list.length?list.map(taskHTML).join(''):'<div class="empty">Nothing on your list yet. Add one small task to get started.</div>';['dashboardTasks','plannerTasks'].forEach(id=>$(id).innerHTML=html);$('taskCount').textContent=`${list.length} task${list.length===1?'':'s'}`;$('plannerTaskCount').textContent=`${list.length} task${list.length===1?'':'s'}`;$('statDone').textContent=list.filter(t=>t.done).length;$('statPercent').textContent=(list.length?Math.round(list.filter(t=>t.done).length/list.length*100):0)+'%';$('ringPercent').textContent=(list.length?Math.round(list.filter(t=>t.done).length/list.length*100):0)+'%';$('progressRing').style.setProperty('--progress',(list.length?Math.round(list.filter(t=>t.done).length/list.length*100):0)+'%');$('progressCaption').textContent=!list.length?'Start with one small action.':list.every(t=>t.done)?'Everything on your list is complete. Nice work.':`${list.filter(t=>t.done).length} of ${list.length} tasks complete. Keep going at your pace.`;bindTaskChecks();}
+function renderGoals(){const goals=state.goals;$('statGoals').textContent=goals.filter(g=>g.progress<100).length;$('goalCountLabel').textContent=`${goals.length} goal${goals.length===1?'':'s'}`;$('miniGoals').innerHTML=goals.length?goals.slice(0,3).map(g=>`<div class="goal-card"><div class="goal-icon">${g.category==='Study'?'▤':g.category==='Work'?'↗':g.category==='Money'?'＄':g.category==='Wellbeing'?'♡':'◎'}</div><div class="goal-info"><strong>${escapeHTML(g.title)}</strong><span>${g.progress}% complete</span><div class="mini-bar"><i style="width:${g.progress}%"></i></div></div></div>`).join(''):'<div class="empty">Your goals will show up here.</div>';
+$('goalList').innerHTML=goals.length?goals.map(g=>`<div class="goal-item"><div class="goal-item-top"><div><h3>${escapeHTML(g.title)}</h3><p>${escapeHTML(g.why||g.category)}${g.target?' · Target '+escapeHTML(g.target):''}</p></div><button class="remove" data-delete-goal="${escapeHTML(g.id)}">Remove</button></div><div class="goal-controls"><span class="small muted">Progress</span><input type="range" min="0" max="100" step="5" value="${g.progress}" data-goal-progress="${escapeHTML(g.id)}" aria-label="Progress for ${escapeHTML(g.title)}"><span>${g.progress}%</span></div></div>`).join(''):'<div class="empty">No goals yet. Start with one thing you want to make happen.</div>';
+document.querySelectorAll('[data-delete-goal]').forEach(b=>b.addEventListener('click',()=>{state.goals=state.goals.filter(g=>g.id!==b.dataset.deleteGoal);save();render();toast('Goal removed.');}));
+document.querySelectorAll('[data-goal-progress]').forEach(r=>r.addEventListener('input',()=>{const g=state.goals.find(g=>g.id===r.dataset.goalProgress);if(g){g.progress=Number(r.value);r.nextElementSibling.textContent=g.progress+'%';r.closest('.goal-item').querySelector('p').textContent=(g.why||g.category)+(g.target?' · Target '+g.target:'');r.closest('.goal-item').querySelector('.mini-bar i')?.style.setProperty('width',g.progress+'%');save();renderGoals();}}));
 }
-function sunTimes(ms,lat,lon){
-  const s=sunAt(ms),la=lat*R,c=(Math.sin(-.833*R)-Math.sin(la)*Math.sin(s.dec))/(Math.cos(la)*Math.cos(s.dec));
-  if(c>1)return'Polar night';if(c<-1)return'Polar day';
-  const H=Math.acos(c)/R/15,noon=12-lon/15-s.eot/60,d0=Math.floor(ms/864e5)*864e5;return[d0+(noon-H)*36e5,d0+(noon+H)*36e5];
-}
-const tzOf=(lat,lon)=>{try{return typeof tzlookup==='function'?tzlookup(lat,lon):null}catch{return null}};
-function fmt(ms,lat,lon,o,tzo){const tz=tzo||tzOf(lat,lon);try{return tz?new Intl.DateTimeFormat('en-GB',{...o,timeZone:tz}).format(ms):new Intl.DateTimeFormat('en-GB',{...o,timeZone:'UTC'}).format(ms+lon*240000)}catch{return'–'}}
-const FULL={weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',second:'2-digit'},HM={hour:'2-digit',minute:'2-digit'};
-
-// ---------- Deep-space sky: deterministic stars + procedural nebula (follows camera = at infinity) ----------
-const sky=new THREE.Group();scene.add(sky);
-{
-  const GN='normalize(vec3(.35,.8,.45))';
-  const neb=new THREE.Mesh(new THREE.SphereGeometry(120,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,depthTest:false,
-    defines:{OCT:mobile?3:4},
-    vertexShader:`varying vec3 vD;void main(){vD=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-    fragmentShader:`varying vec3 vD;
-    float h(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
-    float n(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z);}
-    float fbm(vec3 p){float a=.5,s=0.;for(int i=0;i<OCT;i++){s+=a*n(p);p=p*2.03+7.1;a*=.5;}return s;}
-    void main(){vec3 d=normalize(vD);float band=exp(-pow(dot(d,${GN})*3.2,2.));
-      float c1=fbm(d*2.2+3.),c2=fbm(d*5.+11.);
-      float nb=smoothstep(.5,.92,c1)*.45+band*smoothstep(.38,.88,c2)*.7;
-      vec3 col=vec3(.003,.006,.016)+vec3(.006,.011,.028)*band+nb*mix(vec3(.04,.075,.2),vec3(.15,.06,.19),c2)*.5+band*.02;
-      gl_FragColor=vec4(col,1.);}`}));
-  neb.renderOrder=-20;sky.add(neb);
-  const rnd=mulberry32(20260617),N=mobile?3500:7500,pos=new Float32Array(N*3),col=new Float32Array(N*3),siz=new Float32Array(N),gn=new THREE.Vector3(.35,.8,.45).normalize(),v=new THREE.Vector3();
-  for(let i=0;i<N;i++){
-    v.set(rnd()*2-1,rnd()*2-1,rnd()*2-1);while(v.lengthSq()>1||v.lengthSq()<.01)v.set(rnd()*2-1,rnd()*2-1,rnd()*2-1);v.normalize();
-    if(rnd()<.45){v.addScaledVector(gn,-v.dot(gn)+(rnd()-.5)*.35).normalize()}      // denser along a galactic band
-    pos.set([v.x*100,v.y*100,v.z*100],i*3);
-    const b=rnd(),tp=rnd(),br=.3+.7*b*b,c=tp<.22?[.7,.82,1]:tp<.8?[.96,.97,1]:[1,.86,.68];
-    col.set([c[0]*br,c[1]*br,c[2]*br],i*3);siz[i]=.9+Math.pow(b,12)*5.5+b*.8;
-  }
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('aCol',new THREE.BufferAttribute(col,3));g.setAttribute('aSize',new THREE.BufferAttribute(siz,1));
-  const sm=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{pr:{value:renderer.getPixelRatio()}},
-    vertexShader:`attribute vec3 aCol;attribute float aSize;uniform float pr;varying vec3 vC;void main(){vC=aCol;gl_PointSize=aSize*pr;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-    fragmentShader:`varying vec3 vC;void main(){float d=length(gl_PointCoord-.5)*2.;float k=clamp(1.-d,0.,1.);float a=k*k*k+.25*k*k*k*k*k*k;gl_FragColor=vec4(vC*a,a);}`});
-  const st=new THREE.Points(g,sm);st.frustumCulled=false;st.renderOrder=-10;sky.add(st);sky.userData.sm=sm;
-}
-
-// ---------- Earth ----------
-const earthMat=new THREE.ShaderMaterial({
-  uniforms:{day:{value:tex('earth_atmos_2048.jpg')},night:{value:tex('earth_lights_2048.png')},spec:{value:tex('earth_specular_2048.jpg',false)},sun:{value:new THREE.Vector3(1,0,0)},cam:{value:new THREE.Vector3()},lights:{value:1},shade:{value:1}},
-  vertexShader:`varying vec3 vN,vP;varying vec2 vUv;void main(){vUv=uv;vN=normalize(position);vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader:`uniform sampler2D day,night,spec;uniform vec3 sun,cam;uniform float lights,shade;varying vec3 vN,vP;varying vec2 vUv;
-  void main(){float ndl=dot(vN,sun);if(shade<.5)ndl=1.;float dm=smoothstep(-.12,.18,ndl);
-    vec3 d=texture2D(day,vUv).rgb,V=normalize(cam-vP),H=normalize(sun+V);
-    vec3 c=d*(.03+dm*(.2+.77*clamp(ndl,0.,1.)));c+=vec3(1.,.45,.2)*exp(-pow(ndl*6.,2.))*.10*d;
-    c+=vec3(.85,.93,1.)*pow(max(dot(vN,H),0.),70.)*texture2D(spec,vUv).r*dm*.55;
-    c+=vec3(.25,.5,1.)*pow(1.-max(dot(vN,V),0.),3.)*dm*.35;gl_FragColor=vec4(c,1.);
-    #include <colorspace_fragment>
-  }`});
-scene.add(new THREE.Mesh(new THREE.SphereGeometry(1,256,128),earthMat));
-const atmoMat=new THREE.ShaderMaterial({transparent:true,side:THREE.BackSide,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{sun:earthMat.uniforms.sun,fade:{value:1}},
-  vertexShader:`varying vec3 vN,vW;void main(){vN=normalize(normalMatrix*normal);vW=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader:`uniform vec3 sun;uniform float fade;varying vec3 vN,vW;void main(){float i=pow(max(.64-dot(vN,vec3(0,0,1)),0.),3.2)*2.2;float s=smoothstep(-.35,.4,dot(vW,sun));gl_FragColor=vec4(vec3(.3,.58,1.)*i*(.2+s)*fade,1.);}`});
-const atmo=new THREE.Mesh(new THREE.SphereGeometry(1.07,96,64),atmoMat);scene.add(atmo);
-const cloudMat=new THREE.MeshLambertMaterial({map:tex('earth_clouds_1024.png'),transparent:true,depthWrite:false,opacity:.85});
-const clouds=new THREE.Mesh(new THREE.SphereGeometry(1.007,96,64),cloudMat);clouds.renderOrder=50;atmo.renderOrder=60;scene.add(clouds);
-const lightsMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{night:earthMat.uniforms.night,sun:earthMat.uniforms.sun,lights:earthMat.uniforms.lights,shade:earthMat.uniforms.shade,fade:{value:1}},
-  vertexShader:`varying vec3 vN;varying vec2 vUv;void main(){vUv=uv;vN=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader:`uniform sampler2D night;uniform vec3 sun;uniform float lights,shade,fade;varying vec3 vN;varying vec2 vUv;
-  void main(){float nd=dot(normalize(vN),sun);if(shade<.5)nd=1.;float dm=smoothstep(-.12,.18,nd);vec3 n=texture2D(night,vUv).rgb;gl_FragColor=vec4(n*vec3(1.,.72,.34)*1.9*(1.-dm)*lights*fade,1.);
-  #include <colorspace_fragment>
-  }`});
-const lightsMesh=new THREE.Mesh(new THREE.SphereGeometry(1.0006,256,128),lightsMat);lightsMesh.renderOrder=40;scene.add(lightsMesh);
-const sunLight=new THREE.DirectionalLight(0xffffff,3);scene.add(sunLight,new THREE.AmbientLight(0x8fa6d6,.7));
-
-// ---------- Borders (Natural Earth, lazy) ----------
-const borders=new THREE.Group();scene.add(borders);
-function geoLines(gj,r,color,op){
-  const pos=[];const ring=c=>{for(let i=1;i<c.length;i++){const a=c[i-1],b=c[i],dl=b[0]-a[0];if(dl>180||dl<-180)continue;const n=Math.max(1,Math.ceil(Math.hypot(dl,b[1]-a[1])/1.5));
-      let pl=a[1]*R,po=a[0]*R,cp=r*Math.cos(pl),x0=cp*Math.cos(po),y0=r*Math.sin(pl),z0=-cp*Math.sin(po);
-      for(let k=1;k<=n;k++){const ql=(a[1]+(b[1]-a[1])*k/n)*R,qo=(a[0]+dl*k/n)*R,cq=r*Math.cos(ql),x1=cq*Math.cos(qo),y1=r*Math.sin(ql),z1=-cq*Math.sin(qo);pos.push(x0,y0,z0,x1,y1,z1);x0=x1;y0=y1;z0=z1}}};
-  for(const f of gj.features){const g=f.geometry;if(!g)continue;
-    if(g.type==='Polygon')g.coordinates.forEach(ring);else if(g.type==='MultiPolygon')g.coordinates.forEach(p=>p.forEach(ring));
-    else if(g.type==='LineString')ring(g.coordinates);else if(g.type==='MultiLineString')g.coordinates.forEach(ring)}
-  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-  const ls=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color,transparent:true,opacity:op,depthWrite:false}));ls.renderOrder=45;return ls;
-}
-let countries=[],cpolys=[],regionLabels=[],seaLabels=[];
-function buildCountries(j){
-  for(const f of j.features){const g=f.geometry,pr=f.properties||{},name=pr.NAME||pr.name||pr.ADMIN;if(!g||!name)continue;
-    let best=null,ba=0;for(const pg of(g.type==='Polygon'?[g.coordinates]:g.coordinates)){const r=pg[0];let a=0,cx=0,cy=0;
-      for(let i=0;i<r.length-1;i++){const c=r[i][0]*r[i+1][1]-r[i+1][0]*r[i][1];a+=c;cx+=(r[i][0]+r[i+1][0])*c;cy+=(r[i][1]+r[i+1][1])*c}
-      a/=2;if(a&&Math.abs(a)>ba){ba=Math.abs(a);best={lo:cx/(6*a),la:cy/(6*a)}}}
-    if(best)countries.push({n:name,country:true,area:ba,dist:1+clamp(Math.sqrt(ba)*R*2.4,.12,2.4),lat:best.la,lon:best.lo,p:vec(best.la*R,best.lo*R),pop:0,sub:'Country'})}
-  countries.sort((a,b)=>b.area-a.area);if(places.length)buildIndex();
-}
-function buildPolys(j){
-  for(const f of j.features){const g=f.geometry,pr=f.properties||{},name=pr.NAME||pr.name||pr.ADMIN;if(!g)continue;const c=countries.find(x=>x.n===name);if(!c)continue;
-    for(const pg of(g.type==='Polygon'?[g.coordinates]:g.coordinates)){const r=pg[0];let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(const q of r){if(q[0]<x0)x0=q[0];if(q[0]>x1)x1=q[0];if(q[1]<y0)y0=q[1];if(q[1]>y1)y1=q[1]}cpolys.push({r,c,x0,x1,y0,y1})}}
-}
-function buildStates(j){
-  const out=[];
-  for(const f of j.features){const g=f.geometry,pr=f.properties||{},name=pr.name||pr.NAME;if(!g||!name)continue;
-    let best=null,ba=0;for(const pg of(g.type==='Polygon'?[g.coordinates]:g.coordinates)){const r=pg[0];let a=0,cx=0,cy=0;
-      for(let i=0;i<r.length-1;i++){const c=r[i][0]*r[i+1][1]-r[i+1][0]*r[i][1];a+=c;cx+=(r[i][0]+r[i+1][0])*c;cy+=(r[i][1]+r[i+1][1])*c}
-      a/=2;if(a&&Math.abs(a)>ba){ba=Math.abs(a);best={lo:cx/(6*a),la:cy/(6*a)}}}
-    if(best)out.push({n:name,region:true,area:ba,dist:1+clamp(Math.sqrt(ba)*R*2.4,.04,1.2),lat:best.la,lon:best.lo,p:vec(best.la*R,best.lo*R),pop:0,sub:(pr.admin||pr.ADMIN||'')+' · state / region'})}
-  out.sort((a,b)=>b.area-a.area);regionLabels=out;if(places.length)buildIndex();
-}
-function buildSeas(j){
-  const out=[];
-  for(const f of j.features){const g=f.geometry,pr=f.properties||{},name=pr.name||pr.name_en||pr.NAME;if(!g||!name)continue;
-    let best=null,ba=0;for(const pg of(g.type==='Polygon'?[g.coordinates]:g.coordinates)){const r=pg[0];let a=0,cx=0,cy=0;
-      for(let i=0;i<r.length-1;i++){const c=r[i][0]*r[i+1][1]-r[i+1][0]*r[i][1];a+=c;cx+=(r[i][0]+r[i+1][0])*c;cy+=(r[i][1]+r[i+1][1])*c}
-      a/=2;if(a&&Math.abs(a)>ba){ba=Math.abs(a);best={lo:cx/(6*a),la:cy/(6*a)}}}
-    if(best)out.push({n:name,sea:true,area:ba,dist:1+clamp(Math.sqrt(ba)*R*2.2,.15,3),lat:best.la,lon:best.lo,p:vec(best.la*R,best.lo*R),pop:0,sub:(pr.featurecla||'sea / ocean')})}
-  out.sort((a,b)=>b.area-a.area);seaLabels=out.slice(0,160);if(places.length)buildIndex();
-}
-fetch(CFG.neBase+'ne_50m_geography_marine_polys.geojson').then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>fetch(CFG.neBase+'ne_110m_geography_marine_polys.geojson').then(r=>r.json())).then(buildSeas).catch(()=>{});
-fetch(CFG.neBase+'ne_110m_admin_0_countries.geojson').then(r=>r.json()).then(j=>{borders.add(geoLines(j,1.0004,0x7fb6ff,.55));buildCountries(j);buildPolys(j)}).catch(()=>toast('Country borders unavailable.'));
-let states=null,statesBusy=false;
-const GEO_WK=`const R=Math.PI/180;
-self.onmessage=async e=>{try{
-  const r=e.data.r,j=await(await fetch(e.data.url)).json(),pos=[],labels=[];
-  const ring=c=>{for(let i=1;i<c.length;i++){const a=c[i-1],b=c[i],dl=b[0]-a[0];if(dl>180||dl<-180)continue;const n=Math.max(1,Math.ceil(Math.hypot(dl,b[1]-a[1])/2));
-    let pl=a[1]*R,po=a[0]*R,cp=r*Math.cos(pl),x0=cp*Math.cos(po),y0=r*Math.sin(pl),z0=-cp*Math.sin(po);
-    for(let k=1;k<=n;k++){const ql=(a[1]+(b[1]-a[1])*k/n)*R,qo=(a[0]+dl*k/n)*R,cq=r*Math.cos(ql),x1=cq*Math.cos(qo),y1=r*Math.sin(ql),z1=-cq*Math.sin(qo);pos.push(x0,y0,z0,x1,y1,z1);x0=x1;y0=y1;z0=z1}}};
-  for(const f of j.features){const g=f.geometry,pr=f.properties||{};if(!g)continue;const polys=g.type==='Polygon'?[g.coordinates]:g.type==='MultiPolygon'?g.coordinates:[];
-    let best=null,ba=0;for(const pg of polys){for(const rg of pg)ring(rg);const q=pg[0];let a=0,cx=0,cy=0;
-      for(let i=0;i<q.length-1;i++){const c=q[i][0]*q[i+1][1]-q[i+1][0]*q[i][1];a+=c;cx+=(q[i][0]+q[i+1][0])*c;cy+=(q[i][1]+q[i+1][1])*c}
-      a/=2;if(a&&Math.abs(a)>ba){ba=Math.abs(a);best={lo:cx/(6*a),la:cy/(6*a)}}}
-    const name=pr.name||pr.NAME;if(best&&name)labels.push({n:name,admin:pr.admin||pr.ADMIN||'',area:ba,lat:best.la,lon:best.lo})}
-  const arr=Float32Array.from(pos);postMessage({pos:arr,labels},[arr.buffer]);
-}catch(err){postMessage({error:String(err&&err.message||err)})}}`;
-function loadStates(){
-  if(states||statesBusy)return;statesBusy=true;toast('Loading state/province boundaries…');
-  const url=CFG.neBase+'ne_50m_admin_1_states_provinces.geojson';
-  const done=(pos,labels)=>{const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-    states=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0x5f8fd0,transparent:true,opacity:.4,depthWrite:false}));states.renderOrder=45;borders.add(states);
-    labels.sort((a,b)=>b.area-a.area);regionLabels=labels.map(l=>({n:l.n,region:true,area:l.area,dist:1+clamp(Math.sqrt(l.area)*R*2.4,.04,1.2),lat:l.lat,lon:l.lon,p:vec(l.lat*R,l.lon*R),pop:0,sub:(l.admin||'')+' · state / region'}));if(places.length)buildIndex()};
-  const fallback=()=>fetch(url).then(r=>r.json()).then(j=>{states=geoLines(j,1.0004,0x5f8fd0,.4);borders.add(states);buildStates(j)}).catch(()=>{statesBusy=false;toast('State boundaries unavailable.')});
-  try{const w=new Worker(URL.createObjectURL(new Blob([GEO_WK],{type:'text/javascript'})));
-    w.onmessage=ev=>{w.terminate();if(ev.data.error)fallback();else done(ev.data.pos,ev.data.labels)};w.onerror=()=>{w.terminate();fallback()};w.postMessage({url,r:1.0004})}catch{fallback()}
-}
-
-// ---------- Places: Natural Earth base list + progressive OpenStreetMap (Overpass) towns/villages ----------
-let places=[];
-fetch(CFG.neBase+'ne_10m_populated_places_simple.geojson').then(r=>r.json()).then(j=>{
-  places=j.features.map(f=>{const p=f.properties,[lo,la]=f.geometry.coordinates,cap=/Admin-0 capital/i.test(p.featurecla||'');
-    return{n:p.name,adm0:p.adm0name,adm1:p.adm1name,sub:(p.adm1name&&p.adm1name!==p.name?p.adm1name+', ':'')+p.adm0name+(p.pop_max?' · pop. '+p.pop_max.toLocaleString('en'):''),pop:p.pop_max||0,cap,lat:la,lon:lo,p:vec(la*R,lo*R),rank:(p.pop_max||0)+(cap?3e6:0)}}).sort((a,b)=>b.rank-a.rank);buildIndex()
-}).catch(()=>toast('Place labels unavailable – search still works.'));
-const KIND={city:5e5,town:3e4,suburb:1.2e4,village:3e3,hamlet:4e2,neighbourhood:1e3},KDIST={city:.012,town:.007,suburb:.003,village:.0028,hamlet:.002,neighbourhood:.0022};
-const dyn={cells:new Map(),active:[],sorted:[],queue:[],busy:false,sig:'',last:0,fails:0,wait:0,told:false,ep:0,err:''};
-const dynTiers=()=>{const h=dist-1,o=[];if(h<.25)o.push({id:'T',cell:3,types:'city|town',lim:1500});if(h<.03)o.push({id:'V',cell:.25,types:'village|hamlet|suburb|neighbourhood|quarter|locality',lim:2500});return o};
-let dynSet=new Set();
-function rebuildDyn(){dyn.sorted=[].concat(...dyn.active.map(x=>(dyn.cells.get(x.k)||{arr:[]}).arr)).sort((a,b)=>b.rank-a.rank);dynSet=new Set(dyn.sorted)}
-function updateDyn(){
-  const la=lat/R,lo=lon/R,keys=[];
-  for(const t of dynTiers()){const M=Math.round(360/t.cell),ci=Math.floor((la+90)/t.cell),cj=Math.floor((lo+180)/t.cell);
-    for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++){const i=ci+di;if(i<0||i>=Math.round(180/t.cell))continue;const j=((cj+dj)%M+M)%M;keys.push({k:t.id+':'+i+':'+j,t,i,j,o:Math.abs(di)+Math.abs(dj)})}}
-  keys.sort((a,b)=>a.o-b.o);const sig=keys.map(x=>x.k).join();
-  if(sig===dyn.sig)return;dyn.sig=sig;dyn.active=keys;dyn.queue=keys.filter(x=>!dyn.cells.has(x.k));rebuildDyn();pumpDyn();
-}
-const OVP=()=>Array.isArray(CFG.overpass)?CFG.overpass:[CFG.overpass];
-const toPlace=x=>{const k=x.kind,pop=x.pop||0;return{n:x.n,kind:k,sub:k+(x.st?' · '+x.st:'')+(pop?' · pop. '+pop.toLocaleString('en'):''),pop,cap:false,lat:x.lat,lon:x.lon,p:vec(x.lat*R,x.lon*R),rank:pop||KIND[k]||300}};
-async function loadCell(c){     // 1) device cache (30 days)  2) Overpass, falling back through backup servers
-  const{t,i,j}=c,s=i*t.cell-90,w=j*t.cell-180,n=s+t.cell,e=w+t.cell,key='https://ev-cache.invalid/'+c.k;let cache=null;
-  try{if(self.caches){cache=await caches.open('ev-places-v1');const hit=await cache.match(key);if(hit){const d=await hit.json();if(Date.now()-d.ts<30*864e5)return d.arr}}}catch{}
-  const q=`[out:json][timeout:25];node["place"~"^(${t.types})$"]["name"](${s},${w},${n},${e});out ${t.lim};`,eps=OVP();let err;
-  for(let k=0;k<eps.length;k++){const idx=(dyn.ep+k)%eps.length,ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),22000);
-    try{const r=await fetch(eps[idx],{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q),signal:ctl.signal});
-      if(!r.ok)throw new Error('HTTP '+r.status);const jn=await r.json();dyn.ep=idx;
-      const arr=jn.elements.filter(x=>x.tags&&x.lat!=null).map(x=>{const g=x.tags;return{n:g['name:en']||g.name,kind:g.place,pop:parseInt(g.population)||0,st:g['is_in:state']||g['addr:state']||'',lat:x.lat,lon:x.lon}});
-      try{if(cache)await cache.put(key,new Response(JSON.stringify({ts:Date.now(),arr}),{headers:{'content-type':'application/json'}}))}catch{}
-      return arr}catch(e2){err=e2}finally{clearTimeout(to)}}
-  throw err||new Error('no Overpass server reachable');
-}
-async function pumpDyn(){
-  if(dyn.busy||!dyn.queue.length)return;
-  const wait=Math.max(600-(Date.now()-dyn.last),dyn.wait-Date.now(),0);if(wait>0){clearTimeout(pumpDyn.h);pumpDyn.h=setTimeout(pumpDyn,wait);return}
-  const c=dyn.queue.shift();if(dyn.cells.has(c.k)||!dyn.active.some(x=>x.k===c.k)){pumpDyn();return}
-  dyn.busy=true;
-  try{
-    const arr=await loadCell(c);dyn.cells.set(c.k,{arr:arr.map(toPlace).sort((a,b)=>b.rank-a.rank)});dyn.fails=0;dyn.err='';
-    if(dyn.cells.size>300)for(const k of dyn.cells.keys()){if(!dyn.active.some(x=>x.k===k)){dyn.cells.delete(k);if(dyn.cells.size<=240)break}}
-    rebuildDyn();
-  }catch(err){dyn.fails++;dyn.err=String(err&&err.message||err);dyn.queue.unshift(c);dyn.wait=Date.now()+Math.min(60000,6000*dyn.fails);   // never gives up: retries with back-off
-    if(!dyn.told){dyn.told=true;toast('Town/village name server is busy – retrying automatically…',4500)}}
-  dyn.busy=false;dyn.last=Date.now();pumpDyn();
-}
-
-// ---------- Labels: sticky selection (every 250 ms) + exact per-frame positioning ----------
-const labBox=$('#labels'),pool=[],tv=new THREE.Vector3(),camDir=new THREE.Vector3();let shown=[];
-for(let i=0;i<(mobile?70:120);i++){const d=document.createElement('div');d.className='lb';d.style.display='none';labBox.appendChild(d);pool.push(d)}
-const ctr=p=>p.country||p.region||p.sea,wOf=p=>ctr(p)?p.n.length*8+14:p.n.length*7+16;
-function onLabelTap(x,y){                       // labels never block dragging; a tap near one selects it, otherwise the tapped point of the globe
-  let best=null,bd=1e9;
-  for(const p of shown){if(!p._vis)continue;const w=wOf(p),dx=ctr(p)?x-p._x:x-p._x-w/2,dy=y-p._y,d=Math.hypot(dx,dy);if(Math.abs(dx)<w/2+8&&Math.abs(dy)<16&&d<bd){bd=d;best=p}}
-  if(best)return select({name:best.n,sub:best.sub,lat:best.lat,lon:best.lon,dist:best.dist||1+(KDIST[best.kind]||(best.pop>5e6?.02:best.pop>1e6?.012:best.pop>2e5?.008:.005))});
-  onGlobeTap(x,y);
-}
-function assignLabels(){
-  const set=new Set(shown);
-  for(const d of pool)if(d._p&&!set.has(d._p)){d._p._el=null;d._p=null;d.style.display='none'}
-  for(const p of shown){if(p._el)continue;const d=pool.find(x=>!x._p);if(!d)break;d._p=p;p._el=d;d.textContent=p.n;
-    d.className='lb'+(p.country?' cn':p.region?' cn st':p.sea?' cn sea':p.cap?' c':'')+(p.kind==='village'||p.kind==='hamlet'||p.kind==='suburb'?' sm':'');d.style.opacity=0;d.style.display='block'}
-}
-function selectLabels(){
-  if(!L('labels')||dist<(LY().overlay?1.012:1.004)||!places.length){shown=[];assignLabels();return}
-  const minPop=dist>3?4e6:dist>2.2?1.2e6:dist>1.6?3e5:dist>1.2?6e4:dist>1.05?8e3:0,lim=Math.min(1/dist+.012,.9995),W=innerWidth,H=innerHeight,rects=[],out=[],used=new Map(),prev=new Set(shown),showC=dist>1.35,showS=regionLabels.length&&dist<2.3&&dist>1.12;
-  camera.updateMatrixWorld();camDir.copy(camera.position).normalize();
-  const ok=p=>{
-    if(out.length>=pool.length||p.p.dot(camDir)<lim)return;
-    tv.copy(p.p).project(camera);const x=(tv.x+1)/2*W,y=(1-tv.y)/2*H;if(x<6||x>W-26||y<70||y>H-60)return;
-    const w=wOf(p),x0=ctr(p)?x-w/2:x;
-    for(const r of rects)if(x0<r[0]+r[2]&&x0+w>r[0]&&y-9<r[1]+r[3]&&y+9>r[1])return;
-    const key=p.n.toLowerCase(),u=used.get(key);if(u&&!ctr(p))for(const q of u)if(Math.abs(q.lat-p.lat)<.3&&Math.abs(q.lon-p.lon)<.3)return;
-    rects.push([x0,y-9,w,18]);if(u)u.push(p);else used.set(key,[p]);out.push(p)};
-  if(showC){for(const p of countries)if(prev.has(p))ok(p);for(const p of countries)if(!prev.has(p))ok(p)}
-  if(seaLabels.length&&dist>1.35){for(const p of seaLabels)if(prev.has(p))ok(p);for(const p of seaLabels)if(!prev.has(p))ok(p)}
-  if(showS){for(const p of regionLabels)if(prev.has(p))ok(p);for(const p of regionLabels)if(!prev.has(p))ok(p)}
-  for(const p of shown)if(!ctr(p)&&(p.kind?dynSet.has(p):(p.pop>=minPop*.6||(p.cap&&dist>1.35))))ok(p);   // already-visible labels keep their place first
-  for(const p of places){if(out.length>=pool.length)break;if(prev.has(p))continue;if(p.pop<minPop&&!(p.cap&&dist>1.35&&p.pop>=minPop*.2))continue;ok(p)}
-  for(const p of dyn.sorted){if(out.length>=pool.length)break;if(!prev.has(p))ok(p)}
-  shown=out;assignLabels();
-}
-function positionLabels(){                      // every frame, with this frame's camera → labels stay glued to the globe
-  const lim=Math.min(1/dist+.006,.9995),W=innerWidth,H=innerHeight;camDir.copy(camera.position).normalize();
-  for(const p of shown){const d=p._el;if(!d)continue;tv.copy(p.p).project(camera);
-    const x=(tv.x+1)/2*W,y=(1-tv.y)/2*H,vis=p.p.dot(camDir)>=lim&&x>-40&&x<W+40&&y>50&&y<H;p._vis=vis;p._x=x;p._y=y;
-    d.style.opacity=vis?1:0;d.style.transform=ctr(p)?`translate3d(${(x-wOf(p)/2).toFixed(1)}px,${(y-9).toFixed(1)}px,0)`:`translate3d(${x.toFixed(1)}px,${(y-10).toFixed(1)}px,0)`}
-}
-
-// ---------- OSM tiles: geographic accuracy, cache, LRU, fallbacks, no z-fighting ----------
-const groundR=()=>{const z=curZ||12,n=2**z,a=TAU/n,seg=clamp(Math.ceil(a/(.6*R)),2,24);return 1+1.5*(1-Math.cos(a/seg/2))+1.5e-5};   // same radius formula as makeTile()
-const tileGroup=new THREE.Group();scene.add(tileGroup);
-const tiles=new Map(),tq=[];let inflight=0,curZ=0;
-const mercLat=(y,z)=>Math.atan(Math.sinh(Math.PI*(1-2*y/2**z)));
-let mode=(()=>{try{const s=localStorage.getItem('ev_mode');return CFG.layers[s]?s:'default'}catch{return'default'}})();
-const LY=()=>CFG.layers[mode],flatU={value:0};
-const liveDate=()=>new Date(Date.now()-864e5).toISOString().slice(0,10);   // yesterday (UTC): the newest complete daily mosaic
-const ovUrl=(o,z,x,y,retina)=>{let u=o.url.replace('{s}','a').replace('{r}',retina?'@2x':'').replace('{key}',encodeURIComponent(CFG.cartoKey||''));if(!CFG.cartoKey)u=u.replace(/\?key=$/,'');return u.replace('{z}',z).replace('{x}',x).replace('{y}',y)};
-const tileSrc=(z,x,y,kind)=>{const n=2**z,xx=((x%n)+n)%n;if(kind==='o')return ovUrl(LY().overlay,z,xx,y,renderer.getPixelRatio()>=2);return LY().url.replace('{date}',liveDate()).replace('{z}',z).replace('{x}',xx).replace('{y}',y)};
-const TILE_VS=`varying vec3 vN;varying vec2 vUv;void main(){vUv=uv;vN=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const TILE_FS=`uniform sampler2D map;uniform vec3 sun;uniform float shade,opacity,flatK;varying vec3 vN;varying vec2 vUv;
-void main(){float nd=dot(normalize(vN),sun);if(shade<.5)nd=1.;float dm=smoothstep(-.12,.18,nd);vec3 d=texture2D(map,vUv).rgb;
-  float l=.14+.86*dm*clamp(.4+.85*nd,0.,1.);vec3 c=d*l;c+=vec3(1.,.45,.2)*exp(-pow(nd*6.,2.))*.06*d;c=mix(c,d,flatK);gl_FragColor=vec4(c,opacity);
-  #include <colorspace_fragment>
-}`;
-const TILE_FS_O=`uniform sampler2D map;uniform float opacity;varying vec3 vN;varying vec2 vUv;void main(){vec4 t=texture2D(map,vUv);gl_FragColor=vec4(t.rgb,t.a*opacity);
-  #include <colorspace_fragment>
-}`;
-function makeTile(z,x,y,kind){
-  const n=2**z,a=TAU/n,seg=clamp(Math.ceil(a/(.6*R)),2,24),sag=1-Math.cos(a/seg/2),rad=1+1.5*sag+1.5e-5; // above the faceted Earth sphere, below borders/clouds
-  const pos=[],nor=[],uv=[],idx=[];
-  for(let j=0;j<=seg;j++){const la=mercLat(y+j/seg,z);for(let i=0;i<=seg;i++){const lo=((x+i/seg)/n*2-1)*Math.PI,u=vec(la,lo,1),p=u.clone().multiplyScalar(rad);pos.push(p.x,p.y,p.z);nor.push(u.x,u.y,u.z);uv.push(i/seg,1-j/seg)}}
-  for(let j=0;j<seg;j++)for(let i=0;i<seg;i++){const p=j*(seg+1)+i,q=p+1,r=p+seg+1,s=r+1;idx.push(p,r,q,q,r,s)}
-  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);
-  const mat=new THREE.ShaderMaterial({uniforms:kind==='o'?{map:{value:null},opacity:{value:0}}:{map:{value:null},sun:earthMat.uniforms.sun,shade:earthMat.uniforms.shade,opacity:{value:0},flatK:flatU},vertexShader:TILE_VS,fragmentShader:kind==='o'?TILE_FS_O:TILE_FS,transparent:true,depthWrite:false}),mesh=new THREE.Mesh(g,mat);mesh.renderOrder=kind==='o'?30:z;mesh.visible=false;tileGroup.add(mesh);
-  return{z,x,y,kind,mesh,mat,state:'idle',last:0,fade:0,want:false,vis:false};
-}
-function pumpTiles(){
-  while(inflight<CFG.tileConcurrency&&tq.length){
-    const t=tq.shift();if(!t.want||t.state!=='queued'){if(t.state==='queued')t.state='idle';continue}
-    t.state='loading';inflight++;const img=new Image();img.crossOrigin='anonymous';
-    img.onload=()=>{inflight--;if(t.dead){pumpTiles();return}
-      const tx=new THREE.Texture(img);tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=aniso;tx.minFilter=THREE.LinearMipmapLinearFilter;tx.wrapS=tx.wrapT=THREE.ClampToEdgeWrapping;tx.needsUpdate=true;
-      t.mat.uniforms.map.value=tx;t.state='ok';pumpTiles()};
-    img.onerror=()=>{inflight--;t.state='err';pumpTiles()};
-    img.src=tileSrc(t.z,t.x,t.y,t.kind);
-  }
-}
-function setMode(k){
-  if(!CFG.layers[k]||k===mode)return;mode=k;try{localStorage.setItem('ev_mode',k)}catch{}
-  for(const[key,t]of[...tiles])disposeTile(key,t);tq.length=0;curZ=0;lastTile=0;markMode();
-}
-function markMode(){document.querySelectorAll('.mt').forEach(b=>b.classList.toggle('on',b.dataset.m===mode))}
-function disposeTile(k,t){t.dead=true;tileGroup.remove(t.mesh);t.mesh.geometry.dispose();if(t.mat.uniforms.map.value)t.mat.uniforms.map.value.dispose();t.mat.dispose();tiles.delete(k)}
-function updateTiles(now){
-  const on=L('tiles')&&(mode==='live'||dist<3.3);tileGroup.visible=on;if(!on){$('#busy').hidden=!dyn.busy;return}
-  const zf=Math.log2(TAU*Math.max(.2,Math.cos(lat))/((dist-1)*.35))+.6;
-  if(!curZ||Math.abs(zf-curZ)>.7)curZ=clamp(Math.round(zf),3,LY().max);          // hysteresis: no z thrash while zooming
-  const z=curZ,n=2**z,cx=Math.floor((lon+Math.PI)/TAU*n),cy=Math.floor((1-Math.asinh(Math.tan(lat))/Math.PI)/2*n),r=z<=6?3:z<=9?2:1;
-  for(const t of tiles.values())t.want=false;
-  let pending=0;
-  const kinds=LY().overlay&&dist<1.016?['b','o']:['b'];
-  for(const kind of kinds)for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){const y=cy+dy;if(y<0||y>=n)continue;const k=mode+':'+kind+z+'/'+(cx+dx)+'/'+y;
-    let t=tiles.get(k);if(!t){t=makeTile(z,cx+dx,y,kind);tiles.set(k,t)}
-    t.want=true;t.last=now;if(t.state==='idle'){t.state='queued';tq.push(t)}if(kind==='b'&&(t.state==='queued'||t.state==='loading'))pending++}
-  for(const t of tiles.values()){t.vis=t.state==='ok'&&(t.want||(t.kind==='b'&&pending>0&&now-t.last<5000));t.mesh.visible=t.vis}   // keep previous imagery until replacements arrive
-  tq.sort((a,b)=>Math.abs(a.x-cx)+Math.abs(a.y-cy)-Math.abs(b.x-cx)-Math.abs(b.y-cy));pumpTiles();
-  if(tiles.size>CFG.tileCacheMax){const old=[...tiles].filter(([,t])=>!t.want&&!t.vis&&t.state!=='loading').sort((a,b)=>a[1].last-b[1].last);
-    for(const[k,t]of old){if(tiles.size<=CFG.tileCacheMax*.8)break;disposeTile(k,t)}}
-  const b=$('#busy');b.hidden=!(pending||inflight||dyn.busy||dyn.err);b.textContent=pending||inflight?'Loading map…':dyn.err?'Place names: server busy, retrying…':'Loading places…';
-}
-
-// ---------- Earthquakes (USGS live feed, lazy) ----------
-let quakes=null;
-async function loadQuakes(){
-  const qi=$('#qinfo');qi.textContent='Loading USGS feed…';
-  try{const j=await(await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson')).json(),p=[];
-    j.features.forEach(f=>{const[lo,la]=f.geometry.coordinates,v=vec(la*R,lo*R,1.003);p.push(v.x,v.y,v.z)});
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));
-    quakes=new THREE.Points(g,new THREE.PointsMaterial({size:8,sizeAttenuation:false,color:0xff5a4a,transparent:true,opacity:.9,depthWrite:false}));quakes.renderOrder=70;scene.add(quakes);
-    qi.textContent=`USGS M2.5+ past 24 h: ${j.features.length} events. Feed generated ${new Date(j.metadata.generated).toUTCString()}.`;
-  }catch(e){qi.textContent='USGS feed unavailable right now.';$('#l-quakes').checked=false}
-}
-$('#l-quakes').onchange=e=>{if(e.target.checked){quakes?quakes.visible=true:loadQuakes()}else if(quakes)quakes.visible=false};
-
-// ---------- Camera state, rotation, flights ----------
-let dprScale=1,bearing=0,bearingT=0,vShift=0,vShiftApplied=0,panelH=0,twAcc=0,twOn=false,lastAng=0;
-const MIN=1.00003,MAX=14;      /* ≈ 190 m above the ground */let lat=20*R,lon=78*R,dist=3.6,latT=lat,lonT=lon,distT=dist,paused=false,rotCur=0,dragging=false,flight=null;
-const home=()=>{const hh=Math.atan(Math.tan(camera.fov*R/2)*camera.aspect),mn=Math.min(camera.fov*R/2,hh);return clamp(1/Math.sin(mn*.8),2.6,9)},ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-function setPaused(v){paused=v;if(v)rotCur=0;const b=$('#b-rot');b.textContent=v?'▶':'⏸';b.title=v?'Resume rotation':'Pause rotation'}
-const userTook=()=>{flight=null;latT=lat;lonT=lon;distT=dist;setPaused(true)};      // finger down: freeze where it is
-const stopFlight=()=>{if(flight){flight=null;latT=lat;lonT=lon;distT=dist}setPaused(true)};   // buttons/wheel: keep accumulating zoom targets      // any interaction: stop spin + cancel flights, stay paused until Resume
-function flyTo(la,lo,d){
-  setPaused(true);const tla=clamp(la*R,-1.45,1.45),tlo=lon+wrapPi(lo*R-lon),td=clamp(d,MIN,MAX),ang=Math.hypot(tla-lat,(tlo-lon)*Math.cos((tla+lat)/2));
-  flight={t:0,dur:clamp(1.1+ang*1.6+Math.abs(Math.log((td-1)/(dist-1)))*.18,1.2,3.6),la0:lat,lo0:lon,h0:Math.log(dist-1),la1:tla,lo1:tlo,h1:Math.log(td-1),bump:Math.min(1.4,ang*1.1)};
-}
-const ptrs=new Map();let pinch0=0,pd0=1,down=null,moved=false,d0=0;
-const seen=new Map();
-cv.addEventListener('pointerdown',e=>{try{cv.setPointerCapture(e.pointerId)}catch{}const nw=performance.now();for(const k of[...ptrs.keys()])if(nw-(seen.get(k)||0)>10000){ptrs.delete(k);seen.delete(k)}   // drop pointers whose 'up' was lost
-  seen.set(e.pointerId,nw);ptrs.set(e.pointerId,e);userTook();dragging=true;
-  if(ptrs.size===1){down={x:e.clientX,y:e.clientY};moved=false}
-  else if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch0=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);pd0=dist-1;moved=true;lastAng=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX);twAcc=0;twOn=false}});
-cv.addEventListener('pointermove',e=>{const o=ptrs.get(e.pointerId);if(!o)return;ptrs.set(e.pointerId,e);seen.set(e.pointerId,performance.now());
-  if(ptrs.size===1){
-    if(!moved&&Math.hypot(e.clientX-down.x,e.clientY-down.y)<4)return;moved=true;                 // small slop: taps never nudge the globe
-    const s=2*Math.tan(camera.fov*R/2)*(dist-1)/innerHeight*.55,dx=e.clientX-o.clientX,dy=e.clientY-o.clientY,cb=Math.cos(bearing),sb=Math.sin(bearing);   // ≈55 % of 1:1 finger tracking
-    if(e.shiftKey&&e.pointerType==='mouse'){bearingT-=dx*.01;return}
-    lonT+=s*(-dx*cb+dy*sb)/Math.max(.35,Math.cos(lat));latT=clamp(latT+s*(dx*sb+dy*cb),-1.45,1.45);   // drag follows the on-screen direction even when rotated
-  }else if(ptrs.size===2&&pinch0>10){const[a,b]=[...ptrs.values()],h=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);distT=clamp(1+pd0*Math.pow(pinch0/h,.85),MIN,MAX);
-    const ang=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX),d=wrapPi(ang-lastAng);lastAng=ang;twAcc+=d;if(!twOn&&Math.abs(twAcc)>.07){twOn=true;d0=twAcc}   // two-finger twist rotates the globe
-    if(twOn)bearingT-=d}});
-addEventListener('blur',()=>{ptrs.clear();dragging=false});
-const up=e=>{seen.delete(e.pointerId);const tap=e.type==='pointerup'&&ptrs.size===1&&!moved;if(!ptrs.delete(e.pointerId))return;if(tap)onLabelTap(e.clientX,e.clientY);if(!ptrs.size){dragging=false;down=null}else if(ptrs.size===1){moved=true;pinch0=0}};
-cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('lostpointercapture',up);
-cv.addEventListener('wheel',e=>{e.preventDefault();stopFlight();const dy=clamp(e.deltaY*(e.deltaMode===1?20:1),-120,120);distT=clamp(1+(distT-1)*Math.exp(dy*(mobile?.0009:.0011)),MIN,MAX)},{passive:false});
-['gesturestart','gesturechange'].forEach(g=>cv.addEventListener(g,e=>e.preventDefault()));
-$('#b-in').onclick=()=>{stopFlight();distT=clamp(1+(distT-1)*.6,MIN,MAX)};$('#b-out').onclick=()=>{stopFlight();distT=clamp(1+(distT-1)*1.65,MIN,MAX)};
-const globalView=()=>{bearingT=bearing+wrapPi(0-bearing);sel=null;pin=null;$('#pin').style.display='none';$('#info').hidden=true;flyTo(20,lon/R,home())};
-$('#b-reset').onclick=globalView;$('#b-global').onclick=globalView;
-$('#b-rot').onclick=()=>setPaused(!paused);
-$('#b-fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.().catch(()=>toast('Fullscreen not supported here.'));
-document.querySelectorAll('.mt').forEach(b=>b.onclick=()=>setMode(b.dataset.m));markMode();
-$('#b-map').onclick=()=>{$('#mt').hidden=!$('#mt').hidden;$('#menu').hidden=true};$('#mt-x').onclick=()=>$('#mt').hidden=true;
-$('#b-menu').onclick=()=>$('#menu').hidden=!$('#menu').hidden;
-$('#speed').oninput=e=>$('#spv').textContent=(+e.target.value).toFixed(2);
-$('#hq').onchange=resize;
-
-// ---------- Selection / search ----------
-let sel=null,pin=null;
-let myLoc=null,wTok=0,rvT=0,lastRev=0;
-const hav=(a,b)=>{const p=Math.PI/180,x=Math.sin((b.lat-a.lat)*p/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin((b.lon-a.lon)*p/2)**2;return 12742*Math.asin(Math.sqrt(x))};
-const fmtKm=k=>k<10?k.toFixed(1)+' km':Math.round(k).toLocaleString('en')+' km';
-function select(s){sel=s;pin=vec(s.lat*R,s.lon*R,1);$('#i-name').textContent=s.name;$('#i-sub').textContent=s.sub||'';
-  $('#i-ll').textContent=`${s.lat.toFixed(4)}°, ${s.lon.toFixed(4)}°`;$('#info').hidden=false;$('#res').hidden=true;$('#menu').hidden=true;$('#mt').hidden=true;
-  if(!s.noFly)flyTo(s.lat,s.lon,s.dist);
-  ['w','aq','uv','diff','sum'].forEach(k=>$('#i-'+k).textContent='…');$('#i-src').textContent='';
-  $('#i-dist').textContent=myLoc?fmtKm(hav(myLoc,s)):'Press ◎ My Location first';
-  updateInfo();loadWeather(s)}
-function updateInfo(){if(!sel)return;const ms=simMs,tz=sel.tzName||tzOf(sel.lat,sel.lon);
-  $('#i-t').textContent=fmt(ms,sel.lat,sel.lon,FULL,sel.tzName)+(tz?' ('+tz+')':' · solar time, approx.');
-  const u=vec(sel.lat*R,sel.lon*R).dot(sunAt(ms).v);$('#i-sun').textContent=u>0.0145?'☀ Daytime':u>-.105?'🌅 Twilight':'🌙 Night';
-  const t=sunTimes(ms,sel.lat,sel.lon),str=typeof t==='string',mins=str?0:Math.round((t[1]-t[0])/6e4);
-  $('#i-rs').textContent=str?t:fmt(t[0],sel.lat,sel.lon,HM,sel.tzName)+' / '+fmt(t[1],sel.lat,sel.lon,HM,sel.tzName);
-  $('#i-dl').textContent=str?t:Math.floor(mins/60)+'h '+String(mins%60).padStart(2,'0')+'m'}
-const WX={0:'☀ Clear',1:'🌤 Mostly clear',2:'⛅ Partly cloudy',3:'☁ Overcast',45:'🌫 Fog',48:'🌫 Fog',51:'🌦 Light drizzle',53:'🌦 Drizzle',55:'🌧 Heavy drizzle',61:'🌧 Light rain',63:'🌧 Rain',65:'🌧 Heavy rain',66:'🌧 Freezing rain',67:'🌧 Freezing rain',71:'🌨 Light snow',73:'🌨 Snow',75:'❄ Heavy snow',77:'🌨 Snow grains',80:'🌦 Showers',81:'🌧 Showers',82:'⛈ Violent showers',85:'🌨 Snow showers',86:'🌨 Snow showers',95:'⛈ Thunderstorm',96:'⛈ Thunderstorm, hail',99:'⛈ Thunderstorm, hail'};
-const aqiTxt=v=>v==null?'–':v+' · '+(v<=50?'Good':v<=100?'Moderate':v<=150?'Unhealthy for sensitive groups':v<=200?'Unhealthy':v<=300?'Very unhealthy':'Hazardous');
-const uvTxt=v=>v==null?'–':v.toFixed(1)+' · '+(v<3?'Low':v<6?'Moderate':v<8?'High':v<11?'Very high':'Extreme');
-async function getJSON(url,ms=10000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error('HTTP '+r.status);return await r.json()}finally{clearTimeout(t)}}
-async function loadWeather(s){
-  const tok=++wTok,la=s.lat.toFixed(2),lo=s.lon.toFixed(2),set=(id,t)=>{if(tok===wTok)$('#'+id).textContent=t};   // coordinates rounded to ~1 km
-  const fc=getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=uv_index_max&forecast_days=1&timezone=auto`);
-  const aq=getJSON(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${la}&longitude=${lo}&current=us_aqi,pm2_5,uv_index&timezone=auto`);
-  fc.catch(()=>{});aq.catch(()=>{});
-  let uvMax=null,sumW='',sumA='';const sum=()=>set('i-sum',[sumW,sumA].filter(Boolean).join(' · ')||'…');
-  try{const a=await fc;if(tok!==wTok)return;const c=a.current;s.tzName=a.timezone;
-    sumW=`${WX[c.weather_code]||''} ${Math.round(c.temperature_2m)}°C`.trim();
-    set('i-w',`${WX[c.weather_code]||'–'} · ${Math.round(c.temperature_2m)}°C (feels ${Math.round(c.apparent_temperature)}°) · 💧${c.relative_humidity_2m}% · 💨${Math.round(c.wind_speed_10m)} km/h`);
-    uvMax=a.daily&&a.daily.uv_index_max?a.daily.uv_index_max[0]:null;
-    const dv=(a.utc_offset_seconds+new Date().getTimezoneOffset()*60)/60,ad=Math.abs(dv);
-    set('i-diff',dv===0?'Same time as you':Math.floor(ad/60)+'h '+(ad%60?String(ad%60).padStart(2,'0')+'m ':'')+(dv>0?'ahead of you':'behind you'));
-    set('i-src','Weather & air quality: Open-Meteo · updated '+c.time.replace('T',' ')+' (local time of this place)');sum();updateInfo();
-  }catch(e){set('i-w','Weather unavailable ('+(e.message||'network')+')');set('i-diff','–')}
-  try{const b=await aq;if(tok!==wTok)return;const c=b.current||{};
-    set('i-aq',c.us_aqi!=null?aqiTxt(c.us_aqi)+(c.pm2_5!=null?' · PM2.5 '+Math.round(c.pm2_5):''):'No air-quality data for this spot');
-    set('i-uv',c.uv_index!=null?uvTxt(c.uv_index)+' (now)':uvMax!=null?uvTxt(uvMax)+' (max today)':'–');
-    if(c.us_aqi!=null)sumA='AQI '+c.us_aqi;sum();
-  }catch(e){set('i-aq','Air quality unavailable ('+(e.message||'network')+')');set('i-uv',uvMax!=null?uvTxt(uvMax)+' (max today)':'–');sum()}
-}
-// tap on the globe: country → fly to it; close up → name the exact place (reverse geocode)
-function pickLatLon(x,y){const ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2(x/innerWidth*2-1,-(y/innerHeight)*2+1),camera);
-  const o=ray.ray.origin,d=ray.ray.direction,b=o.dot(d),disc=b*b-(o.lengthSq()-1);if(disc<0)return null;
-  const p=o.clone().addScaledVector(d,-b-Math.sqrt(disc));return{lat:Math.asin(clamp(p.y,-1,1))/R,lon:Math.atan2(-p.z,p.x)/R}}
-const inRing=(r,x,y)=>{let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c}return c};
-const countryAt=(la,lo)=>{for(const g of cpolys){if(lo<g.x0||lo>g.x1||la<g.y0||la>g.y1)continue;if(inRing(g.r,lo,la))return g.c}return null};
-function onGlobeTap(x,y){
-  const g=pickLatLon(x,y);if(!g)return;
-  if(dist>1.5){const c=countryAt(g.lat,g.lon);if(c)select({name:c.n,sub:'Country',lat:c.lat,lon:c.lon,dist:c.dist});return}
-  const s={name:'Selected place',sub:'Looking up the name…',lat:g.lat,lon:g.lon,noFly:true};select(s);reverseName(s);
-}
-async function reverseName(s){
-  const tok=++rvT;await new Promise(r=>setTimeout(r,Math.max(0,1100-(Date.now()-lastRev))));if(tok!==rvT)return;lastRev=Date.now();   // ≤1 request/second
-  const h=dist-1,z=h<.003?18:h<.01?16:h<.05?14:h<.3?10:8,set=(n,sb)=>{if(sel!==s)return;s.name=n;s.sub=sb;$('#i-name').textContent=n;$('#i-sub').textContent=sb};
-  try{const r=await(await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=${z}&accept-language=en&lat=${s.lat}&lon=${s.lon}`)).json();
-    if(tok!==rvT)return;if(r.error)set('Unnamed area','No place name recorded here');else{const p=(r.display_name||'').split(', ');set(r.name||p[0]||'Place',p.slice(1,4).join(', ')+(r.addresstype?' · '+r.addresstype:''))}
-  }catch{set('Selected place','Name lookup unavailable')}
-}
-$('#b-share').onclick=async()=>{if(!sel)return;const u=location.origin+location.pathname+'#p='+sel.lat.toFixed(4)+','+sel.lon.toFixed(4)+','+(sel.dist||distT).toFixed(5)+','+encodeURIComponent(sel.name);
-  try{if(navigator.share)await navigator.share({title:'EarthVision – '+sel.name,text:sel.name+' on EarthVision',url:u});else{await navigator.clipboard.writeText(u);toast('Link copied')}}catch{}};
-$('#b-x').onclick=()=>{sel=null;pin=null;$('#info').hidden=true;$('#pin').style.display='none'};
-let me=null,meD=null,meV=new THREE.Vector3(),watchId=null,firstFix=true,meT=0;
-function meSel(){select({name:'My location',sub:`Accuracy ≈ ${Math.round(me.acc)} m · position stays on your device`,lat:me.lat,lon:me.lon,dist:1.004})}
-function startWatch(){
-  if(!navigator.geolocation)return toast('Geolocation is not supported by this browser.');
-  if(watchId!=null)return;
-  watchId=navigator.geolocation.watchPosition(p=>{const f={lat:p.coords.latitude,lon:p.coords.longitude,acc:p.coords.accuracy||50},nw=Date.now();
-      if(me&&f.acc>me.acc*2.5&&nw-meT<180000)return;   // a much worse fix (cell/IP guess) must not make the dot jump
-      me=f;meT=nw;if(!meD)meD={lat:f.lat,lon:f.lon,acc:f.acc};myLoc={lat:me.lat,lon:me.lon};
-      if(firstFix){firstFix=false;meSel()}},
-    e=>{watchId=null;toast(e.code===1?'Location permission denied.':e.code===2?'Location unavailable.':'Location request timed out.')},{enableHighAccuracy:true,maximumAge:0,timeout:30000});
-}
-$('#b-loc').onclick=()=>{$('#l-me').checked=true;if(me){firstFix=false;meSel()}else{toast('Requesting location permission…');firstFix=true;startWatch()}};
-$('#l-me').onchange=e=>{if(e.target.checked){startWatch()}else{if(watchId!=null)navigator.geolocation.clearWatch(watchId);watchId=null;me=null;meD=null;$('#me').style.display='none'}};
-$('#brg').oninput=e=>{bearingT=+e.target.value*R;$('#bv').textContent=e.target.value};
-$('#b-north').onclick=()=>{bearingT=bearing+wrapPi(0-bearing)};
-$('#b-more').onclick=()=>{const i=$('#info');i.classList.toggle('min');$('#b-more').textContent=i.classList.contains('min')?'Show details ▾':'Hide details ▴'};
-// ---------- Area chip: name of the place under the centre of the screen (Nominatim reverse, ≤1 request / 2.5 s, cached) ----------
-let chipKey='',chipT=0,chipBusy=false;const chipCache=new Map();
-function chipText(r){const a=r.address||{},loc=a.neighbourhood||a.suburb||a.quarter||a.hamlet||a.village||a.city_district||'',city=a.city||a.town||a.municipality||a.county||a.state_district||'',st=a.state||'',p=[loc,city,st].filter((v,i,x)=>v&&x.indexOf(v)===i).slice(0,3);
-  return p.length?p.join(', '):((r.display_name||'').split(', ').slice(0,2).join(', '))}
-async function updateChip(now){
-  const el=$('#where');if(dist>1.25){el.hidden=true;return}
-  if(dragging||flight||chipBusy||now-chipT<2500)return;
-  const h=dist-1,z=h<.003?18:h<.01?16:h<.05?14:h<.2?12:10,q=Math.max(.002,h*.6),key=z+':'+Math.round(lat/R/q)+','+Math.round(lon/R/q);if(key===chipKey)return;
-  chipKey=key;chipT=now;const c=chipCache.get(key);if(c){el.textContent='📍 '+c;el.hidden=false;return}
-  chipBusy=true;
-  try{const r=await getJSON(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=${z}&accept-language=en&lat=${(lat/R).toFixed(5)}&lon=${(lon/R).toFixed(5)}`,8000);
-    if(!r.error){const tx=chipText(r);if(tx){chipCache.set(key,tx);el.textContent='📍 '+tx;el.hidden=false}}}catch{}
-  chipBusy=false;
-}
-// ---------- Connection check (so a failing service is visible, not silent) ----------
-const imgTest=u=>new Promise((res,rej)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>res('ok');i.onerror=()=>rej(new Error('blocked or unreachable'));i.src=u});
-const jsonTest=async u=>{const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);await r.json();return 'ok'};
-const ovTest=async()=>{let last;for(const ep of OVP()){try{const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent('[out:json][timeout:10];node["place"="city"](12.9,77.5,13.1,77.7);out 1;')});if(!r.ok)throw new Error('HTTP '+r.status);await r.json();return 'ok ('+new URL(ep).host+')'}catch(e){last=e}}throw last};
-$('#b-diag').onclick=async()=>{
-  const box=$('#diag');box.replaceChildren();const L2=CFG.layers,T=(u)=>u.replace('{z}',2).replace('{x}',2).replace('{y}',1).replace('{date}',liveDate());
-  const checks=[['Map tiles (OpenStreetMap)',()=>imgTest(T(L2.default.url))],['Satellite tiles (Esri)',()=>imgTest(T(L2.satellite.url))],['Terrain tiles (Esri)',()=>imgTest(T(L2.terrain.url))],
-    ['Daily NASA photo',()=>imgTest(T(L2.live.url))],['Place-name tiles (CARTO, with API key)',async()=>{const r=await fetch(ovUrl(L2.satellite.overlay,2,2,1,false));if(!r.ok)throw new Error('HTTP '+r.status+(r.status===401||r.status===403?' – key rejected / domain not allowed':''));await r.blob();return 'ok'}],
-    ['Towns & villages (Overpass)',ovTest],['Weather (Open-Meteo)',()=>jsonTest('https://api.open-meteo.com/v1/forecast?latitude=19&longitude=72.9&current=temperature_2m&timezone=auto')],
-    ['Air quality (Open-Meteo)',()=>jsonTest('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=19&longitude=72.9&current=us_aqi&timezone=auto')],
-    ['Search (Nominatim)',()=>jsonTest('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=delhi')],['Earthquakes (USGS)',()=>jsonTest('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_hour.geojson')],
-    ['Borders data (Natural Earth)',()=>jsonTest(CFG.neBase+'ne_110m_admin_0_countries.geojson')]];
-  await Promise.all(checks.map(async([name,fn])=>{const d=document.createElement('div');d.textContent='⏳ '+name;box.appendChild(d);const t0=performance.now();
-    try{const r=await Promise.race([fn(),new Promise((_,rj)=>setTimeout(()=>rj(new Error('timeout (12 s)')),12000))]);d.textContent='✓ '+name+' · '+Math.round(performance.now()-t0)+' ms';d.style.color='#6be3a0'}
-    catch(e){d.textContent='✗ '+name+' – '+(e.message||'failed');d.style.color='#ff8a80'}}));
+function render(){renderTasks();renderGoals();}
+function openModal(id){$(id).classList.add('open');setTimeout(()=>$(id).querySelector('input')?.focus(),50);}
+$('openGoalModal').addEventListener('click',()=>openModal('goalModal'));
+$('openTaskModal').addEventListener('click',()=>openModal('taskModal'));
+$('addTaskInline').addEventListener('click',()=>openModal('taskModal'));
+$('goalForm').addEventListener('submit',e=>{e.preventDefault();const title=$('newGoalTitle').value.trim();if(!title)return;state.goals.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),title,why:$('newGoalWhy').value.trim(),category:$('newGoalCategory').value,target:$('newGoalTarget').value,progress:0});save();e.target.reset();$('goalModal').classList.remove('open');render();toast('Goal added. One step at a time.');});
+$('taskForm').addEventListener('submit',e=>{e.preventDefault();const title=$('newTaskTitle').value.trim();if(!title)return;addTask(title,$('newTaskTime').value,$('newTaskPriority').value);e.target.reset();$('taskModal').classList.remove('open');toast('Task added to your day.');});
+$('resetDay').addEventListener('click',()=>{if(confirm("Reset today's list? This removes all tasks from today.")){state.tasks=[];save();render();toast("Today's list reset.");}});
+$('clearDone').addEventListener('click',()=>{state.tasks=state.tasks.filter(t=>!t.done);save();render();toast('Completed tasks cleared.');});
+const planTemplates={
+balanced:[['Choose your top priority','5 min','Top priority'],['Make progress on one important task','30 min','Important'],['Take a short reset break','5 min','Normal'],['Review your day and plan tomorrow','10 min','Normal']],
+study:[['Set one clear learning target','5 min','Top priority'],['Study one topic without distractions','30 min','Important'],['Test yourself from memory','15 min','Important'],['Write down what to review next','10 min','Normal']],
+work:[['Choose the most valuable work task','5 min','Top priority'],['Do one focused work sprint','30 min','Important'],['Follow up with one customer or teammate','15 min','Normal'],['Write your next action','5 min','Normal']],
+wellbeing:[['Check in with yourself and choose a need','5 min','Top priority'],['Take a walk or stretch gently','15 min','Normal'],['Make time for a nourishing meal or water','10 min','Normal'],['Prepare one thing to make tomorrow easier','10 min','Normal']],
+money:[["Check today's spending or bills",'10 min','Top priority'],['Review one recurring expense','15 min','Important'],['Update your budget or savings goal','15 min','Normal'],['Choose one money task for later','5 min','Normal']]
 };
-// ---------- Search: instant suggestions (local index) + worldwide lookup (Nominatim) ----------
-const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-let sidx=[];
-function buildIndex(){
-  const a=[],regs=new Map();
-  for(const c of countries)a.push({n:c.n,sub:'Country',t:'country',lat:c.lat,lon:c.lon,dist:1+clamp(Math.sqrt(c.area)*R*2.4,.12,2.4),k:norm(c.n),w:1e12+c.area});
-  for(const p of places){
-    a.push({n:p.n,sub:p.sub,t:p.cap?'capital':'city',lat:p.lat,lon:p.lon,dist:1+(p.pop>5e6?.02:p.pop>1e6?.012:p.pop>2e5?.008:.005),k:norm(p.n),w:p.rank});
-    if(p.adm1&&!regionLabels.length){const key=p.adm0+'|'+p.adm1;let r=regs.get(key);if(!r){r={n:p.adm1,sub:p.adm0,t:'state / region',v:new THREE.Vector3(),k:norm(p.adm1),w:5e8,dist:1.22};regs.set(key,r)}r.v.add(p.p)}}
-  for(const r of regs.values()){const l=r.v.length()||1;r.lat=Math.asin(r.v.y/l)/R;r.lon=Math.atan2(-r.v.z,r.v.x)/R;a.push(r)}
-  for(const r of regionLabels)a.push({n:r.n,sub:r.sub.replace(' · state / region',''),t:'state / region',lat:r.lat,lon:r.lon,dist:r.dist,k:norm(r.n),w:5e8});
-  for(const r of seaLabels)a.push({n:r.n,sub:'Sea / ocean',t:'sea / ocean',lat:r.lat,lon:r.lon,dist:r.dist,k:norm(r.n),w:6e8});
-  sidx=a;
-}
-function suggest(v){
-  const q=norm(v.trim());if(!q)return[];const out=[];
-  for(const it of sidx){let s=-1;if(it.k.startsWith(q))s=0;else if(it.k.includes(' '+q))s=1;else if(q.length>=3&&it.k.includes(q))s=2;if(s>=0)out.push({it,s})}
-  for(const p of dynSet){const k=norm(p.n);if(k.startsWith(q))out.push({it:{n:p.n,sub:p.sub,t:p.kind||'place',lat:p.lat,lon:p.lon,dist:1+(KDIST[p.kind]||.004),k,w:p.rank},s:0})}
-  out.sort((x,y)=>x.s-y.s||y.it.w-x.it.w);
-  const seen=new Set(),res=[];for(const o of out){const key=o.it.k+'|'+o.it.t+'|'+Math.round(o.it.lat)+','+Math.round(o.it.lon);if(seen.has(key))continue;seen.add(key);res.push(o.it);if(res.length>=7)break}
-  return res;
-}
-const q=$('#q'),res=$('#res'),cache=new Map();let items=[],remoteItems=[],act=-1,st,ctl,loading=false;
-const getRecent=()=>{try{return JSON.parse(localStorage.getItem('ev_recent')||'[]')}catch{return[]}};
-const addRecent=it=>{try{const r=getRecent().filter(x=>!(x.n===it.n&&x.sub===it.sub));r.unshift({n:it.n,sub:it.sub,t:it.t,lat:it.lat,lon:it.lon,dist:it.dist});localStorage.setItem('ev_recent',JSON.stringify(r.slice(0,6)))}catch{}};
-const rows=()=>q.value.trim()?items.concat(remoteItems):getRecent();
-function render(){
-  const v=q.value.trim(),list=rows();res.replaceChildren();
-  if(!v&&!list.length){res.hidden=true;return}
-  res.hidden=false;
-  if(!v){const h=document.createElement('small');h.textContent='Recent searches';h.style.padding='4px 10px';res.appendChild(h)}
-  list.forEach((it,i)=>{const d=document.createElement('div'),s=document.createElement('small');d.textContent=it.n;s.textContent=(it.t?it.t+' · ':'')+it.sub;d.appendChild(s);if(i===act)d.className='act';d.onclick=()=>pickItem(it);res.appendChild(d)});
-  if(v){const mr=document.createElement('div');mr.className='more';mr.textContent=loading?'Searching worldwide…':`🔍 Search worldwide for “${v}” (villages, streets, places)`;mr.onclick=()=>remote(v,false);res.appendChild(mr)}
-}
-q.addEventListener('input',()=>{clearTimeout(st);const v=q.value.trim();act=-1;remoteItems=[];items=v?suggest(v):[];render();
-  if(v.length>=4&&items.length<3)st=setTimeout(()=>remote(v,false),900)});          // online lookup only when local suggestions are thin (keeps Nominatim usage light)
-q.addEventListener('focus',render);
-q.addEventListener('keydown',e=>{const list=rows();
-  if(e.key==='ArrowDown'){e.preventDefault();act=Math.min(list.length-1,act+1);render()}
-  else if(e.key==='ArrowUp'){e.preventDefault();act=Math.max(-1,act-1);render()}
-  else if(e.key==='Escape'){res.hidden=true;q.blur()}
-  else if(e.key==='Enter'){e.preventDefault();clearTimeout(st);const v=q.value.trim();
-    if(act>=0&&list[act])pickItem(list[act]);else if(items.length)pickItem(items[0]);else if(remoteItems.length)pickItem(remoteItems[0]);else if(v.length>=2)remote(v,true)}});
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('.search'))res.hidden=true});
-async function remote(v,go){
-  clearTimeout(st);const la=lat/R,lo=lon/R,near=dist<2,ck=norm(v)+(near?'@'+Math.round(la/4)+','+Math.round(lo/5):'');let r=cache.get(ck);
-  if(!r){ctl&&ctl.abort();ctl=new AbortController();loading=true;render();
-    const vb=near?`&viewbox=${lo-5},${la+4},${lo+5},${la-4}`:'';      // prefers (not restricts to) the region you're looking at
-    try{r=await(await fetch(`${CFG.nominatim}?format=jsonv2&limit=8&dedupe=1&addressdetails=1&accept-language=en${vb}&q=`+encodeURIComponent(v),{signal:ctl.signal})).json();cache.set(ck,r)}
-    catch(e){loading=false;if(e.name!=='AbortError')toast('Worldwide search is unavailable right now. Local suggestions still work.');render();return}
-    loading=false}
-  if(q.value.trim()!==v)return;
-  remoteItems=r.map(x=>{const b=x.boundingbox?x.boundingbox.map(Number):null,la2=+x.lat;let span=.0004;if(b)span=Math.max((b[1]-b[0])*R,(b[3]-b[2])*R*Math.cos(la2*R));
-    const parts=x.display_name.split(', ');return{n:x.name||parts[0],sub:parts.slice(1,4).join(', '),t:x.addresstype||x.type||'place',lat:la2,lon:+x.lon,dist:1+clamp(span*1.7,.0008,2.4),k:norm(x.name||parts[0])}})
-    .filter(x=>!items.some(i=>i.k===x.k&&Math.abs(i.lat-x.lat)<.3&&Math.abs(i.lon-x.lon)<.3));
-  render();if(go){remoteItems.length?pickItem(remoteItems[0]):items.length?pickItem(items[0]):toast('No matches found.')}
-}
-function pickItem(it){addRecent(it);select({name:it.n,sub:(it.t?it.t+' · ':'')+it.sub,lat:it.lat,lon:it.lon,dist:it.dist});q.value=it.n;res.hidden=true;q.blur()}
-
-// ---------- Time ----------
-let off=0,offS=0,simMs=Date.now();
-$('#t').oninput=e=>{off=+e.target.value};$('#b-live').onclick=()=>{off=0;$('#t').value=0};
-
-// ---------- Loop ----------
-function resize(){const dpr=Math.max(1,Math.min(devicePixelRatio||1,$('#hq').checked?(mobile?2:2.5):1.25)*dprScale);renderer.setPixelRatio(dpr);renderer.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;vShiftApplied=-1;camera.updateProjectionMatrix();if(sky.userData.sm)sky.userData.sm.uniforms.pr.value=dpr}
-addEventListener('resize',resize);resize();dist=distT=home();
-let lastT=performance.now(),frameN=0,lastTile=0,lastInfo=0,fAcc=0,fN=0;
-document.addEventListener('visibilitychange',()=>{lastT=performance.now()});
-function frame(t){
-  requestAnimationFrame(frame);if(document.hidden||ctxLost){lastT=t;return}
-  const dt=Math.min((t-lastT)/1e3,.1);lastT=t;frameN++;fAcc+=dt;fN++;
-  if(fAcc>2.5){const avg=fAcc/fN;fAcc=0;fN=0;if(avg>.03&&dprScale>.55){dprScale-=.15;resize()}else if(avg<.019&&dprScale<1){dprScale=Math.min(1,dprScale+.1);resize()}}   // dynamic resolution
-  offS+=(off-offS)*(1-Math.exp(-dt*7));if(Math.abs(off-offS)<.01)offS=off;simMs=Date.now()+offS*6e4;const s=sunAt(simMs);
-  earthMat.uniforms.sun.value.copy(s.v);sunLight.position.copy(s.v).multiplyScalar(10);
-  earthMat.uniforms.lights.value=L('lights')?1:0;earthMat.uniforms.shade.value=L('shade')?1:0;
-  if(flight){
-    flight.t+=dt/flight.dur;const k=Math.min(1,flight.t),e=ease(k);
-    lat=flight.la0+(flight.la1-flight.la0)*e;lon=flight.lo0+(flight.lo1-flight.lo0)*e;
-    dist=1+Math.exp(Math.max(Math.log(MIN-1),flight.h0+(flight.h1-flight.h0)*e+flight.bump*Math.sin(Math.PI*e)));
-    latT=lat;lonT=lon;distT=dist;if(k>=1){lon=wrapPi(lon);lonT=lon;flight=null}
-  }else{
-    const target=(paused||dragging)?0:+$('#speed').value*R*Math.min(1,(dist-1)/1.2);                        // deg/s → rad/s, slower when zoomed in
-    rotCur+=(target-rotCur)*(1-Math.exp(-dt*1.5));lon-=rotCur*dt;lonT-=rotCur*dt;                 // eased start, frame-rate independent
-    const k=1-Math.exp(-dt*(dragging?22:5));lon+=wrapPi(lonT-lon)*k;lat+=(latT-lat)*k;
-    dist=1+Math.exp(Math.log(dist-1)+(Math.log(distT-1)-Math.log(dist-1))*k);
-  }
-  lon=wrapPi(lon);lonT=lon+wrapPi(lonT-lon);bearing+=wrapPi(bearingT-bearing)*(1-Math.exp(-dt*(dragging?22:6)));
-  if(Math.abs(vShift-panelH/2)>.2||vShiftApplied!==vShift){vShift+=(panelH/2-vShift)*(1-Math.exp(-dt*7));if(Math.abs(vShift-panelH/2)<.3)vShift=panelH/2;if(vShift!==vShiftApplied){vShiftApplied=vShift;vShift<.5?camera.clearViewOffset():camera.setViewOffset(innerWidth,innerHeight,0,vShift,innerWidth,innerHeight)}}   // keep the selected place above the bottom sheet
-  camera.position.copy(vec(lat,lon,dist));{const p=camera.position,l=p.length(),px=p.x/l,py=p.y/l,pz=p.z/l;let nx=-py*px,ny=1-py*py,nz=-py*pz;const nl=Math.hypot(nx,ny,nz)||1;nx/=nl;ny/=nl;nz/=nl;
-    const ex=ny*pz-nz*py,ey=nz*px-nx*pz,ez=nx*py-ny*px,cb=Math.cos(bearing),sb=Math.sin(bearing);camera.up.set(nx*cb+ex*sb,ny*cb+ey*sb,nz*cb+ez*sb)}   // up = north rotated by the bearing
-  camera.near=Math.max(4e-6,(dist-1)*.2);camera.far=300;camera.updateProjectionMatrix();camera.lookAt(0,0,0);camera.updateMatrixWorld();
-  sky.position.copy(camera.position);earthMat.uniforms.cam.value.copy(camera.position);
-  atmoMat.uniforms.fade.value=clamp((dist-1.01)/.25,0,1);atmo.visible=atmoMat.uniforms.fade.value>.01;lightsMat.uniforms.fade.value=clamp((dist-2.4)/.8,0,1);lightsMesh.visible=L('lights')&&lightsMat.uniforms.fade.value>.01;
-  const to=mode==='live'?1:clamp((3.2-dist)/.5,0,1);flatU.value=clamp((2.2-dist)/1,0,1);clouds.rotation.y+=dt*.0015;const co=clamp((dist-2.6)/.7,0,1)*.7;cloudMat.opacity=co;clouds.visible=L('clouds')&&mode!=='live'&&co>.01;
-  borders.visible=L('borders')&&dist>1.04;if(L('borders')&&dist<1.4)loadStates();if(states)states.visible=dist<1.4;
-  const ovO=clamp((1.014-dist)/.004,0,1);
-  for(const x of tiles.values())if(x.vis){x.fade=Math.min(1,x.fade+dt*3.5);x.mat.uniforms.opacity.value=Math.min(x.kind==='o'?ovO:to,x.fade)}
-  if(t-lastTile>250){lastTile=t;panelH=(!$('#info').hidden&&innerWidth<760)?$('#info').offsetHeight+6:0;updateTiles(t);updateDyn();selectLabels();updateChip(t);$('#attr').textContent='EarthVision v0.6 · '+(to>.05&&L('tiles')?LY().attr.replace('{date}',liveDate())+(LY().overlay&&dist<1.016?' · '+LY().overlay.attr:'')+' · ':'')+'Places: Natural Earth + OpenStreetMap (Overpass) · Textures: NASA-derived (three.js examples) · Search: Nominatim'}
-  positionLabels();
-  {const nb=$('#b-north'),on=Math.abs(wrapPi(bearing))>.03;if(nb.hidden===on)nb.hidden=!on;if(on)$('#np').style.transform=`rotate(${-bearing}rad)`}
-  const gr=groundR();   // markers sit exactly on the map surface
-  {const el=$('#me');
-    if(me&&meD&&L('me')){const kk=1-Math.exp(-dt*5);meD.lat+=(me.lat-meD.lat)*kk;meD.lon+=(me.lon-meD.lon)*kk;meD.acc+=(me.acc-meD.acc)*kk;meV.copy(vec(meD.lat*R,meD.lon*R,gr));tv.copy(meV).project(camera);const vis=meV.dot(camDir.copy(camera.position).normalize())>Math.min(1/dist+.002,.9995);el.style.display=vis?'block':'none';
-      if(vis){el.style.transform=`translate(${((tv.x+1)/2*innerWidth).toFixed(1)}px,${((1-tv.y)/2*innerHeight).toFixed(1)}px)`;
-        const px=meD.acc/6371000*(innerHeight/(2*Math.tan(camera.fov*R/2)*(dist-1))),acc=el.firstChild;if(px>12&&px<900){acc.style.display='block';acc.style.width=acc.style.height=(2*px).toFixed(0)+'px'}else acc.style.display='none'}}
-    else if(el.style.display!=='none')el.style.display='none'}
-  if(pin){tv.copy(pin).multiplyScalar(gr).project(camera);const el=$('#pin'),vis=pin.dot(camDir.copy(camera.position).normalize())>Math.min(1/dist+.005,.9995);el.style.display=vis?'block':'none';el.style.transform=`translate(${(tv.x+1)/2*innerWidth}px,${(1-tv.y)/2*innerHeight}px)`}
-  if(t-lastInfo>500){lastInfo=t;if(document.activeElement!==$('#brg')){const bd=Math.round(wrapPi(bearing)/R);$('#brg').value=bd;$('#bv').textContent=bd}const d=new Date(simMs);$('#utc').textContent=d.toISOString().slice(11,19);$('#utcd').textContent=d.toISOString().slice(0,10);
-    const live=off===0;$('#live').textContent=live?'LIVE':(off<0?'PAST':'FUTURE');$('#live').classList.toggle('sim',!live);
-    $('#t-lab').textContent=live?'LIVE':(off>0?'+':'−')+Math.floor(Math.abs(off)/60)+'h '+String(Math.abs(off)%60).padStart(2,'0')+'m';updateInfo()}
-  renderer.render(scene,camera);
-}
-try{const h=/^#p=(-?[\d.]+),(-?[\d.]+),([\d.]+),?(.*)$/.exec(location.hash);if(h)select({name:decodeURIComponent(h[4]||'Shared place'),sub:'Shared place',lat:+h[1],lon:+h[2],dist:clamp(+h[3],MIN,MAX)})}catch{}
-window.__ev=()=>({gr:groundR(),lat:lat/R,lon:lon/R,dist,bearing:bearing/R,paused,vShift,off,offS,regions:regionLabels.length,seas:seaLabels.length,me:me&&{lat:me.lat,lon:me.lon},proj:(la,lo,r)=>{const v=vec(la*R,lo*R,r).project(camera);return[(v.x+1)/2*innerWidth,(1-v.y)/2*innerHeight]},labels:shown.map(p=>p.n),dyn:dyn.sorted.length,cells:dyn.cells.size});
-requestAnimationFrame(frame);
-
+$('generateDay').addEventListener('click',()=>{const type=$('focusType').value,mins=Number($('timeAvailable').value),tpl=planTemplates[type]||planTemplates.balanced;const chosen=tpl.slice(0,mins<=30?2:mins<=60?3:4);chosen.forEach(x=>addTask(x[0],x[1],x[2]));$('planResult').innerHTML=`<div class="result"><strong>Your starter plan is ready.</strong>\nAdded ${chosen.length} tasks to today's list. Adjust them to fit your real schedule.</div>`;toast('Starter plan added.');});
+function showResult(id,html){$(id).innerHTML=html;$(id).classList.remove('hidden');}
+$('buildGoalPlan').addEventListener('click',()=>{const goal=$('goalPrompt').value.trim();if(!goal){toast('Enter a goal first.');$('goalPrompt').focus();return;}const days=Number($('goalDays').value);const steps=days<=7?['Define what done looks like','Complete the smallest useful first step','Do a focused work session','Review and adjust your approach','Check the outcome and choose the next step']:['Define the outcome and your starting point','Break the goal into 3–5 milestones','Schedule short, repeatable work sessions','Complete the first milestone and note blockers','Review progress each week and adjust','Finish a milestone, capture what worked, and plan the next one'];showResult('goalPlanResult',`<strong>Your ${days}-day starter plan</strong>\nGoal: ${escapeHTML(goal)}\n\n${steps.map((s,i)=>`${i+1}. ${s}`).join('\n')}\n\nSuggested rhythm: choose one small action per day, then review progress weekly.\n\nThis is a general planning template, not a generated AI assessment.`);});
+$('checkBudget').addEventListener('click',()=>{const vals=['income','needs','wants','savings'].map(id=>Number($(id).value));if(vals.some((v,i)=>$(['income','needs','wants','savings'][i]).value.trim()===''||!Number.isFinite(v)||v<0)){toast('Enter a valid non-negative number in each field.');return;}const [income,needs,wants,savings]=vals;const remain=income-needs-wants-savings;const fmt=n=>new Intl.NumberFormat(undefined,{style:'currency',currency:(navigator.language||'en-US').toLowerCase().includes('in')?'INR':'USD',maximumFractionDigits:0}).format(n);let tip=remain<0?'Your planned spending is above your income. Review flexible expenses and avoid taking on debt without understanding the cost.':remain===0?'Your budget is fully allocated. Consider leaving a small buffer for unexpected costs if possible.':'You have '+fmt(remain)+' unallocated. You could keep a buffer or direct some toward a priority goal.';showResult('budgetResult',`<strong>Monthly budget snapshot</strong>\nIncome: ${fmt(income)}\nNeeds & bills: ${fmt(needs)}\nWants & extras: ${fmt(wants)}\nSavings / debt payments: ${fmt(savings)}\n${remain<0?'Over budget: ': 'Left unallocated: '}${fmt(Math.abs(remain))}\n\n${tip}\n\nThis is a basic estimate, not financial advice.`);});
+$('makeStudyPlan').addEventListener('click',()=>{const subject=$('studySubject').value.trim(),days=Number($('studyDays').value),hours=Number($('studyHours').value);if(!subject||!Number.isFinite(days)||days<1||days>365||!Number.isFinite(hours)||hours<.5||hours>16){toast('Add a topic and valid study time.');return;}const total=Math.round(days*hours*10)/10;showResult('studyResult',`<strong>Your study sprint</strong>\nFocus: ${escapeHTML(subject)}\nTime available: ${days} days × ${hours} hours = ${total} hours\n\nDaily session idea:\n1. 5–10 min: recall what you know\n2. Main block: learn one section\n3. 10–15 min: practice without notes\n4. 5 min: record gaps for tomorrow\n\nReserve the final ${Math.max(1,Math.ceil(days*.15))} day(s) for review and practice. Adjust the workload to your syllabus and energy.`);});
+$('unstickMe').addEventListener('click',()=>{const problem=$('stuckOn').value.trim();if(!problem){toast('Describe what is getting you stuck.');return;}showResult('ideaResult',`<strong>Your next-step reset</strong>\nYou wrote: “${escapeHTML(problem)}”\n\n1. Name the outcome you actually want.\n2. Write down what is in your control today.\n3. Pick one action that takes 10 minutes or less.\n4. Do that action before adding more tasks.\n5. Review what changed, then choose the next step.\n\nIf this involves a high-stakes medical, legal, financial, or safety issue, use an appropriately qualified professional. This template is a starting point, not a diagnosis or expert assessment.`);});
+function setProfile(){const name=state.profile||'';$('displayName').value=name;$('profilePreview').textContent=name||'Your LifePilot';$('avatar').textContent=(name.trim()[0]||'Y').toUpperCase();$('settingsAvatar').textContent=(name.trim()[0]||'Y').toUpperCase();$('welcomeTitle').textContent=name?`Let's make today count, ${name}.`:"Let's make today count.";}
+$('saveProfile').addEventListener('click',()=>{state.profile=$('displayName').value.trim().slice(0,40);save();setProfile();toast('Profile saved on this device.');});
+$('exportData').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='lifepilot-data.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);toast('Your data export is ready.');});
+$('clearData').addEventListener('click',()=>{if(confirm('Clear all LifePilot data saved in this browser? This cannot be undone unless you exported it.')){state=defaultState();save();setProfile();render();toast('Local data cleared.');}});
+function init(){const d=new Date();$('datePill').textContent=fmtDate(d);$('greeting').textContent=d.getHours()<12?'A FRESH START AWAITS':d.getHours()<18?'MAKE SPACE FOR WHAT MATTERS':'SMALL STEPS STILL COUNT';setProfile();render();}
+init();
+})();
 </script>
-</body></html>
+</body>
+</html>
