@@ -1,110 +1,177 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#07100d">
-<title>TraderProX AI | Trading Copilot</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TraderProX AI</title>
 <style>
-:root{--bg:#070b0a;--panel:#0e1512;--panel2:#121d18;--line:#20352a;--text:#edf7f0;--muted:#91a69a;--green:#39e58c;--green2:#16a765;--red:#ff6b78;--amber:#ffd166}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% -10%,#123321 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
-button,input,select,textarea{font:inherit}button{cursor:pointer}.app{display:grid;grid-template-columns:235px 1fr;min-height:100vh}.side{border-right:1px solid var(--line);padding:22px 14px;background:#080e0b;display:flex;flex-direction:column;gap:24px}.brand{display:flex;align-items:center;gap:10px;padding:0 8px}.logo{height:38px;width:38px;border-radius:12px;background:linear-gradient(135deg,var(--green),#0e7549);display:grid;place-items:center;color:#04140b;font-weight:900;font-size:19px}.brand b{font-size:15px;letter-spacing:.2px}.brand small{display:block;color:var(--muted);font-size:11px}.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:var(--muted);padding:11px 12px;text-align:left;border-radius:10px;display:flex;gap:11px;align-items:center}.nav button.active,.nav button:hover{background:#14241b;color:var(--green)}.nav .ico{width:20px;text-align:center}.side-note{margin-top:auto;border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--muted);font-size:12px}.side-note strong{color:var(--green);display:block;margin-bottom:4px}.main{min-width:0;padding:24px clamp(14px,3vw,36px) 42px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.8px;color:var(--green);font-weight:800}.top h1{margin:3px 0 0;font-size:clamp(23px,3vw,31px);letter-spacing:-.8px}.status{border:1px solid #24523a;background:#102319;color:var(--green);border-radius:999px;padding:7px 11px;font-size:12px;white-space:nowrap}.section{display:none}.section.active{display:block}.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.card{background:linear-gradient(145deg,#101914,#0b110e);border:1px solid var(--line);border-radius:16px;padding:17px;min-width:0}.stat-label{font-size:12px;color:var(--muted)}.stat-value{font-size:23px;font-weight:750;margin:6px 0 2px;letter-spacing:-.6px}.stat-sub{font-size:11px;color:var(--muted)}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.cols{grid-template-columns:minmax(0,1.45fr) minmax(260px,.85fr)}.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.card h2{font-size:16px;margin:0}.sub{font-size:12px;color:var(--muted)}.pill{border:1px solid var(--line);border-radius:999px;padding:4px 9px;color:var(--muted);font-size:11px}.watch{width:100%;border-collapse:collapse}.watch td{padding:11px 4px;border-bottom:1px solid #1b2a21}.watch tr:last-child td{border:0}.ticker{font-weight:750}.ticker small{display:block;color:var(--muted);font-size:11px;font-weight:400}.price{text-align:right;font-variant-numeric:tabular-nums}.price small{display:block}.chart-wrap{height:210px;position:relative}.chart-wrap svg{width:100%;height:100%;overflow:visible}.chart-legend{display:flex;gap:14px;font-size:11px;color:var(--muted);margin-top:8px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}.btn{background:var(--green);color:#06120b;border:0;border-radius:10px;padding:10px 14px;font-weight:800}.btn:hover{filter:brightness(1.07)}.btn.secondary{background:#17251c;color:var(--text);border:1px solid var(--line)}.btn.danger{background:#35171b;color:#ffb2b8;border:1px solid #61252e}.btn.small{padding:7px 10px;font-size:12px}.field{display:grid;gap:6px;margin-bottom:12px}.field label{font-size:12px;color:var(--muted)}.field input,.field select,.field textarea{width:100%;background:#080e0b;color:var(--text);border:1px solid #294034;border-radius:9px;padding:11px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green)}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.result{background:#0a1a11;border:1px solid #1f5838;border-radius:12px;padding:14px;margin-top:12px}.result .big{font-size:25px;font-weight:800;color:var(--green)}.chatbox{display:flex;flex-direction:column;min-height:520px}.messages{flex:1;display:flex;flex-direction:column;gap:12px;padding:5px 0 18px}.msg{max-width:88%;border:1px solid var(--line);background:#111b15;border-radius:14px;padding:12px 14px;white-space:pre-wrap}.msg.user{align-self:flex-end;background:#123722;border-color:#245b3b}.msg .who{font-size:10px;color:var(--green);font-weight:800;letter-spacing:.7px;margin-bottom:4px}.chatform{display:flex;gap:8px;border-top:1px solid var(--line);padding-top:14px}.chatform input{flex:1;min-width:0;background:#080e0b;border:1px solid #294034;border-radius:10px;padding:12px;color:var(--text)}.quick{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px}.quick button{font-size:12px}.journal-table{width:100%;border-collapse:collapse;font-size:13px}.journal-table th,.journal-table td{text-align:left;padding:11px 7px;border-bottom:1px solid var(--line)}.journal-table th{color:var(--muted);font-size:11px;font-weight:600}.empty{text-align:center;color:var(--muted);padding:26px}.notice{border:1px solid #5a4b24;background:#211d10;color:#e8d49b;padding:12px 14px;border-radius:12px;font-size:12px;margin-bottom:16px}.footer{color:#71857a;font-size:11px;text-align:center;margin-top:25px}.hide{display:none!important}
-@media(max-width:900px){.app{grid-template-columns:1fr}.side{position:sticky;top:0;z-index:5;padding:10px 12px;border-right:0;border-bottom:1px solid var(--line);gap:10px}.brand{padding:0 4px}.logo{height:32px;width:32px}.nav{display:flex;overflow:auto;gap:4px}.nav button{white-space:nowrap;padding:9px}.side-note{display:none}.main{padding-top:18px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cols{grid-template-columns:1fr}}
-@media(max-width:520px){.status{font-size:10px;padding:6px 8px}.top{align-items:flex-start}.stat-value{font-size:20px}.formgrid{grid-template-columns:1fr}.msg{max-width:96%}.card{padding:14px}.nav button{font-size:12px}.nav .ico{display:none}}
+:root{--bg:#07100d;--panel:#0d1914;--panel2:#11221a;--line:#203b2c;--green:#42f59b;--muted:#9db6a7;--text:#edf8f1;--red:#ff7272;--yellow:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#103321 0,transparent 40%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 13px}button:hover{border-color:var(--green)}.wrap{max-width:1180px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--green);color:#052013;font-weight:900;font-size:20px}.brand h1{font-size:20px;margin:0}.brand p{color:var(--muted);margin:0;font-size:12px}.pill{border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}.pill b{color:var(--yellow)}.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.85fr);gap:16px}.card{background:linear-gradient(160deg,#102019,#0a1510);border:1px solid var(--line);border-radius:17px;padding:18px;min-width:0}.card h2{font-size:16px;margin:0 0 12px}.sub{font-size:12px;color:var(--muted)}.chatbox{height:390px;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:4px 2px 12px}.msg{max-width:92%;padding:11px 13px;border-radius:13px;white-space:pre-wrap;overflow-wrap:anywhere}.bot{align-self:flex-start;background:#14271c;border:1px solid #244331}.user{align-self:flex-end;background:#17462d;border:1px solid #2d754a}.chatform{display:flex;gap:8px;margin-top:10px}.chatform textarea{flex:1;resize:vertical;min-height:48px;max-height:140px;background:#07120c;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px}.primary{background:var(--green);color:#062013;border-color:var(--green);font-weight:750}.primary:disabled{opacity:.5;cursor:wait}.keyrow{display:flex;gap:8px;margin:10px 0}.keyrow input,.field input,.field select{width:100%;min-width:0;background:#07120c;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}.keyrow input{flex:1}.status{font-size:12px;color:var(--muted);margin-top:7px}.status.ok{color:var(--green)}.status.err{color:var(--red)}.quick{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 14px}.quick button{font-size:12px;padding:7px 9px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{padding:12px;border-radius:12px;background:#0a1710;border:1px solid var(--line)}.stat span{display:block;color:var(--muted);font-size:11px}.stat strong{font-size:18px}.chart{height:150px;display:flex;align-items:end;gap:6px;padding:14px 2px 5px;border-bottom:1px solid var(--line)}.bar{flex:1;min-width:3px;border-radius:5px 5px 0 0;background:linear-gradient(#42f59b,#1b6b45);opacity:.8}.notice{padding:10px 12px;background:#211c0b;border:1px solid #55471a;color:#e8d79c;border-radius:10px;font-size:12px;margin-top:12px}.field{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}.result{padding:12px;border-radius:11px;background:#0a1710;border:1px solid var(--line);margin-top:10px}.result strong{color:var(--green);font-size:20px}.journalrow{display:flex;gap:8px;margin-top:10px}.journalrow input,.journalrow select{min-width:0;flex:1;background:#07120c;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px}.journal-list{margin-top:10px;display:grid;gap:7px}.trade{display:flex;justify-content:space-between;gap:10px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:12px}.footer{color:var(--muted);font-size:11px;text-align:center;margin:18px 0 4px}.hidden{display:none!important}@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:13px}.chatbox{height:340px}.stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:420px){.stats{grid-template-columns:1fr 1fr}.keyrow{flex-direction:column}.chatform{align-items:stretch}.chatform .primary{padding:8px}}
 </style>
 </head>
 <body>
-<div class="app">
-<aside class="side">
- <div class="brand"><div class="logo">T</div><div><b>TraderProX AI</b><small>Trading copilot · MVP</small></div></div>
- <nav class="nav">
-  <button class="active" data-page="overview"><span class="ico">▦</span> Overview</button>
-  <button data-page="assistant"><span class="ico">✳</span> AI Assistant</button>
-  <button data-page="risk"><span class="ico">⌗</span> Risk Calculator</button>
-  <button data-page="journal"><span class="ico">▤</span> Trade Journal</button>
- </nav>
- <div class="side-note"><strong>FREE MVP MODE</strong>Market values shown here are illustrative demo data, not live prices. Chat answers use a built-in starter knowledge base until an AI API is connected.</div>
-</aside>
-<main class="main">
- <header class="top"><div><div class="eyebrow">Your market workspace</div><h1 id="pageTitle">Overview</h1></div><div class="status">● Demo mode · No API key</div></header>
- <div class="notice">⚠️ Educational tool only. Prices and chart are demo illustrations, not live market data or investment advice. Verify all prices from a trusted exchange before making decisions.</div>
-
- <section id="overview" class="section active">
-  <div class="grid stats">
-   <div class="card"><div class="stat-label">Markets covered</div><div class="stat-value">2</div><div class="stat-sub">Indian equities + crypto</div></div>
-   <div class="card"><div class="stat-label">Risk per trade</div><div class="stat-value green">1%*</div><div class="stat-sub">Example risk rule, not a promise</div></div>
-   <div class="card"><div class="stat-label">Saved trades</div><div class="stat-value" id="statTrades">0</div><div class="stat-sub">Stored in this browser</div></div>
-   <div class="card"><div class="stat-label">AI status</div><div class="stat-value amber">Starter</div><div class="stat-sub">API connection not configured</div></div>
-  </div>
-  <div class="grid cols">
-   <div class="card"><div class="card-head"><h2>Illustrative market chart</h2><span class="pill">SAMPLE DATA</span></div>
-    <div class="chart-wrap"><svg viewBox="0 0 620 230" role="img" aria-label="Illustrative candlestick chart"><g stroke="#20352a" stroke-width="1"><path d="M20 30H600 M20 75H600 M20 120H600 M20 165H600 M20 210H600"/></g><g id="candles"></g><path d="M20 175 C80 160 100 175 150 135 S220 150 270 100 S350 125 400 80 S490 95 600 38" fill="none" stroke="#39e58c" stroke-width="2" opacity=".7"/></svg></div>
-    <div class="chart-legend"><span><i class="dot" style="background:#39e58c"></i>Up candle</span><span><i class="dot" style="background:#ff6b78"></i>Down candle</span><span>Illustration only</span></div>
-   </div>
-   <div class="card"><div class="card-head"><h2>Watchlist</h2><span class="pill">NOT LIVE</span></div>
-    <table class="watch"><tbody>
-     <tr><td><span class="ticker">NIFTY 50<small>India · Index</small></span></td><td class="price">24,850.00<small class="green">+0.42% sample</small></td></tr>
-     <tr><td><span class="ticker">BANKNIFTY<small>India · Index</small></span></td><td class="price">56,120.00<small class="red">−0.18% sample</small></td></tr>
-     <tr><td><span class="ticker">BTC/USDT<small>Crypto</small></span></td><td class="price">67,420.00<small class="green">+1.21% sample</small></td></tr>
-     <tr><td><span class="ticker">ETH/USDT<small>Crypto</small></span></td><td class="price">2,580.00<small class="red">−0.36% sample</small></td></tr>
-    </tbody></table>
-    <button class="btn secondary" style="width:100%;margin-top:13px" onclick="showPage('assistant')">Ask the trading assistant ↗</button>
-   </div>
-  </div>
-  <div class="card" style="margin-top:14px"><div class="card-head"><h2>Quick tools</h2><span class="sub">Pick a starting point</span></div><div class="quick"><button class="btn secondary" onclick="askPrompt('Explain support and resistance in simple Hinglish')">Support & resistance</button><button class="btn secondary" onclick="askPrompt('Explain RSI and its limitations')">RSI explained</button><button class="btn secondary" onclick="showPage('risk')">Calculate position size</button><button class="btn secondary" onclick="showPage('journal')">Log a trade</button></div></div>
- </section>
-
- <section id="assistant" class="section">
-  <div class="card chatbox"><div class="card-head"><div><h2>TraderProX AI Assistant</h2><div class="sub">Ask about concepts, setups, and risk management</div></div><span class="pill">OFFLINE STARTER</span></div>
-   <div class="quick"><button class="btn secondary small" onclick="askPrompt('What is RSI? Explain in Hinglish.')">What is RSI?</button><button class="btn secondary small" onclick="askPrompt('How do I calculate risk-reward ratio?')">Risk/reward</button><button class="btn secondary small" onclick="askPrompt('Explain a bullish engulfing candle and its limitations')">Candlestick patterns</button><button class="btn secondary small" onclick="askPrompt('Give me a pre-trade checklist')">Pre-trade checklist</button></div>
-   <div id="messages" class="messages"><div class="msg"><div class="who">TRADERPROX AI · STARTER</div>Welcome! I can explain trading concepts and basic risk management. This first version uses a small built-in knowledge base, not a live AI model or real-time market feed.\n\nTry asking: “What is RSI?”, “How do I size a position?”, or “Explain support and resistance.”</div></div>
-   <form class="chatform" id="chatForm"><input id="chatInput" placeholder="Ask in English or Hinglish…" autocomplete="off" required><button class="btn" type="submit">Send ↑</button></form>
-  </div>
- </section>
-
- <section id="risk" class="section">
-  <div class="grid cols">
-   <div class="card"><div class="card-head"><h2>Position size calculator</h2><span class="pill">LOCAL CALCULATION</span></div>
-    <div class="formgrid"><div class="field"><label>Account balance (₹)</label><input id="balance" type="number" min="1" value="10000"></div><div class="field"><label>Risk per trade (%)</label><input id="riskPct" type="number" min="0.01" max="100" step=".1" value="1"></div><div class="field"><label>Entry price (₹)</label><input id="entry" type="number" min=".000001" step="any" value="250"></div><div class="field"><label>Stop-loss price (₹)</label><input id="stop" type="number" min=".000001" step="any" value="245"></div></div>
-    <button class="btn" onclick="calcRisk()">Calculate risk</button>
-    <div class="result" id="riskResult"><div class="sub">Estimated max planned loss</div><div class="big">₹100.00</div><div class="sub">Position size: 20 units · Before fees, slippage, and gaps.</div></div>
-   </div>
-   <div class="card"><h2>How to use it</h2><p class="sub">1. Enter the account size you choose to risk from.</p><p class="sub">2. Pick an entry and a stop-loss level that fits your own plan.</p><p class="sub">3. The calculator estimates units using the distance between entry and stop.</p><div class="notice" style="margin-top:18px">This is arithmetic, not a recommendation to take a trade. Derivatives and leveraged crypto can lose money quickly. Contract lot sizes and margin rules are not included in this MVP.</div></div>
-  </div>
- </section>
-
- <section id="journal" class="section">
-  <div class="grid cols">
-   <div class="card"><div class="card-head"><h2>Log a trade</h2><span class="pill">SAVED ON THIS DEVICE</span></div>
-    <form id="tradeForm"><div class="formgrid"><div class="field"><label>Market / ticker</label><input id="ticker" placeholder="e.g. NIFTY / BTC" required></div><div class="field"><label>Side</label><select id="side"><option>Long</option><option>Short</option></select></div><div class="field"><label>Entry price</label><input id="jEntry" type="number" step="any" required></div><div class="field"><label>Exit price</label><input id="jExit" type="number" step="any" required></div><div class="field"><label>Quantity</label><input id="qty" type="number" min=".000001" step="any" value="1" required></div><div class="field"><label>Notes (optional)</label><input id="notes" placeholder="Setup, lesson, emotion…"></div></div><button class="btn" type="submit">Save trade</button></form>
-   </div>
-   <div class="card"><h2>Journal summary</h2><div class="stat-value" id="journalPnl">₹0.00</div><div class="stat-label">Net recorded P/L before fees</div><div class="stat-value" id="journalCount">0</div><div class="stat-label">Trades logged</div><button class="btn danger small" style="margin-top:18px" onclick="clearJournal()">Clear all trades</button></div>
-  </div>
-  <div class="card" style="margin-top:14px;overflow:auto"><div class="card-head"><h2>Trade history</h2><span class="sub">Browser-local storage</span></div><table class="journal-table"><thead><tr><th>Date</th><th>Ticker</th><th>Side</th><th>Entry → Exit</th><th>Qty</th><th>P/L</th><th></th></tr></thead><tbody id="journalRows"><tr><td colspan="7" class="empty">No trades yet. Your first journal entry starts here.</td></tr></tbody></table></div>
- </section>
- <div class="footer">TraderProX AI MVP · Demo data is illustrative · Not financial advice</div>
+<div class="wrap">
+<header class="top">
+ <div class="brand"><div class="logo">TP</div><div><h1>TraderProX <span style="color:var(--green)">AI</span></h1><p>Market learning companion · India + Crypto</p></div></div>
+ <div class="pill">AI status: <b id="topStatus">API key needed</b></div>
+</header>
+<div class="grid">
+<main class="card">
+ <h2>AI Trading Assistant</h2>
+ <div class="sub">Ask about concepts, indicators, risk, chart patterns, or trading plans.</div>
+ <div class="keyrow"><input id="apiKey" type="password" autocomplete="off" placeholder="Paste your NEW Gemini API key here"><button id="saveKey">Connect</button></div>
+ <div class="status" id="keyStatus">Your key stays in this page's memory only. It is not saved to local storage.</div>
+ <div class="quick">
+  <button data-prompt="Explain support and resistance in simple Hinglish with an example.">Support & resistance</button>
+  <button data-prompt="Explain RSI and its limitations for beginners.">RSI basics</button>
+  <button data-prompt="Create a beginner-friendly trading risk management checklist.">Risk checklist</button>
+  <button data-prompt="Explain the difference between investing, trading, and gambling.">Trading basics</button>
+ </div>
+ <div class="chatbox" id="chatbox" aria-live="polite">
+  <div class="msg bot">Salaam! Main TraderProX AI hoon. Gemini connect karne ke baad main tumhare trading questions samjha sakta hoon. Apna sawal Hinglish ya English mein poochho.</div>
+ </div>
+ <form class="chatform" id="chatForm"><textarea id="question" placeholder="Ask your trading question..." required></textarea><button class="primary" id="sendBtn" type="submit">Send ↗</button></form>
+ <div class="notice">Educational use only. AI can make mistakes and this is not financial advice. Do not share API keys in public. No live market prices are connected in this single-file version.</div>
 </main>
+<aside style="display:grid;gap:16px;align-content:start">
+ <section class="card">
+  <h2>Market watch <span class="sub">· sample only</span></h2>
+  <div class="stats">
+   <div class="stat"><span>NIFTY 50</span><strong>Sample</strong><span>Not live data</span></div>
+   <div class="stat"><span>BTC / USD</span><strong>Sample</strong><span>Not live data</span></div>
+   <div class="stat"><span>GOLD</span><strong>Sample</strong><span>Not live data</span></div>
+  </div>
+  <div class="chart" aria-label="Illustrative chart">
+   <div class="bar" style="height:34%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:39%"></div><div class="bar" style="height:61%"></div><div class="bar" style="height:54%"></div><div class="bar" style="height:70%"></div><div class="bar" style="height:62%"></div><div class="bar" style="height:82%"></div><div class="bar" style="height:73%"></div><div class="bar" style="height:91%"></div><div class="bar" style="height:78%"></div><div class="bar" style="height:88%"></div>
+  </div>
+  <div class="sub">Illustrative graphic only, not a price chart or signal.</div>
+ </section>
+ <section class="card">
+  <h2>Position size calculator</h2>
+  <div class="field">
+   <div><label for="capital">Account size (₹)</label><input id="capital" type="number" value="10000" min="0"></div>
+   <div><label for="risk">Risk per trade (%)</label><input id="risk" type="number" value="1" min="0" max="100" step=".1"></div>
+   <div><label for="entry">Entry price (₹)</label><input id="entry" type="number" value="250" min="0" step=".01"></div>
+   <div><label for="stop">Stop-loss price (₹)</label><input id="stop" type="number" value="245" min="0" step=".01"></div>
+  </div>
+  <div class="result">Risk budget: <strong id="riskBudget">₹100</strong><br><span class="sub" id="positionResult">Estimated quantity: 20 units</span></div>
+  <div class="sub" style="margin-top:7px">Excludes fees, slippage, lot sizes, and leverage constraints.</div>
+ </section>
+ <section class="card">
+  <h2>Trade journal</h2>
+  <div class="sub">Saved only in this browser on this device.</div>
+  <div class="journalrow"><input id="tradeName" placeholder="Trade / setup"><select id="tradeResult"><option value="Win">Win</option><option value="Loss">Loss</option><option value="Break-even">Break-even</option></select><button id="addTrade">Add</button></div>
+  <div class="journal-list" id="journalList"></div>
+  <button id="clearJournal" style="margin-top:9px;font-size:12px">Clear journal</button>
+ </section>
+</aside>
+</div>
+<div class="footer">TraderProX AI · Keep risk small, learn consistently, verify every answer.</div>
 </div>
 <script>
-const $=id=>document.getElementById(id);
-const titles={overview:"Overview",assistant:"AI Assistant",risk:"Risk Calculator",journal:"Trade Journal"};
-function showPage(p){document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===p));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$('pageTitle').textContent=titles[p]||'Overview';window.scrollTo({top:0,behavior:'smooth'});}
-document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
-function drawCandles(){let g=$('candles'),s='',vals=[130,120,137,108,115,96,110,80,93,71,88,65,72,49,60,43,53,34,47,27,38,20];for(let i=0;i<vals.length;i++){let x=28+i*26,y=vals[i],up=i%4!==1,body=12+(i%3)*3,color=up?'#39e58c':'#ff6b78';s+=`<line x1="${x}" y1="${y-15}" x2="${x}" y2="${y+19}" stroke="${color}" stroke-width="2"/><rect x="${x-5}" y="${y}" width="10" height="${body}" rx="1" fill="${color}" opacity=".9"/>`;}g.innerHTML=s;}drawCandles();
-function calcRisk(){let b=+$('balance').value,r=+$('riskPct').value,e=+$('entry').value,st=+$('stop').value;let loss=b*r/100,dist=Math.abs(e-st);if(!(b>0&&r>0&&r<=100&&e>0&&st>0&&dist>0)){ $('riskResult').innerHTML='<span class="red">Enter positive values and make sure entry differs from stop-loss.</span>';return;}let units=loss/dist;$('riskResult').innerHTML=`<div class="sub">Estimated max planned loss</div><div class="big">₹${loss.toLocaleString('en-IN',{maximumFractionDigits:2})}</div><div class="sub">Position size: ${units.toLocaleString('en-IN',{maximumFractionDigits:4})} units · Stop distance ₹${dist.toLocaleString('en-IN',{maximumFractionDigits:4})} per unit.</div><div class="sub" style="margin-top:6px">Excludes fees, slippage, gaps, leverage, and contract lot-size rules.</div>`;}
-['balance','riskPct','entry','stop'].forEach(id=>$(id).addEventListener('input',calcRisk));calcRisk();
-function botReply(q){let s=q.toLowerCase();
-if(/first trade|pehla trade|1k|1000|capital|sl lag|stop.?loss|\bsl\b|kitna paisa|entry kaise|trade kaise/.test(s))return 'Bhai, ₹1,000 capital par pehle goal profit banana nahi, risk control seekhna hona chahiye. Example ke liye agar tum sirf 1% risk choose karte ho, toh ek trade ka planned risk ₹10 hoga. Position size = ₹10 ÷ (entry aur stop-loss ka per-unit difference).\n\nSL kahan lagana hai? Random 1%/2% door nahi. Apne setup ko invalid karne wale level ke aage lagao, jaise long trade mein relevant swing low ke neeche, phir us SL ke hisaab se quantity calculate karo. Agar valid SL ke saath quantity/fees practical nahi banti, trade skip karo.\n\nBeginner ke liye leverage aur options se bachna behtar hai; ₹1,000 mein brokerage, charges aur price movement ka impact proportionally bada hota hai. Ye educational example hai, live signal nahi. Main live price/chart nahi dekh raha.';
-if(/risk.?reward|risk reward|rrr/.test(s))return 'Risk-reward ratio = potential reward ÷ planned risk. Example: entry ₹100, SL ₹95, target ₹110: risk ₹5, reward ₹10, yani 1:2. Fees, slippage aur win rate bhi matter karte hain; sirf 1:2 ratio profitable strategy ki guarantee nahi.';
-if(/rsi|relative strength/.test(s))return 'RSI (Relative Strength Index) ek momentum indicator hai, usually 0–100 scale par. 70 se upar ko often overbought aur 30 se neeche ko often oversold maana jata hai, lekin strong trend mein RSI kaafi der tak extreme reh sakta hai. RSI ko akela buy/sell signal mat samjho; trend, price action aur risk plan ke saath context dekho.';if(/support|resistance/.test(s))return 'Support ek price area hai jahan buying interest pehle ubhar sakta hai. Resistance ek area hai jahan selling pressure aa sakta hai. Inhe exact single line ke bajaye zones samjho. Purane swing highs/lows aur repeated reactions dekho; breakout guaranteed nahi hota aur false breakouts common hain.';if(/risk.reward|risk reward|rrr/.test(s))return 'Risk-reward ratio = possible reward ÷ possible risk. Example: entry ₹100, stop ₹95, target ₹110. Risk ₹5, reward ₹10, ratio 1:2. Ye ratio akela strategy ko profitable nahi banata. Win rate, fees, slippage aur execution bhi matter karte hain.';if(/position size|quantity|how many units|calculate.*risk/.test(s))return 'Basic formula: position size = amount you are willing to lose ÷ absolute(entry − stop-loss). Example: account ₹10,000, risk 1% = ₹100; entry ₹250 and stop ₹245 gives ₹100 ÷ ₹5 = 20 units. Fees, slippage, gaps, lot sizes and leverage can change real outcomes. Risk Calculator tab try karo.';if(/bullish engulf|engulfing|candlestick pattern/.test(s))return 'Bullish engulfing generally means a bullish candle body covers the previous bearish candle body. Traders may look for it near support, but context and confirmation matter. Candlestick patterns are not reliable on their own, and this MVP does not inspect live charts.';if(/checklist|before.*trade|pre.trade/.test(s))return 'Pre-trade checklist:\\n1. What is the setup and why is it valid?\\n2. Where is entry, stop-loss, and invalidation?\\n3. What is the planned rupee risk and position size?\\n4. Is the reward worth the risk after costs?\\n5. Is there a major event or low-liquidity period?\\n6. Can you accept the loss without moving the stop impulsively?\\n7. Record the plan in your journal. No checklist removes risk.';if(/nifty|banknifty|btc|bitcoin|ethereum|solana|price|live market|current price/.test(s))return 'Is MVP mein live market feed connected nahi hai, isliye main current price ya live trend verify nahi kar sakta. Exchange/broker ke trusted live chart par price check karo. Agar tum chart ka context ya indicator values text mein do, main educational interpretation mein help kar sakta hoon.';if(/hello|hi |hey|salam|namaste/.test(s))return 'Hello! Main TraderProX AI ka starter assistant hoon. Hindi/Hinglish mein trading concepts, risk maths, indicators aur journaling par help kar sakta hoon. Abhi live AI API ya market data connected nahi hai.';
-if(/hindi|hinglish|samajh|bata|kaise|kya hai|kyu|kyun|kab/.test(s))return 'Haan bhai, Hindi/Hinglish mein poochh sakte ho. Main abhi offline starter mode mein hoon, isliye mere answers limited hain. Tum RSI, support/resistance, candlestick patterns, risk-reward, position sizing, ya stop-loss ke baare mein poochho. Live price ya chart ka real-time analysis abhi connected nahi hai.';
-return 'Is sawal ka reliable jawab dene ke liye mujhe zyada context ya real AI model ki zaroorat ho sakti hai. Abhi main offline starter mode mein hoon, full AI model connected nahi hai. Trading basics, stop-loss, risk-reward aur position sizing ke baare mein poochh sakte ho. Live market prices connected nahi hain.';}
-function addMsg(text,who){let d=document.createElement('div');d.className='msg '+(who==='user'?'user':'');let w=document.createElement('div');w.className='who';w.textContent=who==='user'?'YOU':'TRADERPROX AI · STARTER';let t=document.createElement('div');t.style.whiteSpace='pre-wrap';t.textContent=String(text).replace(/\\\\n/g,'\\n');d.append(w,t);$('messages').append(d);$('messages').scrollTop=$('messages').scrollHeight;}
-function sendChat(q){if(!q.trim())return;addMsg(q,'user');$('chatInput').value='';setTimeout(()=>addMsg(botReply(q),'bot'),180);}
-$('chatForm').addEventListener('submit',e=>{e.preventDefault();sendChat($('chatInput').value);});function askPrompt(q){showPage('assistant');sendChat(q);}
-const KEY='traderprox_ai_journal_v1';function getTrades(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return []}}function saveTrades(a){localStorage.setItem(KEY,JSON.stringify(a));renderJournal()}
-function tradePnl(t){let delta=(+t.exit)-(+t.entry);return (t.side==='Long'?delta:-delta)*(+t.qty)}
-function renderJournal(){let ts=getTrades(),pnl=ts.reduce((a,t)=>a+tradePnl(t),0);$('statTrades').textContent=ts.length;$('journalCount').textContent=ts.length;$('journalPnl').textContent=(pnl<0?'−':'')+'₹'+Math.abs(pnl).toLocaleString('en-IN',{maximumFractionDigits:2});$('journalPnl').className='stat-value '+(pnl>0?'green':pnl<0?'red':'');if(!ts.length){$('journalRows').innerHTML='<tr><td colspan="7" class="empty">No trades yet. Your first journal entry starts here.</td></tr>';return;}$('journalRows').innerHTML=ts.map((t,i)=>{let p=tradePnl(t);return `<tr><td>${new Date(t.date).toLocaleDateString()}</td><td><b>${escapeHtml(t.ticker)}</b><div class="sub">${escapeHtml(t.notes||'')}</div></td><td>${t.side}</td><td>${(+t.entry).toLocaleString()} → ${(+t.exit).toLocaleString()}</td><td>${(+t.qty).toLocaleString()}</td><td class="${p>=0?'green':'red'}">${p<0?'−':''}₹${Math.abs(p).toLocaleString('en-IN',{maximumFractionDigits:2})}</td><td><button class="btn danger small" onclick="deleteTrade(${i})">Delete</button></td></tr>`}).join('')}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-$('tradeForm').addEventListener('submit',e=>{e.preventDefault();let t={ticker:$('ticker').value.trim(),side:$('side').value,entry:+$('jEntry').value,exit:+$('jExit').value,qty:+$('qty').value,notes:$('notes').value.trim(),date:new Date().toISOString()};if(!t.ticker||!(t.entry>0&&t.exit>0&&t.qty>0)){alert('Please enter valid trade details.');return;}saveTrades([t,...getTrades()]);$('tradeForm').reset();$('qty').value=1;});function deleteTrade(i){let t=getTrades();t.splice(i,1);saveTrades(t)}function clearJournal(){if(confirm('Delete all locally saved trades from this browser?'))saveTrades([])}renderJournal();
+(() => {
+ const $ = id => document.getElementById(id);
+ let apiKey = "";
+ let history = [];
+ const box = $("chatbox");
+ function addMessage(text, who="bot") {
+   const div = document.createElement("div");
+   div.className = "msg " + who;
+   div.textContent = text;
+   box.appendChild(div);
+   box.scrollTop = box.scrollHeight;
+   return div;
+ }
+ function setStatus(text, type="") {
+   $("keyStatus").textContent = text;
+   $("keyStatus").className = "status " + type;
+   $("topStatus").textContent = type === "ok" ? "Connected" : type === "err" ? "Needs attention" : "API key needed";
+ }
+ $("saveKey").addEventListener("click", () => {
+   const value = $("apiKey").value.trim();
+   if (!value) { setStatus("Pehle apni NEW Gemini API key paste karo.", "err"); return; }
+   apiKey = value;
+   setStatus("Key page memory mein hai. Connection test karne ke liye ek sawal bhejo.", "ok");
+ });
+ async function askGemini(message) {
+   if (!apiKey) throw new Error("Pehle Gemini API key paste karke Connect dabao.");
+   const contents = [...history, {role:"user", parts:[{text:message}]}];
+   const controller = new AbortController();
+   const timeout = setTimeout(() => controller.abort(), 20000);
+   try {
+     const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent", {
+       method:"POST",
+       signal:controller.signal,
+       headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},
+       body:JSON.stringify({
+         contents,
+         systemInstruction:{parts:[{text:"You are TraderProX AI, a careful trading education assistant for Indian markets and cryptocurrency. Reply in the user's language, often simple Hinglish. Explain concepts clearly. Never claim to have live prices or guarantee profits. Do not give personalized buy/sell commands. Mention risk management and independent verification. Keep answers concise."}]},
+         generationConfig:{maxOutputTokens:600}
+       })
+     });
+     const data = await response.json().catch(() => ({}));
+     if (!response.ok) {
+       const msg = data?.error?.message || ("Gemini API error " + response.status);
+       if (response.status === 429 || response.status === 503) {
+         setStatus("Gemini busy or limit reached. Try again in a minute.", "err");
+         throw new Error(msg + "\nGemini is busy or your usage limit may be reached. Try again in a minute; this version won't keep waiting on multiple models.");
+       }
+       setStatus("API key or access issue.", "err");
+       throw new Error(msg);
+     }
+     const answer = data?.candidates?.[0]?.content?.parts?.map(p=>p.text||"").join("").trim();
+     if (!answer) throw new Error("Gemini returned an empty response. Please try again.");
+     history.push({role:"user",parts:[{text:message}]},{role:"model",parts:[{text:answer}]});
+     if (history.length > 8) history = history.slice(-8);
+     setStatus("Gemini responded successfully.", "ok");
+     return answer;
+   } catch (err) {
+     if (err.name === "AbortError") {
+       setStatus("Request timed out after 20 seconds.", "err");
+       throw new Error("No reply within 20 seconds. Gemini may be overloaded or the connection is slow. Try again shortly.");
+     }
+     throw err;
+   } finally {
+     clearTimeout(timeout);
+   }
+ }
+ $("chatForm").addEventListener("submit", async e => {
+   e.preventDefault();
+   const message = $("question").value.trim();
+   if (!message) return;
+   $("question").value = "";
+   addMessage(message, "user");
+   const send = $("sendBtn"); send.disabled = true; send.textContent = "Thinking…";
+   const pending = addMessage("Gemini se jawab aa raha hai…");
+   try { pending.textContent = await askGemini(message); }
+   catch(err) { pending.textContent = "Connection error: " + err.message + "\n\nCheck your API key, internet connection, and Google AI Studio access. For a public website, a server-side backend is safer than putting the key in the browser."; setStatus("Connection failed. Check key or API limits.", "err"); }
+   finally { send.disabled = false; send.textContent = "Send ↗"; box.scrollTop = box.scrollHeight; }
+ });
+ document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>{$("question").value=b.dataset.prompt;$("question").focus()}));
+ function calc() {
+   const capital = Math.max(0, Number($("capital").value)||0);
+   const risk = Math.min(100, Math.max(0, Number($("risk").value)||0));
+   const entry = Math.max(0, Number($("entry").value)||0);
+   const stop = Math.max(0, Number($("stop").value)||0);
+   const budget = capital*risk/100;
+   const diff = Math.abs(entry-stop);
+   const qty = diff > 0 ? Math.floor(budget/diff) : 0;
+   $("riskBudget").textContent = budget.toLocaleString("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2});
+   $("positionResult").textContent = diff > 0 ? "Estimated quantity: " + qty.toLocaleString("en-IN") + " units" : "Set different entry and stop-loss prices.";
+ }
+ ["capital","risk","entry","stop"].forEach(id=>$(id).addEventListener("input",calc)); calc();
+ const journalKey = "traderprox_ai_journal_v1";
+ function readJournal(){try{return JSON.parse(localStorage.getItem(journalKey)||"[]")}catch{return []}}
+ function drawJournal(){
+   const list=$("journalList"); list.replaceChildren();
+   const trades=readJournal();
+   if(!trades.length){const empty=document.createElement("div");empty.className="sub";empty.textContent="No trades saved yet.";list.appendChild(empty);return;}
+   trades.slice().reverse().forEach(t=>{const row=document.createElement("div");row.className="trade";const name=document.createElement("span");name.textContent=t.name;const result=document.createElement("b");result.textContent=t.result;result.style.color=t.result==="Win"?"var(--green)":t.result==="Loss"?"var(--red)":"var(--yellow)";row.append(name,result);list.appendChild(row)});
+ }
+ $("addTrade").addEventListener("click",()=>{const name=$("tradeName").value.trim();if(!name){$("tradeName").focus();return}const trades=readJournal();trades.push({name,result:$("tradeResult").value});try{localStorage.setItem(journalKey,JSON.stringify(trades));$("tradeName").value="";drawJournal()}catch{alert("Browser storage is unavailable.")}});
+ $("clearJournal").addEventListener("click",()=>{if(confirm("Clear all journal entries from this browser?")){localStorage.removeItem(journalKey);drawJournal()}});
+ drawJournal();
+})();
 </script>
-</body></html>
+</body>
+</html>
