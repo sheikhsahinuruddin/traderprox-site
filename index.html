@@ -19,7 +19,7 @@
 <main class="card">
  <h2>AI Trading Assistant</h2>
  <div class="sub">Ask about concepts, indicators, risk, chart patterns, or trading plans.</div>
- <div class="status" id="keyStatus">AI connection is managed securely by the site. No API key needed from visitors.</div>
+ <div class="status" id="keyStatus">Secure AI connection. Site visitors do not need an API key. If chat fails, the site owner must configure the backend URL.</div>
  <div class="quick">
   <button data-prompt="Explain support and resistance in simple Hinglish with an example.">Support & resistance</button>
   <button data-prompt="Explain RSI and its limitations for beginners.">RSI basics</button>
@@ -95,7 +95,7 @@
    const controller = new AbortController();
    const timeout = setTimeout(() => controller.abort(), 25000);
    try {
-     const response = await fetch("/.netlify/functions/chat", {
+     const response = await fetch("PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE", {
        method:"POST",
        signal:controller.signal,
        headers:{"Content-Type":"application/json"},
@@ -132,7 +132,7 @@
    const send = $("sendBtn"); send.disabled = true; send.textContent = "Thinking…";
    const pending = addMessage("Gemini se jawab aa raha hai…");
    try { pending.textContent = await askGemini(message); }
-   catch(err) { pending.textContent = "Connection error: " + err.message + "\n\nCheck the deployed site backend configuration and try again."; setStatus("AI service is not ready. Check site backend configuration.", "err"); }
+   catch(err) { pending.textContent = "Connection error: " + err.message + "\n\nCheck the deployed site backend configuration and try again."; setStatus("AI backend is not configured or reachable. Check the Worker URL and backend settings.", "err"); }
    finally { send.disabled = false; send.textContent = "Send ↗"; box.scrollTop = box.scrollHeight; }
  });
  document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>{$("question").value=b.dataset.prompt;$("question").focus()}));
