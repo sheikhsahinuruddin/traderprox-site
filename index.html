@@ -1,165 +1,185 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TraderProX AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TraderProX – AI Trading & Investment Guide</title>
 <style>
-:root{--bg:#07100d;--panel:#0d1914;--panel2:#11221a;--line:#203b2c;--green:#42f59b;--muted:#9db6a7;--text:#edf8f1;--red:#ff7272;--yellow:#ffd166}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#103321 0,transparent 40%),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 13px}button:hover{border-color:var(--green)}.wrap{max-width:1180px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:var(--green);color:#052013;font-weight:900;font-size:20px}.brand h1{font-size:20px;margin:0}.brand p{color:var(--muted);margin:0;font-size:12px}.pill{border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}.pill b{color:var(--yellow)}.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.85fr);gap:16px}.card{background:linear-gradient(160deg,#102019,#0a1510);border:1px solid var(--line);border-radius:17px;padding:18px;min-width:0}.card h2{font-size:16px;margin:0 0 12px}.sub{font-size:12px;color:var(--muted)}.chatbox{height:390px;overflow:auto;display:flex;flex-direction:column;gap:12px;padding:4px 2px 12px}.msg{max-width:92%;padding:11px 13px;border-radius:13px;white-space:pre-wrap;overflow-wrap:anywhere}.bot{align-self:flex-start;background:#14271c;border:1px solid #244331}.user{align-self:flex-end;background:#17462d;border:1px solid #2d754a}.chatform{display:flex;gap:8px;margin-top:10px}.chatform textarea{flex:1;resize:vertical;min-height:48px;max-height:140px;background:#07120c;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px}.primary{background:var(--green);color:#062013;border-color:var(--green);font-weight:750}.primary:disabled{opacity:.5;cursor:wait}.keyrow{display:flex;gap:8px;margin:10px 0}.keyrow input,.field input,.field select{width:100%;min-width:0;background:#07120c;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px}.keyrow input{flex:1}.status{font-size:12px;color:var(--muted);margin-top:7px}.status.ok{color:var(--green)}.status.err{color:var(--red)}.quick{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 14px}.quick button{font-size:12px;padding:7px 9px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{padding:12px;border-radius:12px;background:#0a1710;border:1px solid var(--line)}.stat span{display:block;color:var(--muted);font-size:11px}.stat strong{font-size:18px}.chart{height:150px;display:flex;align-items:end;gap:6px;padding:14px 2px 5px;border-bottom:1px solid var(--line)}.bar{flex:1;min-width:3px;border-radius:5px 5px 0 0;background:linear-gradient(#42f59b,#1b6b45);opacity:.8}.notice{padding:10px 12px;background:#211c0b;border:1px solid #55471a;color:#e8d79c;border-radius:10px;font-size:12px;margin-top:12px}.field{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px}.result{padding:12px;border-radius:11px;background:#0a1710;border:1px solid var(--line);margin-top:10px}.result strong{color:var(--green);font-size:20px}.journalrow{display:flex;gap:8px;margin-top:10px}.journalrow input,.journalrow select{min-width:0;flex:1;background:#07120c;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px}.journal-list{margin-top:10px;display:grid;gap:7px}.trade{display:flex;justify-content:space-between;gap:10px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:12px}.footer{color:var(--muted);font-size:11px;text-align:center;margin:18px 0 4px}.hidden{display:none!important}@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:13px}.chatbox{height:340px}.stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:420px){.stats{grid-template-columns:1fr 1fr}.keyrow{flex-direction:column}.chatform{align-items:stretch}.chatform .primary{padding:8px}}
+:root{--bg:#f5f7fb;--surf:#fff;--surf2:#eef2f9;--line:#dde4f0;--text:#0e1726;--mute:#5d6b85;--ac:#3b6cf6;--ac2:#7a5cf5;--up:#12a774;--dn:#e5484d;--shadow:0 10px 30px rgba(20,40,90,.10);--chart:#f8faff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+:root[data-theme="dark"]{--bg:#080c14;--surf:#101725;--surf2:#162033;--line:#212d44;--text:#e8edf8;--mute:#8d9bb8;--ac:#6c8dff;--ac2:#9b82ff;--up:#2dd4a0;--dn:#ff6b70;--shadow:0 10px 30px rgba(0,0,0,.45);--chart:#0b111d;color-scheme:dark}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55;transition:background .25s,color .25s}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1000px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:12px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:.4px;flex:none}
+.name{font-weight:800;font-size:18px}.name small{display:block;font-weight:500;font-size:11px;color:var(--mute);margin-top:-2px}
+.sp{flex:1}
+.nav a{color:var(--mute);text-decoration:none;font-size:14px;margin-right:6px;padding:6px 10px;border-radius:8px}.nav a:hover{background:var(--surf2);color:var(--text)}
+#theme{border:1px solid var(--line);background:var(--surf);color:var(--text);height:38px;padding:0 14px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
+#theme:hover{border-color:var(--ac)}
+main{max-width:1000px;margin:0 auto;padding:22px 18px 10px}
+.intro{text-align:center;margin-bottom:16px}
+.intro h1{font-size:30px;margin:0 0 4px;letter-spacing:-.5px}.intro h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.intro p{margin:0;color:var(--mute);font-size:15px}
+.chatbox{background:var(--surf);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;height:calc(100dvh - 190px);min-height:460px;max-height:760px;overflow:hidden}
+#log{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:84%;padding:11px 15px;border-radius:16px;font-size:15px;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border-bottom-right-radius:5px}
+.msg.bot{align-self:flex-start;background:var(--surf2);border-bottom-left-radius:5px}
+.msg p{margin:0 0 8px}.msg p:last-child{margin:0}.msg ul{margin:6px 0;padding-left:20px}.msg b{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{border:1px solid var(--line);background:var(--surf);color:var(--text);padding:8px 13px;border-radius:999px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--ac);color:var(--ac)}
+form{display:flex;gap:10px;padding:12px;border-top:1px solid var(--line);background:var(--surf)}
+textarea{flex:1;resize:none;background:var(--surf2);color:var(--text);border:1px solid transparent;border-radius:14px;padding:12px 15px;font:inherit;font-size:15px;max-height:120px;outline:none}
+textarea:focus{border-color:var(--ac)}
+.send{border:0;border-radius:14px;padding:0 22px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));cursor:pointer}
+.send:disabled{opacity:.5}
+.note{text-align:center;color:var(--mute);font-size:11.5px;margin:10px 0 0}
+.dots span{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:var(--mute);animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
+section{max-width:1000px;margin:0 auto;padding:48px 18px 20px}
+h2{font-size:26px;margin:0 0 6px;letter-spacing:-.3px}.lead{color:var(--mute);margin:0 0 22px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;transition:.2s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--ac)}
+.card svg{width:100%;height:auto;background:var(--chart);border-radius:10px;border:1px solid var(--line)}
+.k{font-size:11px;font-weight:700;color:var(--ac);margin:12px 0 2px;text-transform:uppercase;letter-spacing:.8px}
+.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0 0 12px;color:var(--mute);font-size:14px;flex:1}
+.ask{background:var(--surf2);border:0;color:var(--ac);border-radius:9px;padding:8px 13px;cursor:pointer;font-weight:700;font-size:13px;align-self:flex-start}
+.ask:hover{background:var(--ac);color:#fff}
+footer{max-width:1000px;margin:30px auto 0;padding:22px 18px 30px;border-top:1px solid var(--line);color:var(--mute);font-size:12px;text-align:center}
+svg .up{fill:var(--up);stroke:var(--up)}svg .dn{fill:var(--dn);stroke:var(--dn)}
+svg .ac{fill:none;stroke:var(--ac);stroke-width:3}svg .pr{fill:none;stroke:var(--text);stroke-width:2.5}
+svg .mu{fill:none;stroke:var(--mute);stroke-width:2}svg .ds{fill:none;stroke-dasharray:4 3}
+svg .gl{fill:none;stroke:var(--line)}svg .t{fill:var(--mute);font-size:9px}svg .tb{fill:var(--text);font-size:9px;font-weight:600}svg .tu{fill:var(--up);font-size:9px;font-weight:700}svg .td{fill:var(--dn);font-size:9px;font-weight:700}svg .ta{fill:var(--ac);font-size:9px;font-weight:700}
+svg .zu{fill:var(--up);opacity:.13;stroke:none}svg .zd{fill:var(--dn);opacity:.13;stroke:none}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.nav{display:none}.intro h1{font-size:24px}.chatbox{height:calc(100dvh - 170px)}.msg{max-width:92%}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header class="top">
- <div class="brand"><div class="logo">TP</div><div><h1>TraderProX <span style="color:var(--green)">AI</span></h1><p>Market learning companion · India + Crypto</p></div></div>
- <div class="pill">AI status: <b id="topStatus">API key needed</b></div>
-</header>
-<div class="grid">
-<main class="card">
- <h2>AI Trading Assistant</h2>
- <div class="sub">Ask about concepts, indicators, risk, chart patterns, or trading plans.</div>
- <div class="status" id="keyStatus">Secure AI connection. Site visitors do not need an API key. If chat fails, the site owner must configure the backend URL.</div>
- <div class="quick">
-  <button data-prompt="Explain support and resistance in simple Hinglish with an example.">Support & resistance</button>
-  <button data-prompt="Explain RSI and its limitations for beginners.">RSI basics</button>
-  <button data-prompt="Create a beginner-friendly trading risk management checklist.">Risk checklist</button>
-  <button data-prompt="Explain the difference between investing, trading, and gambling.">Trading basics</button>
- </div>
- <div class="chatbox" id="chatbox" aria-live="polite">
-  <div class="msg bot">Salaam! Main TraderProX AI hoon. Gemini connect karne ke baad main tumhare trading questions samjha sakta hoon. Apna sawal Hinglish ya English mein poochho.</div>
- </div>
- <form class="chatform" id="chatForm"><textarea id="question" placeholder="Ask your trading question..." required></textarea><button class="primary" id="sendBtn" type="submit">Send ↗</button></form>
- <div class="notice">Educational use only. AI can make mistakes and this is not financial advice. Do not share API keys in public. No live market prices are connected yet.</div>
-</main>
-<aside style="display:grid;gap:16px;align-content:start">
- <section class="card">
-  <h2>Market watch <span class="sub">· sample only</span></h2>
-  <div class="stats">
-   <div class="stat"><span>NIFTY 50</span><strong>Sample</strong><span>Not live data</span></div>
-   <div class="stat"><span>BTC / USD</span><strong>Sample</strong><span>Not live data</span></div>
-   <div class="stat"><span>GOLD</span><strong>Sample</strong><span>Not live data</span></div>
-  </div>
-  <div class="chart" aria-label="Illustrative chart">
-   <div class="bar" style="height:34%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:39%"></div><div class="bar" style="height:61%"></div><div class="bar" style="height:54%"></div><div class="bar" style="height:70%"></div><div class="bar" style="height:62%"></div><div class="bar" style="height:82%"></div><div class="bar" style="height:73%"></div><div class="bar" style="height:91%"></div><div class="bar" style="height:78%"></div><div class="bar" style="height:88%"></div>
-  </div>
-  <div class="sub">Illustrative graphic only, not a price chart or signal.</div>
- </section>
- <section class="card">
-  <h2>Position size calculator</h2>
-  <div class="field">
-   <div><label for="capital">Account size (₹)</label><input id="capital" type="number" value="10000" min="0"></div>
-   <div><label for="risk">Risk per trade (%)</label><input id="risk" type="number" value="1" min="0" max="100" step=".1"></div>
-   <div><label for="entry">Entry price (₹)</label><input id="entry" type="number" value="250" min="0" step=".01"></div>
-   <div><label for="stop">Stop-loss price (₹)</label><input id="stop" type="number" value="245" min="0" step=".01"></div>
-  </div>
-  <div class="result">Risk budget: <strong id="riskBudget">₹100</strong><br><span class="sub" id="positionResult">Estimated quantity: 20 units</span></div>
-  <div class="sub" style="margin-top:7px">Excludes fees, slippage, lot sizes, and leverage constraints.</div>
- </section>
- <section class="card">
-  <h2>Trade journal</h2>
-  <div class="sub">Saved only in this browser on this device.</div>
-  <div class="journalrow"><input id="tradeName" placeholder="Trade / setup"><select id="tradeResult"><option value="Win">Win</option><option value="Loss">Loss</option><option value="Break-even">Break-even</option></select><button id="addTrade">Add</button></div>
-  <div class="journal-list" id="journalList"></div>
-  <button id="clearJournal" style="margin-top:9px;font-size:12px">Clear journal</button>
- </section>
-</aside>
-</div>
-<div class="footer">TraderProX AI · Keep risk small, learn consistently, verify every answer.</div>
-</div>
-<script>
-(() => {
- const $ = id => document.getElementById(id);
+<header><div class="bar">
+  <div class="logo">TPX</div><div class="name">TraderProX<small>AI Trading Guide</small></div>
+  <div class="sp"></div>
+  <div class="nav"><a href="#tools">Trading tools</a></div>
+  <button id="theme" type="button" aria-label="Switch day or night theme"><span id="ti">☾</span><span id="tl">Night</span></button>
+</div></header>
 
- let history = [];
- const box = $("chatbox");
- function addMessage(text, who="bot") {
-   const div = document.createElement("div");
-   div.className = "msg " + who;
-   div.textContent = text;
-   box.appendChild(div);
-   box.scrollTop = box.scrollHeight;
-   return div;
- }
- function setStatus(text, type="") {
-   $("keyStatus").textContent = text;
-   $("keyStatus").className = "status " + type;
-   $("topStatus").textContent = type === "ok" ? "Connected" : type === "err" ? "Needs attention" : "API key needed";
- }
- function setStatus(text, type="") {
-   $("keyStatus").textContent = text;
-   $("keyStatus").className = "status " + type;
-   $("topStatus").textContent = type === "ok" ? "Connected" : type === "err" ? "Needs attention" : "Checking";
- }
- async function askGemini(message) {
-   const controller = new AbortController();
-   const timeout = setTimeout(() => controller.abort(), 25000);
-   try {
-     const response = await fetch("PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE", {
-       method:"POST",
-       signal:controller.signal,
-       headers:{"Content-Type":"application/json"},
-       body:JSON.stringify({message, history:history.slice(-8)})
-     });
-     const data = await response.json().catch(() => ({}));
-     if (!response.ok) {
-       const msg = data?.error || ("Chat service error " + response.status);
-       setStatus(msg, "err");
-       throw new Error(msg);
-     }
-     const answer = (data.answer || "").trim();
-     if (!answer) throw new Error("AI returned an empty reply. Please try again.");
-     history.push({role:"user",parts:[{text:message}]},{role:"model",parts:[{text:answer}]});
-     if (history.length > 8) history = history.slice(-8);
-     setStatus("AI responded successfully.", "ok");
-     return answer;
-   } catch (err) {
-     if (err.name === "AbortError") {
-       setStatus("Request timed out. Try again shortly.", "err");
-       throw new Error("No reply within 25 seconds. The AI service may be busy. Try again shortly.");
-     }
-     throw err;
-   } finally {
-     clearTimeout(timeout);
-   }
- }
- $("chatForm").addEventListener("submit", async e => {
-   e.preventDefault();
-   const message = $("question").value.trim();
-   if (!message) return;
-   $("question").value = "";
-   addMessage(message, "user");
-   const send = $("sendBtn"); send.disabled = true; send.textContent = "Thinking…";
-   const pending = addMessage("Gemini se jawab aa raha hai…");
-   try { pending.textContent = await askGemini(message); }
-   catch(err) { pending.textContent = "Connection error: " + err.message + "\n\nCheck the deployed site backend configuration and try again."; setStatus("AI backend is not configured or reachable. Check the Worker URL and backend settings.", "err"); }
-   finally { send.disabled = false; send.textContent = "Send ↗"; box.scrollTop = box.scrollHeight; }
- });
- document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>{$("question").value=b.dataset.prompt;$("question").focus()}));
- function calc() {
-   const capital = Math.max(0, Number($("capital").value)||0);
-   const risk = Math.min(100, Math.max(0, Number($("risk").value)||0));
-   const entry = Math.max(0, Number($("entry").value)||0);
-   const stop = Math.max(0, Number($("stop").value)||0);
-   const budget = capital*risk/100;
-   const diff = Math.abs(entry-stop);
-   const qty = diff > 0 ? Math.floor(budget/diff) : 0;
-   $("riskBudget").textContent = budget.toLocaleString("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2});
-   $("positionResult").textContent = diff > 0 ? "Estimated quantity: " + qty.toLocaleString("en-IN") + " units" : "Set different entry and stop-loss prices.";
- }
- ["capital","risk","entry","stop"].forEach(id=>$(id).addEventListener("input",calc)); calc();
- const journalKey = "traderprox_ai_journal_v1";
- function readJournal(){try{return JSON.parse(localStorage.getItem(journalKey)||"[]")}catch{return []}}
- function drawJournal(){
-   const list=$("journalList"); list.replaceChildren();
-   const trades=readJournal();
-   if(!trades.length){const empty=document.createElement("div");empty.className="sub";empty.textContent="No trades saved yet.";list.appendChild(empty);return;}
-   trades.slice().reverse().forEach(t=>{const row=document.createElement("div");row.className="trade";const name=document.createElement("span");name.textContent=t.name;const result=document.createElement("b");result.textContent=t.result;result.style.color=t.result==="Win"?"var(--green)":t.result==="Loss"?"var(--red)":"var(--yellow)";row.append(name,result);list.appendChild(row)});
- }
- $("addTrade").addEventListener("click",()=>{const name=$("tradeName").value.trim();if(!name){$("tradeName").focus();return}const trades=readJournal();trades.push({name,result:$("tradeResult").value});try{localStorage.setItem(journalKey,JSON.stringify(trades));$("tradeName").value="";drawJournal()}catch{alert("Browser storage is unavailable.")}});
- $("clearJournal").addEventListener("click",()=>{if(confirm("Clear all journal entries from this browser?")){localStorage.removeItem(journalKey);drawJournal()}});
- drawJournal();
-})();
+<main>
+  <div class="intro">
+    <h1>Questions about trading? <span>Just ask.</span></h1>
+    <p>Your AI trading mentor explains everything step by step, in the language you speak.</p>
+  </div>
+  <div class="chatbox">
+    <div id="log">
+      <div class="msg bot"><p>Hi! I’m <b>TraderProX AI</b>. Ask me anything about stocks, options, crypto, SIPs, charts or risk management, in any language you like.</p>
+        <div class="chips"><button class="chip">What is the stock market?</button><button class="chip">How do I place a stop loss?</button><button class="chip">Explain candlestick patterns</button><button class="chip">SIP vs lump sum?</button><button class="chip">Risk management basics</button></div></div>
+    </div>
+    <form id="f"><textarea id="q" rows="1" placeholder="Ask your question…" enterkeyhint="send"></textarea><button class="send" id="btn" type="submit">Send</button></form>
+  </div>
+  <p class="note">TraderProX is for education only, not financial advice. Trading involves risk of loss.</p>
+</main>
+
+<section id="tools">
+  <h2>Trading tools, visualised</h2>
+  <p class="lead">Tap “Ask TPX AI” on any card to get a full explanation in the chat.</p>
+  <div class="grid">
+    <div class="card">
+      <svg viewBox="0 0 240 130"><g stroke-width="2"><g class="up"><path d="M60 15V115"/><rect x="48" y="40" width="24" height="50" rx="2"/></g><g class="dn"><path d="M170 15V115"/><rect x="158" y="40" width="24" height="50" rx="2"/></g></g><g class="gl" stroke-dasharray="2 3"><path d="M72 15H90M72 40H90M72 90H90M72 115H90M182 40H198M182 90H198"/></g><g class="t"><text x="94" y="18">High</text><text x="94" y="43">Close</text><text x="94" y="93">Open</text><text x="94" y="118">Low</text><text x="202" y="43">Open</text><text x="202" y="93">Close</text></g><text class="tu" x="60" y="128" text-anchor="middle">Bullish (up)</text><text class="td" x="170" y="128" text-anchor="middle">Bearish (down)</text></svg>
+      <div class="k">Price action</div><h3>Candlestick Charts</h3>
+      <p>Each candle shows one time period. Green means price closed higher, red means lower. Wicks show the high and low.</p>
+      <button class="ask" data-q="Explain candlestick charts and the most important candlestick patterns with simple examples.">Ask TPX AI →</button>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 240 130"><g stroke-width="2.5"><path class="mu" d="M10 14H26"/><path class="ac" d="M80 14H96"/></g><text class="t" x="30" y="17">Price</text><text class="t" x="100" y="17">Moving Average</text><polyline class="mu" points="8,95 30,78 52,88 76,62 98,74 122,48 146,60 170,36 194,48 232,26"/><polyline class="ac" points="8,92 60,80 110,62 160,46 232,32"/><text class="tu" x="232" y="122" text-anchor="end">Price above MA = Uptrend</text></svg>
+      <div class="k">Trend</div><h3>Moving Averages</h3>
+      <p>The average price drawn as a smooth line. Price above the line suggests an uptrend, below it a downtrend.</p>
+      <button class="ask" data-q="Explain moving averages (SMA and EMA), golden cross and death cross with examples.">Ask TPX AI →</button>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 240 130"><rect class="zd" x="0" y="10" width="240" height="28"/><rect class="zu" x="0" y="92" width="240" height="28"/><path class="gl ds" d="M0 38H240M0 92H240"/><polyline class="ac" points="8,66 38,50 68,22 98,48 128,92 158,108 188,70 232,44"/><circle class="dn" cx="68" cy="22" r="4"/><circle class="up" cx="158" cy="108" r="4"/><text class="td" x="232" y="28" text-anchor="end">Overbought 70+</text><text class="tu" x="232" y="112" text-anchor="end">Oversold 30-</text><text class="t" x="6" y="66">RSI</text></svg>
+      <div class="k">Momentum</div><h3>RSI Indicator</h3>
+      <p>A 0 to 100 meter. Above 70 can mean overbought (pullback risk), below 30 can mean oversold (bounce chance).</p>
+      <button class="ask" data-q="Explain RSI indicator, how to read overbought and oversold levels, and its limitations.">Ask TPX AI →</button>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 240 130"><path class="ds dn" stroke-width="1.5" d="M0 30H240"/><path class="ds up" stroke-width="1.5" d="M0 100H240"/><polyline class="pr" points="8,90 40,34 72,98 104,34 136,98 168,34 200,70 232,16"/><text class="td" x="6" y="24">Resistance</text><text class="tu" x="6" y="116">Support</text><text class="ta" x="232" y="10" text-anchor="end">Breakout</text></svg>
+      <div class="k">Levels</div><h3>Support &amp; Resistance</h3>
+      <p>Support is a zone where price tends to stop falling. Resistance is where it tends to stop rising.</p>
+      <button class="ask" data-q="Explain support and resistance, how to draw them, and what a breakout means.">Ask TPX AI →</button>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 240 130"><polygon points="8,34 60,28 120,36 180,30 232,24 232,80 180,86 120,92 60,84 8,90" style="fill:var(--ac);opacity:.1"/><g fill="none" stroke="var(--ac)" stroke-width="1.5"><polyline points="8,34 60,28 120,36 180,30 232,24"/><polyline points="8,90 60,84 120,92 180,86 232,80"/></g><polyline class="mu ds" stroke-width="1.5" points="8,62 60,56 120,64 180,58 232,52"/><polyline class="pr" points="8,70 30,48 55,72 80,50 105,80 130,58 155,44 180,66 205,40 232,58"/><g class="t"><text x="232" y="17" text-anchor="end">Upper band</text><text x="6" y="108">Lower band</text></g><text class="tb" x="232" y="108" text-anchor="end">Price stays inside bands</text></svg>
+      <div class="k">Volatility</div><h3>Bollinger Bands</h3>
+      <p>Two bands around price. Tight bands often come before a big move, wide bands mean high volatility.</p>
+      <button class="ask" data-q="Explain Bollinger Bands, the squeeze, and how traders use them.">Ask TPX AI →</button>
+    </div>
+
+    <div class="card">
+      <svg viewBox="0 0 240 130"><rect x="34" y="65" width="206" height="11" style="fill:var(--ac);opacity:.14"/><path class="gl" d="M34 20H240M34 41H240M34 54H240M34 110H240"/><path stroke="var(--ac)" stroke-width="1.5" fill="none" d="M34 65H240M34 76H240"/><polyline class="ac" points="40,110 70,80 90,92 130,50 150,60 200,20"/><g class="t"><text x="4" y="23">0%</text><text x="4" y="44">23.6%</text><text x="4" y="57">38.2%</text><text class="ta" x="4" y="68">50%</text><text class="ta" x="4" y="79">61.8%</text><text x="4" y="113">100%</text></g><text class="ta" x="236" y="73" text-anchor="end">Golden zone</text></svg>
+      <div class="k">Retracement</div><h3>Fibonacci Levels</h3>
+      <p>Shows how far price may pull back after a big move. The 50% to 61.8% zone is watched most closely.</p>
+      <button class="ask" data-q="Explain Fibonacci retracement levels and how to use them to find entries with risk management.">Ask TPX AI →</button>
+    </div>
+
+  </div>
+</section>
+
+<footer><b>TPX · TraderProX</b><br>For education only, not financial advice. Trading and investing involve risk of loss. Always do your own research.</footer>
+
+<script>
+const root=document.documentElement,ti=document.getElementById('ti'),tl=document.getElementById('tl');
+function curTheme(){return root.dataset.theme||'light'}
+function paint(){const d=curTheme()==='dark';ti.textContent=d?'☀':'☾';tl.textContent=d?'Day':'Night'}
+try{const s=localStorage.getItem('tpx-theme');if(s)root.dataset.theme=s}catch(e){}
+paint();
+document.getElementById('theme').addEventListener('click',()=>{const n=curTheme()==='dark'?'light':'dark';root.dataset.theme=n;try{localStorage.setItem('tpx-theme',n)}catch(e){}paint()});
+
+const SYS=`You are TraderProX AI (TPX), a professional-grade trading and investment educator.
+LANGUAGE: Detect the language of the user's latest message and reply in that same language (English, Hindi, Hinglish meaning Hindi in Roman letters, or any other). Default to English if unclear. Keep standard trading terms in English.
+EXPERTISE: stocks, ETFs, mutual funds and SIPs, options and futures, forex, commodities, crypto, technical analysis (price action, candlesticks, trend, momentum, volatility, volume, support and resistance, chart patterns, Fibonacci), fundamental analysis (financial statements, valuation ratios, sectors), risk management (position sizing, stop loss, risk-reward, drawdown), trading psychology, strategy building and backtesting, portfolio construction, asset allocation, taxes and costs at a general level, and market structure for India (NSE/BSE), US and global markets.
+HOW TO ANSWER:
+- Start with a direct answer in one or two sentences, then explain step by step in simple words.
+- Include a worked example with realistic numbers or formulas when it helps (for example position size = capital x risk % / stop distance).
+- Cover pros, cons and common mistakes. Correct myths politely. State clearly when something is uncertain or depends on the person.
+- If the answer depends on missing details (capital, time frame, risk tolerance, market), give a useful general answer first, then ask one short clarifying question.
+- Use short bullets and **bold** key terms. Keep answers under about 300 words unless the user asks for a deep dive.
+BOUNDARIES:
+- Never promise profits or guaranteed returns. Do not give personalised buy or sell calls or exact entry and exit prices for specific securities; instead teach how to analyse and decide. Mention risk briefly and only when relevant, without repeating the same disclaimer every time.
+- You have no live prices, news or data. Say so if asked.
+- Stay on trading, investing and personal finance for markets. For unrelated topics, politely decline in the user's language and steer back.`;
+const log=document.getElementById('log'),q=document.getElementById('q'),btn=document.getElementById('btn'),f=document.getElementById('f');
+const history=[];let sample=null,busy=false;
+claude.use('sample').then(s=>{sample=s}).catch(()=>{});
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fmt(t){let out='',inL=false;for(let l of esc(t).split('\n')){l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');const m=l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);
+ if(m){if(!inL){out+='<ul>';inL=true}out+='<li>'+m[1]+'</li>'}else{if(inL){out+='</ul>';inL=false}if(l.trim())out+='<p>'+l+'</p>'}}
+ return out+(inL?'</ul>':'')}
+function add(role,html){const d=document.createElement('div');d.className='msg '+role;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
+async function ask(text){
+ text=text.trim();if(!text||busy)return;busy=true;btn.disabled=true;
+ add('me','<p>'+esc(text)+'</p>');q.value='';q.style.height='auto';history.push({role:'user',content:text});
+ const bot=add('bot','<span class="dots"><span></span><span></span><span></span></span>');
+ if(!sample){try{sample=await claude.use('sample')}catch(e){}}
+ if(!sample){bot.innerHTML='<p>Chat is unavailable right now. Please open this page while signed in to claude.ai.</p>';busy=false;btn.disabled=false;history.pop();return}
+ const convo=history.slice(-12).map(m=>(m.role==='user'?'User: ':'TraderProX: ')+m.content).join('\n\n');
+ try{const r=await sample(SYS+'\n\nConversation so far:\n\n'+convo+'\n\nWrite only the next TraderProX reply, in the language of the user\'s latest message (English if unclear).',{cache:false,onText:({text:t})=>{bot.innerHTML=fmt(t);log.scrollTop=log.scrollHeight}});
+  bot.innerHTML=fmt(r.text);history.push({role:'assistant',content:r.text})}
+ catch(e){bot.innerHTML='<p>'+(e&&e.code==='rate_limited'?'Too many requests. Please wait a moment and try again.':'Something went wrong. Please try again.')+'</p>';history.pop()}
+ busy=false;btn.disabled=false;log.scrollTop=log.scrollHeight}
+f.addEventListener('submit',e=>{e.preventDefault();ask(q.value)});
+q.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(q.value)}});
+q.addEventListener('input',()=>{q.style.height='auto';q.style.height=Math.min(q.scrollHeight,120)+'px'});
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>ask(c.textContent)));
+document.querySelectorAll('.ask').forEach(b=>b.addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});ask(b.dataset.q)}));
 </script>
 </body>
 </html>
