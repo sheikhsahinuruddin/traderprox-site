@@ -1,185 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>TraderProX – AI Trading & Investment Guide</title>
-<style>
-:root{--bg:#f5f7fb;--surf:#fff;--surf2:#eef2f9;--line:#dde4f0;--text:#0e1726;--mute:#5d6b85;--ac:#3b6cf6;--ac2:#7a5cf5;--up:#12a774;--dn:#e5484d;--shadow:0 10px 30px rgba(20,40,90,.10);--chart:#f8faff;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
-:root[data-theme="dark"]{--bg:#080c14;--surf:#101725;--surf2:#162033;--line:#212d44;--text:#e8edf8;--mute:#8d9bb8;--ac:#6c8dff;--ac2:#9b82ff;--up:#2dd4a0;--dn:#ff6b70;--shadow:0 10px 30px rgba(0,0,0,.45);--chart:#0b111d;color-scheme:dark}
-html{scroll-behavior:smooth;scroll-padding-top:76px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.55;transition:background .25s,color .25s}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
-.bar{max-width:1000px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:12px}
-.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px;letter-spacing:.4px;flex:none}
-.name{font-weight:800;font-size:18px}.name small{display:block;font-weight:500;font-size:11px;color:var(--mute);margin-top:-2px}
-.sp{flex:1}
-.nav a{color:var(--mute);text-decoration:none;font-size:14px;margin-right:6px;padding:6px 10px;border-radius:8px}.nav a:hover{background:var(--surf2);color:var(--text)}
-#theme{border:1px solid var(--line);background:var(--surf);color:var(--text);height:38px;padding:0 14px;border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
-#theme:hover{border-color:var(--ac)}
-main{max-width:1000px;margin:0 auto;padding:22px 18px 10px}
-.intro{text-align:center;margin-bottom:16px}
-.intro h1{font-size:30px;margin:0 0 4px;letter-spacing:-.5px}.intro h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.intro p{margin:0;color:var(--mute);font-size:15px}
-.chatbox{background:var(--surf);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;height:calc(100dvh - 190px);min-height:460px;max-height:760px;overflow:hidden}
-#log{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
-.msg{max-width:84%;padding:11px 15px;border-radius:16px;font-size:15px;overflow-wrap:anywhere}
-.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border-bottom-right-radius:5px}
-.msg.bot{align-self:flex-start;background:var(--surf2);border-bottom-left-radius:5px}
-.msg p{margin:0 0 8px}.msg p:last-child{margin:0}.msg ul{margin:6px 0;padding-left:20px}.msg b{font-weight:700}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.chip{border:1px solid var(--line);background:var(--surf);color:var(--text);padding:8px 13px;border-radius:999px;font-size:13px;cursor:pointer}
-.chip:hover{border-color:var(--ac);color:var(--ac)}
-form{display:flex;gap:10px;padding:12px;border-top:1px solid var(--line);background:var(--surf)}
-textarea{flex:1;resize:none;background:var(--surf2);color:var(--text);border:1px solid transparent;border-radius:14px;padding:12px 15px;font:inherit;font-size:15px;max-height:120px;outline:none}
-textarea:focus{border-color:var(--ac)}
-.send{border:0;border-radius:14px;padding:0 22px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--ac),var(--ac2));cursor:pointer}
-.send:disabled{opacity:.5}
-.note{text-align:center;color:var(--mute);font-size:11.5px;margin:10px 0 0}
-.dots span{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:var(--mute);animation:b 1s infinite}
-.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
-@keyframes b{0%,80%,100%{opacity:.25}40%{opacity:1}}
-section{max-width:1000px;margin:0 auto;padding:48px 18px 20px}
-h2{font-size:26px;margin:0 0 6px;letter-spacing:-.3px}.lead{color:var(--mute);margin:0 0 22px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.card{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;transition:.2s}
-.card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--ac)}
-.card svg{width:100%;height:auto;background:var(--chart);border-radius:10px;border:1px solid var(--line)}
-.k{font-size:11px;font-weight:700;color:var(--ac);margin:12px 0 2px;text-transform:uppercase;letter-spacing:.8px}
-.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0 0 12px;color:var(--mute);font-size:14px;flex:1}
-.ask{background:var(--surf2);border:0;color:var(--ac);border-radius:9px;padding:8px 13px;cursor:pointer;font-weight:700;font-size:13px;align-self:flex-start}
-.ask:hover{background:var(--ac);color:#fff}
-footer{max-width:1000px;margin:30px auto 0;padding:22px 18px 30px;border-top:1px solid var(--line);color:var(--mute);font-size:12px;text-align:center}
-svg .up{fill:var(--up);stroke:var(--up)}svg .dn{fill:var(--dn);stroke:var(--dn)}
-svg .ac{fill:none;stroke:var(--ac);stroke-width:3}svg .pr{fill:none;stroke:var(--text);stroke-width:2.5}
-svg .mu{fill:none;stroke:var(--mute);stroke-width:2}svg .ds{fill:none;stroke-dasharray:4 3}
-svg .gl{fill:none;stroke:var(--line)}svg .t{fill:var(--mute);font-size:9px}svg .tb{fill:var(--text);font-size:9px;font-weight:600}svg .tu{fill:var(--up);font-size:9px;font-weight:700}svg .td{fill:var(--dn);font-size:9px;font-weight:700}svg .ta{fill:var(--ac);font-size:9px;font-weight:700}
-svg .zu{fill:var(--up);opacity:.13;stroke:none}svg .zd{fill:var(--dn);opacity:.13;stroke:none}
-@media(max-width:820px){.grid{grid-template-columns:1fr}.nav{display:none}.intro h1{font-size:24px}.chatbox{height:calc(100dvh - 170px)}.msg{max-width:92%}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07110e" />
+  <meta name="description" content="PricePulse AI helps compare product listings and track price freshness." />
+  <title>PricePulse AI | Shop at the right price</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#07110e;--panel:#101c17;--panel2:#14231c;--line:#23382d;--text:#edf7f1;--muted:#9aafa3;--green:#55e0a0;--green2:#b1f5d2;--amber:#f2c66d;--red:#ff8585;--radius:22px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#163b2b 0,transparent 32%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}.wrap{width:min(1120px,calc(100% - 36px));margin:auto}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #203329}.brand{display:flex;align-items:center;gap:10px;font-weight:850;font-size:21px;letter-spacing:-.7px}.mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#6af0b0,#1c9663);display:grid;place-items:center;color:#052014;font-size:21px}.brand em{color:var(--green);font-style:normal}.nav{display:flex;gap:28px;color:var(--muted);font-size:14px}.nav a:hover{color:var(--green)}.status{font-size:12px;color:var(--green2);border:1px solid #28533e;border-radius:30px;padding:7px 11px}.status:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 12px var(--green)}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:38px;align-items:center;padding:72px 0 52px}.eyebrow{font-size:11px;letter-spacing:1.7px;font-weight:800;color:var(--green);text-transform:uppercase}.hero h1{font-size:clamp(38px,6vw,66px);line-height:1.04;letter-spacing:-2.8px;margin:17px 0}.hero h1 span{color:var(--green)}.hero p{color:var(--muted);max-width:560px;font-size:16px}.search{display:flex;gap:10px;background:#f0f7f2;padding:7px;border-radius:16px;margin-top:26px;box-shadow:0 14px 40px #0005}.search input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#12251a;padding:10px 12px;font-size:15px}.search button,.primary{border:0;border-radius:12px;background:var(--green);color:#062014;font-weight:800;padding:12px 19px;cursor:pointer}.search button:disabled{opacity:.6}.hint{font-size:12px;color:#789285;margin:10px 3px}.visual{background:linear-gradient(145deg,#18382a,#0e1a14);border:1px solid #31513e;border-radius:28px;padding:23px;box-shadow:0 28px 80px #0007;position:relative;overflow:hidden}.visual:after{content:'';position:absolute;width:230px;height:230px;border:1px solid #4b9c70;border-radius:50%;right:-80px;top:-100px;box-shadow:0 0 0 25px #55e0a00a,0 0 0 55px #55e0a008}.vhead{display:flex;justify-content:space-between;color:#a9c5b4;font-size:11px;letter-spacing:1.2px}.live{color:var(--green)}.vproduct{display:flex;align-items:center;gap:13px;margin:25px 0}.glyph{width:52px;height:52px;border-radius:16px;background:#244b36;display:grid;place-items:center;color:var(--green);font-size:27px}.vproduct b{display:block}.vproduct small{color:var(--muted)}.chart{height:105px;border-bottom:1px solid #45604e}.chart svg{width:100%;height:100%}.vfoot{display:flex;justify-content:space-between;color:#a9c5b4;font-size:12px;margin-top:14px}.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 68px}.trust div{background:#0e1b15;border:1px solid var(--line);border-radius:16px;padding:17px}.trust b{display:block;font-size:14px}.trust small{color:var(--muted)}.section{padding:12px 0 65px}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:22px}.section h2{font-size:30px;letter-spacing:-1px;margin:6px 0}.sectionhead p{margin:0;color:var(--muted);font-size:14px}.dbstate{font-size:11px;border:1px solid var(--line);border-radius:30px;padding:7px 10px;color:var(--amber);white-space:nowrap}.notice{padding:14px 16px;background:#332813;border:1px solid #665022;color:#f4d99a;border-radius:14px;margin:18px 0;font-size:13px}.notice code{color:#fff}.notice.error{background:#351b1b;border-color:#693737;color:#ffc0c0}.results{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin:20px 0 12px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:linear-gradient(160deg,#14231c,#0d1712);border:1px solid var(--line);border-radius:19px;overflow:hidden}.photo{height:175px;background:#17281f;display:grid;place-items:center;color:#6c9c80;font-size:44px;overflow:hidden}.photo img{width:100%;height:100%;object-fit:contain;padding:12px}.info{padding:16px}.tag{font-size:10px;letter-spacing:1px;color:var(--green);text-transform:uppercase}.info h3{font-size:16px;margin:7px 0 13px;min-height:44px}.price{font-size:23px;font-weight:850;letter-spacing:-.5px}.fresh{font-size:11px;color:var(--green2);margin-top:4px}.stale{color:var(--amber)}.offer{border-top:1px solid var(--line);margin-top:13px;padding-top:12px;display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}.offer a{color:var(--green);font-weight:700}.empty{border:1px dashed #34513f;border-radius:18px;text-align:center;padding:38px 18px;color:var(--muted);margin-top:15px}.empty b{display:block;color:var(--text);margin:8px}.how{padding:44px 0 75px;border-top:1px solid #1b3025}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:24px}.feature{background:#0e1b15;border:1px solid var(--line);border-radius:18px;padding:20px}.feature strong{color:var(--green);font-size:12px}.feature h3{font-size:16px;margin:12px 0 6px}.feature p{font-size:13px;color:var(--muted);margin:0}.foot{border-top:1px solid #1b3025;padding:25px 0 100px;display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:12px}.mobilebar{display:none}
+    @media(max-width:760px){.wrap{width:min(100% - 28px,560px)}.topbar{height:64px}.nav{display:none}.status{font-size:10px}.hero{grid-template-columns:1fr;padding:48px 0 35px;gap:25px}.hero h1{font-size:43px;letter-spacing:-1.9px}.hero p{font-size:14px}.search{gap:4px}.search input{padding:9px 7px;font-size:13px}.search button{padding:11px 13px;font-size:13px}.visual{padding:18px}.trust{grid-template-columns:1fr;gap:9px;margin-bottom:48px}.trust div{padding:13px 15px}.sectionhead{align-items:start;flex-direction:column}.section h2{font-size:26px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.photo{height:135px}.info{padding:12px}.info h3{font-size:14px;min-height:40px}.price{font-size:19px}.offer{font-size:10px;flex-direction:column}.features{grid-template-columns:1fr}.foot{flex-direction:column;padding-bottom:100px}.mobilebar{display:flex;position:fixed;z-index:5;bottom:0;left:0;right:0;padding:10px 8px calc(10px + env(safe-area-inset-bottom));background:#09130eeb;backdrop-filter:blur(16px);border-top:1px solid #294234;justify-content:space-around}.mobilebar a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--muted)}.mobilebar a:first-child{color:var(--green)}.mobilebar span{font-size:10px}}
+  </style>
 </head>
 <body>
-<header><div class="bar">
-  <div class="logo">TPX</div><div class="name">TraderProX<small>AI Trading Guide</small></div>
-  <div class="sp"></div>
-  <div class="nav"><a href="#tools">Trading tools</a></div>
-  <button id="theme" type="button" aria-label="Switch day or night theme"><span id="ti">☾</span><span id="tl">Night</span></button>
-</div></header>
-
-<main>
-  <div class="intro">
-    <h1>Questions about trading? <span>Just ask.</span></h1>
-    <p>Your AI trading mentor explains everything step by step, in the language you speak.</p>
+  <div class="wrap">
+    <header class="topbar"><a class="brand" href="#top"><span class="mark">⌁</span><span>pricepulse <em>AI</em></span></a><nav class="nav"><a href="#discover">Discover</a><a href="#how">How it works</a><a href="#watchlist">Watchlist</a></nav><span class="status">India edition</span></header>
+    <main id="top">
+      <section class="hero"><div><div class="eyebrow">✦ Smarter shopping starts here</div><h1>Don’t just shop.<br><span>Shop at the right price.</span></h1><p>Compare available store listings, follow price movements and make your next purchase with more confidence.</p>
+        <form class="search" id="searchForm"><input id="query" type="search" placeholder="Search phones, fashion, electronics…" aria-label="Search products"/><button id="searchButton" type="submit">Search</button></form><div class="hint">Searches products already available in your connected catalogue.</div></div>
+        <div class="visual"><div class="vhead"><span>PRICE INSIGHT</span><span class="live">● SOURCE-AWARE</span></div><div class="vproduct"><div class="glyph">◈</div><div><b>Your next great deal</b><small>Verified offers appear here</small></div></div><div class="chart"><svg viewBox="0 0 320 100" preserveAspectRatio="none"><path d="M0 20 C25 18 28 49 55 42 S93 23 113 51 S151 57 174 40 S207 68 229 61 S270 35 320 12" fill="none" stroke="#55e0a0" stroke-width="3" stroke-linecap="round"/><path d="M0 20 C25 18 28 49 55 42 S93 23 113 51 S151 57 174 40 S207 68 229 61 S270 35 320 12 L320 100 L0 100Z" fill="#55e0a0" opacity=".09"/></svg></div><div class="vfoot"><span>⌁ Price movement</span><span>Updates when connected</span></div></div></section>
+      <section class="trust"><div>◷ <b>Price history</b><small>Track recorded changes over time</small></div><div>↘ <b>Store comparison</b><small>Compare available listings</small></div><div>♧ <b>Price alerts</b><small>Prepare to notify on target prices</small></div></section>
+      <section class="section" id="discover"><div class="sectionhead"><div><div class="eyebrow">Your shopping radar</div><h2>Product discovery</h2><p>Search your connected catalogue and compare recorded listings.</p></div><span class="dbstate" id="dbState">DATABASE NOT CONNECTED</span></div>
+        <div id="setupNotice" class="notice">To connect Supabase, edit the <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> values near the bottom of this file. Use only the publishable/anon key, never a service-role key.</div>
+        <div id="message" aria-live="polite"></div><div id="results" class="results" hidden></div><div id="productGrid" class="grid"></div><div id="empty" class="empty"><div style="font-size:28px">⌕</div><b>Your next find starts with a search</b><span>Connect Supabase, then search a product in your catalogue.</span></div>
+      </section>
+      <section class="how" id="how"><div class="eyebrow">Built for better decisions</div><h2>More clarity before checkout.</h2><div class="features"><article class="feature"><strong>01 / PRICE FRESHNESS</strong><h3>Know when a price was checked</h3><p>Every offer can show its last verified timestamp, so old data is not mistaken for live pricing.</p></article><article class="feature"><strong>02 / COMPARISON</strong><h3>Compare available stores</h3><p>Review collected listings side by side, including availability and shipping where provided.</p></article><article class="feature"><strong>03 / INTELLIGENCE</strong><h3>Build toward smarter forecasts</h3><p>Historical observations can power forecasts after enough reliable price data is collected.</p></article></div></section>
+      <footer class="foot"><a class="brand" href="#top"><span class="mark">⌁</span><span>pricepulse <em>AI</em></span></a><span>Independent price intelligence. Verify final prices at the retailer before checkout.</span><span>© <span id="year"></span> PricePulse AI</span></footer>
+    </main>
   </div>
-  <div class="chatbox">
-    <div id="log">
-      <div class="msg bot"><p>Hi! I’m <b>TraderProX AI</b>. Ask me anything about stocks, options, crypto, SIPs, charts or risk management, in any language you like.</p>
-        <div class="chips"><button class="chip">What is the stock market?</button><button class="chip">How do I place a stop loss?</button><button class="chip">Explain candlestick patterns</button><button class="chip">SIP vs lump sum?</button><button class="chip">Risk management basics</button></div></div>
-    </div>
-    <form id="f"><textarea id="q" rows="1" placeholder="Ask your question…" enterkeyhint="send"></textarea><button class="send" id="btn" type="submit">Send</button></form>
-  </div>
-  <p class="note">TraderProX is for education only, not financial advice. Trading involves risk of loss.</p>
-</main>
+  <nav class="mobilebar"><a href="#discover">⌕<span>Discover</span></a><a href="#how">⌁<span>Insights</span></a><a href="#watchlist">♡<span>Saved</span></a><a href="#top">◈<span>Home</span></a></nav>
+  <script>
+    // Add your Supabase project URL and publishable/anon key here.
+    // Never paste the service_role key into this file.
+    const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY';
 
-<section id="tools">
-  <h2>Trading tools, visualised</h2>
-  <p class="lead">Tap “Ask TPX AI” on any card to get a full explanation in the chat.</p>
-  <div class="grid">
-    <div class="card">
-      <svg viewBox="0 0 240 130"><g stroke-width="2"><g class="up"><path d="M60 15V115"/><rect x="48" y="40" width="24" height="50" rx="2"/></g><g class="dn"><path d="M170 15V115"/><rect x="158" y="40" width="24" height="50" rx="2"/></g></g><g class="gl" stroke-dasharray="2 3"><path d="M72 15H90M72 40H90M72 90H90M72 115H90M182 40H198M182 90H198"/></g><g class="t"><text x="94" y="18">High</text><text x="94" y="43">Close</text><text x="94" y="93">Open</text><text x="94" y="118">Low</text><text x="202" y="43">Open</text><text x="202" y="93">Close</text></g><text class="tu" x="60" y="128" text-anchor="middle">Bullish (up)</text><text class="td" x="170" y="128" text-anchor="middle">Bearish (down)</text></svg>
-      <div class="k">Price action</div><h3>Candlestick Charts</h3>
-      <p>Each candle shows one time period. Green means price closed higher, red means lower. Wicks show the high and low.</p>
-      <button class="ask" data-q="Explain candlestick charts and the most important candlestick patterns with simple examples.">Ask TPX AI →</button>
-    </div>
-
-    <div class="card">
-      <svg viewBox="0 0 240 130"><g stroke-width="2.5"><path class="mu" d="M10 14H26"/><path class="ac" d="M80 14H96"/></g><text class="t" x="30" y="17">Price</text><text class="t" x="100" y="17">Moving Average</text><polyline class="mu" points="8,95 30,78 52,88 76,62 98,74 122,48 146,60 170,36 194,48 232,26"/><polyline class="ac" points="8,92 60,80 110,62 160,46 232,32"/><text class="tu" x="232" y="122" text-anchor="end">Price above MA = Uptrend</text></svg>
-      <div class="k">Trend</div><h3>Moving Averages</h3>
-      <p>The average price drawn as a smooth line. Price above the line suggests an uptrend, below it a downtrend.</p>
-      <button class="ask" data-q="Explain moving averages (SMA and EMA), golden cross and death cross with examples.">Ask TPX AI →</button>
-    </div>
-
-    <div class="card">
-      <svg viewBox="0 0 240 130"><rect class="zd" x="0" y="10" width="240" height="28"/><rect class="zu" x="0" y="92" width="240" height="28"/><path class="gl ds" d="M0 38H240M0 92H240"/><polyline class="ac" points="8,66 38,50 68,22 98,48 128,92 158,108 188,70 232,44"/><circle class="dn" cx="68" cy="22" r="4"/><circle class="up" cx="158" cy="108" r="4"/><text class="td" x="232" y="28" text-anchor="end">Overbought 70+</text><text class="tu" x="232" y="112" text-anchor="end">Oversold 30-</text><text class="t" x="6" y="66">RSI</text></svg>
-      <div class="k">Momentum</div><h3>RSI Indicator</h3>
-      <p>A 0 to 100 meter. Above 70 can mean overbought (pullback risk), below 30 can mean oversold (bounce chance).</p>
-      <button class="ask" data-q="Explain RSI indicator, how to read overbought and oversold levels, and its limitations.">Ask TPX AI →</button>
-    </div>
-
-    <div class="card">
-      <svg viewBox="0 0 240 130"><path class="ds dn" stroke-width="1.5" d="M0 30H240"/><path class="ds up" stroke-width="1.5" d="M0 100H240"/><polyline class="pr" points="8,90 40,34 72,98 104,34 136,98 168,34 200,70 232,16"/><text class="td" x="6" y="24">Resistance</text><text class="tu" x="6" y="116">Support</text><text class="ta" x="232" y="10" text-anchor="end">Breakout</text></svg>
-      <div class="k">Levels</div><h3>Support &amp; Resistance</h3>
-      <p>Support is a zone where price tends to stop falling. Resistance is where it tends to stop rising.</p>
-      <button class="ask" data-q="Explain support and resistance, how to draw them, and what a breakout means.">Ask TPX AI →</button>
-    </div>
-
-    <div class="card">
-      <svg viewBox="0 0 240 130"><polygon points="8,34 60,28 120,36 180,30 232,24 232,80 180,86 120,92 60,84 8,90" style="fill:var(--ac);opacity:.1"/><g fill="none" stroke="var(--ac)" stroke-width="1.5"><polyline points="8,34 60,28 120,36 180,30 232,24"/><polyline points="8,90 60,84 120,92 180,86 232,80"/></g><polyline class="mu ds" stroke-width="1.5" points="8,62 60,56 120,64 180,58 232,52"/><polyline class="pr" points="8,70 30,48 55,72 80,50 105,80 130,58 155,44 180,66 205,40 232,58"/><g class="t"><text x="232" y="17" text-anchor="end">Upper band</text><text x="6" y="108">Lower band</text></g><text class="tb" x="232" y="108" text-anchor="end">Price stays inside bands</text></svg>
-      <div class="k">Volatility</div><h3>Bollinger Bands</h3>
-      <p>Two bands around price. Tight bands often come before a big move, wide bands mean high volatility.</p>
-      <button class="ask" data-q="Explain Bollinger Bands, the squeeze, and how traders use them.">Ask TPX AI →</button>
-    </div>
-
-    <div class="card">
-      <svg viewBox="0 0 240 130"><rect x="34" y="65" width="206" height="11" style="fill:var(--ac);opacity:.14"/><path class="gl" d="M34 20H240M34 41H240M34 54H240M34 110H240"/><path stroke="var(--ac)" stroke-width="1.5" fill="none" d="M34 65H240M34 76H240"/><polyline class="ac" points="40,110 70,80 90,92 130,50 150,60 200,20"/><g class="t"><text x="4" y="23">0%</text><text x="4" y="44">23.6%</text><text x="4" y="57">38.2%</text><text class="ta" x="4" y="68">50%</text><text class="ta" x="4" y="79">61.8%</text><text x="4" y="113">100%</text></g><text class="ta" x="236" y="73" text-anchor="end">Golden zone</text></svg>
-      <div class="k">Retracement</div><h3>Fibonacci Levels</h3>
-      <p>Shows how far price may pull back after a big move. The 50% to 61.8% zone is watched most closely.</p>
-      <button class="ask" data-q="Explain Fibonacci retracement levels and how to use them to find entries with risk management.">Ask TPX AI →</button>
-    </div>
-
-  </div>
-</section>
-
-<footer><b>TPX · TraderProX</b><br>For education only, not financial advice. Trading and investing involve risk of loss. Always do your own research.</footer>
-
-<script>
-const root=document.documentElement,ti=document.getElementById('ti'),tl=document.getElementById('tl');
-function curTheme(){return root.dataset.theme||'light'}
-function paint(){const d=curTheme()==='dark';ti.textContent=d?'☀':'☾';tl.textContent=d?'Day':'Night'}
-try{const s=localStorage.getItem('tpx-theme');if(s)root.dataset.theme=s}catch(e){}
-paint();
-document.getElementById('theme').addEventListener('click',()=>{const n=curTheme()==='dark'?'light':'dark';root.dataset.theme=n;try{localStorage.setItem('tpx-theme',n)}catch(e){}paint()});
-
-const SYS=`You are TraderProX AI (TPX), a professional-grade trading and investment educator.
-LANGUAGE: Detect the language of the user's latest message and reply in that same language (English, Hindi, Hinglish meaning Hindi in Roman letters, or any other). Default to English if unclear. Keep standard trading terms in English.
-EXPERTISE: stocks, ETFs, mutual funds and SIPs, options and futures, forex, commodities, crypto, technical analysis (price action, candlesticks, trend, momentum, volatility, volume, support and resistance, chart patterns, Fibonacci), fundamental analysis (financial statements, valuation ratios, sectors), risk management (position sizing, stop loss, risk-reward, drawdown), trading psychology, strategy building and backtesting, portfolio construction, asset allocation, taxes and costs at a general level, and market structure for India (NSE/BSE), US and global markets.
-HOW TO ANSWER:
-- Start with a direct answer in one or two sentences, then explain step by step in simple words.
-- Include a worked example with realistic numbers or formulas when it helps (for example position size = capital x risk % / stop distance).
-- Cover pros, cons and common mistakes. Correct myths politely. State clearly when something is uncertain or depends on the person.
-- If the answer depends on missing details (capital, time frame, risk tolerance, market), give a useful general answer first, then ask one short clarifying question.
-- Use short bullets and **bold** key terms. Keep answers under about 300 words unless the user asks for a deep dive.
-BOUNDARIES:
-- Never promise profits or guaranteed returns. Do not give personalised buy or sell calls or exact entry and exit prices for specific securities; instead teach how to analyse and decide. Mention risk briefly and only when relevant, without repeating the same disclaimer every time.
-- You have no live prices, news or data. Say so if asked.
-- Stay on trading, investing and personal finance for markets. For unrelated topics, politely decline in the user's language and steer back.`;
-const log=document.getElementById('log'),q=document.getElementById('q'),btn=document.getElementById('btn'),f=document.getElementById('f');
-const history=[];let sample=null,busy=false;
-claude.use('sample').then(s=>{sample=s}).catch(()=>{});
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function fmt(t){let out='',inL=false;for(let l of esc(t).split('\n')){l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');const m=l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);
- if(m){if(!inL){out+='<ul>';inL=true}out+='<li>'+m[1]+'</li>'}else{if(inL){out+='</ul>';inL=false}if(l.trim())out+='<p>'+l+'</p>'}}
- return out+(inL?'</ul>':'')}
-function add(role,html){const d=document.createElement('div');d.className='msg '+role;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
-async function ask(text){
- text=text.trim();if(!text||busy)return;busy=true;btn.disabled=true;
- add('me','<p>'+esc(text)+'</p>');q.value='';q.style.height='auto';history.push({role:'user',content:text});
- const bot=add('bot','<span class="dots"><span></span><span></span><span></span></span>');
- if(!sample){try{sample=await claude.use('sample')}catch(e){}}
- if(!sample){bot.innerHTML='<p>Chat is unavailable right now. Please open this page while signed in to claude.ai.</p>';busy=false;btn.disabled=false;history.pop();return}
- const convo=history.slice(-12).map(m=>(m.role==='user'?'User: ':'TraderProX: ')+m.content).join('\n\n');
- try{const r=await sample(SYS+'\n\nConversation so far:\n\n'+convo+'\n\nWrite only the next TraderProX reply, in the language of the user\'s latest message (English if unclear).',{cache:false,onText:({text:t})=>{bot.innerHTML=fmt(t);log.scrollTop=log.scrollHeight}});
-  bot.innerHTML=fmt(r.text);history.push({role:'assistant',content:r.text})}
- catch(e){bot.innerHTML='<p>'+(e&&e.code==='rate_limited'?'Too many requests. Please wait a moment and try again.':'Something went wrong. Please try again.')+'</p>';history.pop()}
- busy=false;btn.disabled=false;log.scrollTop=log.scrollHeight}
-f.addEventListener('submit',e=>{e.preventDefault();ask(q.value)});
-q.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();ask(q.value)}});
-q.addEventListener('input',()=>{q.style.height='auto';q.style.height=Math.min(q.scrollHeight,120)+'px'});
-document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>ask(c.textContent)));
-document.querySelectorAll('.ask').forEach(b=>b.addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});ask(b.dataset.q)}));
-</script>
+    const $ = (id) => document.getElementById(id);
+    $('year').textContent = new Date().getFullYear();
+    let supabaseClient = null;
+    const configured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('YOUR_') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes('YOUR_');
+    if (configured && window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      $('dbState').textContent = 'DATABASE CONNECTED';
+      $('dbState').style.color = 'var(--green2)';
+      $('setupNotice').hidden = true;
+      $('empty').innerHTML = '<div style="font-size:28px">⌕</div><b>Search your product catalogue</b><span>Enter a product name above to find matching records.</span>';
+    }
+    const money = (paise) => paise == null ? 'Price unavailable' : new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(paise)/100);
+    const safe = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function showMessage(text, error=false){ $('message').innerHTML = text ? `<div class="notice ${error?'error':''}">${safe(text)}</div>` : ''; }
+    function renderProducts(products){
+      const grid = $('productGrid'); grid.innerHTML = '';
+      products.forEach(product => {
+        const offers = [...(product.offers || [])].sort((a,b)=>(a.price_paise ?? Number.MAX_SAFE_INTEGER)-(b.price_paise ?? Number.MAX_SAFE_INTEGER));
+        const best = offers.find(o => o.price_paise != null);
+        const image = product.image_url ? `<img src="${safe(product.image_url)}" alt="${safe(product.title)}" loading="lazy" onerror="this.remove()">` : '◈';
+        const fresh = best ? (best.is_stale ? 'Price may be outdated' : `Checked ${best.last_verified_at ? new Date(best.last_verified_at).toLocaleString('en-IN') : 'recently'}`) : 'No verified price';
+        const card = document.createElement('article'); card.className='card';
+        card.innerHTML = `<div class="photo">${image}</div><div class="info"><div class="tag">${safe(product.brand || product.category || 'PRODUCT')}</div><h3>${safe(product.title)}</h3>${best?`<div class="price">${money(best.price_paise)}</div><div class="fresh ${best.is_stale?'stale':''}">${safe(fresh)}</div><div class="offer"><span>Lowest listed: ${safe(best.stores?.name || 'Store')}</span><a href="${safe(best.product_url)}" target="_blank" rel="noopener noreferrer">View offer ↗</a></div><div class="offer"><span>${offers.length} store listing${offers.length===1?'':'s'}</span><span>${safe(best.availability || 'unknown')}</span></div>`:`<div class="fresh stale">No store offers recorded yet</div>`}</div>`;
+        grid.appendChild(card);
+      });
+      $('empty').hidden = products.length > 0;
+    }
+    async function searchProducts(term){
+      if(!supabaseClient){ showMessage('Supabase is not connected. Add your project URL and publishable/anon key in this file, then upload it again.',true); return; }
+      $('searchButton').disabled=true; $('searchButton').textContent='Searching…'; showMessage(''); $('empty').hidden=true;
+      try {
+        const clean = term.replace(/[,%()]/g,' ').trim();
+        const {data,error} = await supabaseClient.from('products')
+          .select('id,title,brand,category,image_url,offers(id,price_paise,mrp_paise,shipping_paise,product_url,availability,last_verified_at,is_stale,stores(name))')
+          .eq('is_active',true).or(`title.ilike.%${clean}%,brand.ilike.%${clean}%,model_number.ilike.%${clean}%`).limit(30);
+        if(error) throw error;
+        const products=data||[]; $('results').hidden=false; $('results').innerHTML=`<b>${products.length} product${products.length===1?'':'s'} found</b><span>${products.reduce((n,p)=>n+(p.offers?.length||0),0)} store listings</span>`;
+        renderProducts(products);
+        if(!products.length) $('empty').innerHTML='<div style="font-size:28px">⌕</div><b>No matching products yet</b><span>Your catalogue may be empty. Add products and verified offers to Supabase first.</span>';
+      } catch(err){showMessage(err.message || 'Search failed. Check your Supabase connection and table permissions.',true); $('empty').hidden=false;}
+      finally{$('searchButton').disabled=false;$('searchButton').textContent='Search';}
+    }
+    $('searchForm').addEventListener('submit',e=>{e.preventDefault();const term=$('query').value.trim();if(!term){showMessage('Enter a product name to search.',true);return;}searchProducts(term);});
+  </script>
 </body>
 </html>
