@@ -1,85 +1,254 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#07110e" />
-  <meta name="description" content="PricePulse AI helps compare product listings and track price freshness." />
-  <title>PricePulse AI | Shop at the right price</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{--bg:#07110e;--panel:#101c17;--panel2:#14231c;--line:#23382d;--text:#edf7f1;--muted:#9aafa3;--green:#55e0a0;--green2:#b1f5d2;--amber:#f2c66d;--red:#ff8585;--radius:22px}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#163b2b 0,transparent 32%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}.wrap{width:min(1120px,calc(100% - 36px));margin:auto}.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #203329}.brand{display:flex;align-items:center;gap:10px;font-weight:850;font-size:21px;letter-spacing:-.7px}.mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#6af0b0,#1c9663);display:grid;place-items:center;color:#052014;font-size:21px}.brand em{color:var(--green);font-style:normal}.nav{display:flex;gap:28px;color:var(--muted);font-size:14px}.nav a:hover{color:var(--green)}.status{font-size:12px;color:var(--green2);border:1px solid #28533e;border-radius:30px;padding:7px 11px}.status:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:7px;box-shadow:0 0 12px var(--green)}
-    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:38px;align-items:center;padding:72px 0 52px}.eyebrow{font-size:11px;letter-spacing:1.7px;font-weight:800;color:var(--green);text-transform:uppercase}.hero h1{font-size:clamp(38px,6vw,66px);line-height:1.04;letter-spacing:-2.8px;margin:17px 0}.hero h1 span{color:var(--green)}.hero p{color:var(--muted);max-width:560px;font-size:16px}.search{display:flex;gap:10px;background:#f0f7f2;padding:7px;border-radius:16px;margin-top:26px;box-shadow:0 14px 40px #0005}.search input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#12251a;padding:10px 12px;font-size:15px}.search button,.primary{border:0;border-radius:12px;background:var(--green);color:#062014;font-weight:800;padding:12px 19px;cursor:pointer}.search button:disabled{opacity:.6}.hint{font-size:12px;color:#789285;margin:10px 3px}.visual{background:linear-gradient(145deg,#18382a,#0e1a14);border:1px solid #31513e;border-radius:28px;padding:23px;box-shadow:0 28px 80px #0007;position:relative;overflow:hidden}.visual:after{content:'';position:absolute;width:230px;height:230px;border:1px solid #4b9c70;border-radius:50%;right:-80px;top:-100px;box-shadow:0 0 0 25px #55e0a00a,0 0 0 55px #55e0a008}.vhead{display:flex;justify-content:space-between;color:#a9c5b4;font-size:11px;letter-spacing:1.2px}.live{color:var(--green)}.vproduct{display:flex;align-items:center;gap:13px;margin:25px 0}.glyph{width:52px;height:52px;border-radius:16px;background:#244b36;display:grid;place-items:center;color:var(--green);font-size:27px}.vproduct b{display:block}.vproduct small{color:var(--muted)}.chart{height:105px;border-bottom:1px solid #45604e}.chart svg{width:100%;height:100%}.vfoot{display:flex;justify-content:space-between;color:#a9c5b4;font-size:12px;margin-top:14px}.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 68px}.trust div{background:#0e1b15;border:1px solid var(--line);border-radius:16px;padding:17px}.trust b{display:block;font-size:14px}.trust small{color:var(--muted)}.section{padding:12px 0 65px}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:22px}.section h2{font-size:30px;letter-spacing:-1px;margin:6px 0}.sectionhead p{margin:0;color:var(--muted);font-size:14px}.dbstate{font-size:11px;border:1px solid var(--line);border-radius:30px;padding:7px 10px;color:var(--amber);white-space:nowrap}.notice{padding:14px 16px;background:#332813;border:1px solid #665022;color:#f4d99a;border-radius:14px;margin:18px 0;font-size:13px}.notice code{color:#fff}.notice.error{background:#351b1b;border-color:#693737;color:#ffc0c0}.results{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;margin:20px 0 12px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:linear-gradient(160deg,#14231c,#0d1712);border:1px solid var(--line);border-radius:19px;overflow:hidden}.photo{height:175px;background:#17281f;display:grid;place-items:center;color:#6c9c80;font-size:44px;overflow:hidden}.photo img{width:100%;height:100%;object-fit:contain;padding:12px}.info{padding:16px}.tag{font-size:10px;letter-spacing:1px;color:var(--green);text-transform:uppercase}.info h3{font-size:16px;margin:7px 0 13px;min-height:44px}.price{font-size:23px;font-weight:850;letter-spacing:-.5px}.fresh{font-size:11px;color:var(--green2);margin-top:4px}.stale{color:var(--amber)}.offer{border-top:1px solid var(--line);margin-top:13px;padding-top:12px;display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}.offer a{color:var(--green);font-weight:700}.empty{border:1px dashed #34513f;border-radius:18px;text-align:center;padding:38px 18px;color:var(--muted);margin-top:15px}.empty b{display:block;color:var(--text);margin:8px}.how{padding:44px 0 75px;border-top:1px solid #1b3025}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:24px}.feature{background:#0e1b15;border:1px solid var(--line);border-radius:18px;padding:20px}.feature strong{color:var(--green);font-size:12px}.feature h3{font-size:16px;margin:12px 0 6px}.feature p{font-size:13px;color:var(--muted);margin:0}.foot{border-top:1px solid #1b3025;padding:25px 0 100px;display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:12px}.mobilebar{display:none}
-    @media(max-width:760px){.wrap{width:min(100% - 28px,560px)}.topbar{height:64px}.nav{display:none}.status{font-size:10px}.hero{grid-template-columns:1fr;padding:48px 0 35px;gap:25px}.hero h1{font-size:43px;letter-spacing:-1.9px}.hero p{font-size:14px}.search{gap:4px}.search input{padding:9px 7px;font-size:13px}.search button{padding:11px 13px;font-size:13px}.visual{padding:18px}.trust{grid-template-columns:1fr;gap:9px;margin-bottom:48px}.trust div{padding:13px 15px}.sectionhead{align-items:start;flex-direction:column}.section h2{font-size:26px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.photo{height:135px}.info{padding:12px}.info h3{font-size:14px;min-height:40px}.price{font-size:19px}.offer{font-size:10px;flex-direction:column}.features{grid-template-columns:1fr}.foot{flex-direction:column;padding-bottom:100px}.mobilebar{display:flex;position:fixed;z-index:5;bottom:0;left:0;right:0;padding:10px 8px calc(10px + env(safe-area-inset-bottom));background:#09130eeb;backdrop-filter:blur(16px);border-top:1px solid #294234;justify-content:space-around}.mobilebar a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--muted)}.mobilebar a:first-child{color:var(--green)}.mobilebar span{font-size:10px}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#040807">
+<title>PricePulse AI</title>
+<meta name="description" content="Compare Indian store prices, see real price history, get alerts.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#040807;--panel:#0a1311;--line:#18291f;--em:#10b981;--mint:#6ee7b7;--muted:#86a096;--warn:#e0a43a;--text:#e8f3ee;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ink);color:var(--text);font:16px/1.5 Figtree,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:calc(4.5rem + env(safe-area-inset-bottom,0px));padding-top:env(safe-area-inset-top,0px)}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,sans-serif;margin:0}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+main{max-width:46rem;margin:0 auto;padding:1.5rem 1rem}
+.muted{color:var(--muted)}.mint{color:var(--mint)}.warn{color:var(--warn)}.small{font-size:.875rem}.xs{font-size:.75rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.pad{padding:1rem}
+.stack>*+*{margin-top:2rem}.stack-sm>*+*{margin-top:.5rem}.stack-md>*+*{margin-top:.75rem}
+.list{list-style:none;margin:0;padding:0}.list>li+li{border-top:1px solid var(--line)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.row-link{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:1rem}
+.trunc{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grow{min-width:0;flex:1}
+input,select,button{font:inherit;color:inherit}
+input[type=search],select{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.75rem 1rem;width:100%;outline:none}
+input[type=search]:focus,select:focus{border-color:var(--em)}
+select{border-radius:8px;padding:.5rem .75rem}
+.btn{background:var(--em);color:var(--ink);font-weight:600;border:0;border-radius:12px;padding:.75rem 1.25rem;cursor:pointer}
+.btn-o{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:.5rem 1rem;cursor:pointer}
+.btn-o:disabled{opacity:.4;cursor:default}
+.chip{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:.375rem .75rem;cursor:pointer;font-size:.875rem;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--em);color:var(--ink);border-color:var(--em)}
+.chips{display:flex;gap:.25rem;overflow-x:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.stat{padding:.75rem}.stat dt{font-size:.75rem;color:var(--muted)}.stat dd{margin:0;font-weight:600}
+.best{border-color:var(--em)}
+.price{font-size:1.125rem;font-weight:600;color:var(--mint)}
+h1{font-size:2.25rem;line-height:1.15}h2{font-size:1.25rem}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+.nav a{flex:1;text-align:center;padding:1rem 0;font-size:.875rem;font-weight:500;color:var(--muted)}
+.nav a[aria-current=page]{color:var(--mint)}
+.brand{display:none}
+@media(min-width:768px){
+ body{padding-bottom:0;padding-left:15rem}
+ .nav{top:0;bottom:auto;right:auto;width:15rem;flex-direction:column;border-top:0;border-right:1px solid var(--line);padding:1rem;gap:.25rem}
+ .nav a{text-align:left;padding:.5rem .75rem;border-radius:8px}
+ .nav a[aria-current=page]{background:rgba(16,185,129,.15)}
+ .brand{display:block;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:1.25rem;color:var(--mint);margin-bottom:1.5rem}
+}
+svg.chart{width:100%;display:block}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="topbar"><a class="brand" href="#top"><span class="mark">⌁</span><span>pricepulse <em>AI</em></span></a><nav class="nav"><a href="#discover">Discover</a><a href="#how">How it works</a><a href="#watchlist">Watchlist</a></nav><span class="status">India edition</span></header>
-    <main id="top">
-      <section class="hero"><div><div class="eyebrow">✦ Smarter shopping starts here</div><h1>Don’t just shop.<br><span>Shop at the right price.</span></h1><p>Compare available store listings, follow price movements and make your next purchase with more confidence.</p>
-        <form class="search" id="searchForm"><input id="query" type="search" placeholder="Search phones, fashion, electronics…" aria-label="Search products"/><button id="searchButton" type="submit">Search</button></form><div class="hint">Searches products already available in your connected catalogue.</div></div>
-        <div class="visual"><div class="vhead"><span>PRICE INSIGHT</span><span class="live">● SOURCE-AWARE</span></div><div class="vproduct"><div class="glyph">◈</div><div><b>Your next great deal</b><small>Verified offers appear here</small></div></div><div class="chart"><svg viewBox="0 0 320 100" preserveAspectRatio="none"><path d="M0 20 C25 18 28 49 55 42 S93 23 113 51 S151 57 174 40 S207 68 229 61 S270 35 320 12" fill="none" stroke="#55e0a0" stroke-width="3" stroke-linecap="round"/><path d="M0 20 C25 18 28 49 55 42 S93 23 113 51 S151 57 174 40 S207 68 229 61 S270 35 320 12 L320 100 L0 100Z" fill="#55e0a0" opacity=".09"/></svg></div><div class="vfoot"><span>⌁ Price movement</span><span>Updates when connected</span></div></div></section>
-      <section class="trust"><div>◷ <b>Price history</b><small>Track recorded changes over time</small></div><div>↘ <b>Store comparison</b><small>Compare available listings</small></div><div>♧ <b>Price alerts</b><small>Prepare to notify on target prices</small></div></section>
-      <section class="section" id="discover"><div class="sectionhead"><div><div class="eyebrow">Your shopping radar</div><h2>Product discovery</h2><p>Search your connected catalogue and compare recorded listings.</p></div><span class="dbstate" id="dbState">DATABASE NOT CONNECTED</span></div>
-        <div id="setupNotice" class="notice">To connect Supabase, edit the <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> values near the bottom of this file. Use only the publishable/anon key, never a service-role key.</div>
-        <div id="message" aria-live="polite"></div><div id="results" class="results" hidden></div><div id="productGrid" class="grid"></div><div id="empty" class="empty"><div style="font-size:28px">⌕</div><b>Your next find starts with a search</b><span>Connect Supabase, then search a product in your catalogue.</span></div>
-      </section>
-      <section class="how" id="how"><div class="eyebrow">Built for better decisions</div><h2>More clarity before checkout.</h2><div class="features"><article class="feature"><strong>01 / PRICE FRESHNESS</strong><h3>Know when a price was checked</h3><p>Every offer can show its last verified timestamp, so old data is not mistaken for live pricing.</p></article><article class="feature"><strong>02 / COMPARISON</strong><h3>Compare available stores</h3><p>Review collected listings side by side, including availability and shipping where provided.</p></article><article class="feature"><strong>03 / INTELLIGENCE</strong><h3>Build toward smarter forecasts</h3><p>Historical observations can power forecasts after enough reliable price data is collected.</p></article></div></section>
-      <footer class="foot"><a class="brand" href="#top"><span class="mark">⌁</span><span>pricepulse <em>AI</em></span></a><span>Independent price intelligence. Verify final prices at the retailer before checkout.</span><span>© <span id="year"></span> PricePulse AI</span></footer>
-    </main>
-  </div>
-  <nav class="mobilebar"><a href="#discover">⌕<span>Discover</span></a><a href="#how">⌁<span>Insights</span></a><a href="#watchlist">♡<span>Saved</span></a><a href="#top">◈<span>Home</span></a></nav>
-  <script>
-    // Add your Supabase project URL and publishable/anon key here.
-    // Never paste the service_role key into this file.
-    const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY';
+<nav class="nav" id="nav" aria-label="Main">
+  <span class="brand">PricePulse AI</span>
+  <a href="#/" data-r="home">Home</a>
+  <a href="#/search" data-r="search">Search</a>
+</nav>
+<main id="app"><p class="muted">Loading…</p></main>
 
-    const $ = (id) => document.getElementById(id);
-    $('year').textContent = new Date().getFullYear();
-    let supabaseClient = null;
-    const configured = SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('YOUR_') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes('YOUR_');
-    if (configured && window.supabase) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      $('dbState').textContent = 'DATABASE CONNECTED';
-      $('dbState').style.color = 'var(--green2)';
-      $('setupNotice').hidden = true;
-      $('empty').innerHTML = '<div style="font-size:28px">⌕</div><b>Search your product catalogue</b><span>Enter a product name above to find matching records.</span>';
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<script>
+/* ====== CONFIG: paste your PUBLIC values only. NEVER the service_role key. ====== */
+const SUPABASE_URL = "https://haeocfmatrwihvwkawap.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_WX01KDUeC8fU65e9ZvuGzQ_BoPVNtu_";
+/* ================================================================================ */
+
+const app = document.getElementById("app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeUrl = u => (/^https?:\/\//i.test(u || "") ? u : "#");
+const inr = p => p == null ? "Not available" : new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: p % 100 === 0 ? 0 : 2 }).format(p / 100);
+const ago = iso => {
+  if (!iso) return "never verified";
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 3600) return Math.max(1, Math.round(s / 60)) + " min ago";
+  if (s < 86400) return Math.round(s / 3600) + " h ago";
+  return Math.round(s / 86400) + " d ago";
+};
+const STATUS = { verified: "Verified", stale: "Stale", unavailable: "Unavailable" };
+const configured = !SUPABASE_URL.startsWith("PASTE") && !SUPABASE_ANON_KEY.startsWith("PASTE");
+const db = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } }) : null;
+
+let navToken = 0; // drops results of outdated navigations
+
+function setNav(name) {
+  document.querySelectorAll("#nav a").forEach(a => {
+    if (a.dataset.r === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+}
+
+async function route() {
+  const token = ++navToken;
+  const h = location.hash.slice(1) || "/";
+  const [path, qs] = h.split("?");
+  window.scrollTo(0, 0);
+  if (!configured) {
+    app.innerHTML = '<div class="card pad stack-sm"><h2>Setup needed</h2><p class="muted">Open index.html, and paste your Supabase project URL and anon key into the CONFIG block near the top of the script.</p></div>';
+    return;
+  }
+  try {
+    if (path.startsWith("/product/")) { setNav(""); await renderProduct(decodeURIComponent(path.slice(9)), token); }
+    else if (path === "/search") { setNav("search"); renderSearch(new URLSearchParams(qs || "").get("q") || "", token); }
+    else { setNav("home"); await renderHome(token); }
+  } catch (e) {
+    if (token === navToken) app.innerHTML = '<p class="warn">Something went wrong: ' + esc(e.message) + "</p>";
+  }
+}
+
+async function renderHome(token) {
+  const [stores, offers, prods] = await Promise.all([
+    db.from("stores").select("id,name,is_active,last_success_at").order("name"),
+    db.from("offers_effective").select("id,product_id,listing_title,store_name,effective_paise,last_verified_at").eq("price_status", "verified").order("last_verified_at", { ascending: false }).limit(8),
+    db.from("products").select("id", { count: "exact", head: true }).eq("is_active", true)
+  ]);
+  if (token !== navToken) return;
+  const offersHtml = offers.error ? '<p class="warn">Could not load prices: ' + esc(offers.error.message) + "</p>"
+    : offers.data.length ? '<ul class="list card">' + offers.data.map(o =>
+      '<li><a class="row-link" href="#/product/' + esc(o.product_id) + '"><span class="grow"><span class="trunc">' + esc(o.listing_title) + '</span><span class="muted small">' + esc(o.store_name) + " · checked " + ago(o.last_verified_at) + '</span></span><span class="price">' + inr(o.effective_paise) + "</span></a></li>").join("") + "</ul>"
+    : '<p class="card pad muted">No verified prices yet. Prices appear here once a store integration is connected and a check succeeds.</p>';
+  const storesHtml = stores.error ? '<p class="warn">Could not load stores: ' + esc(stores.error.message) + "</p>"
+    : '<ul class="list grid2" style="border:0">' + stores.data.map(s =>
+      '<li class="card pad" style="border-top:1px solid var(--line)"><div>' + esc(s.name) + '</div><div class="small ' + (s.is_active ? "mint" : "muted") + '">' + (s.is_active ? "Connected · last success " + ago(s.last_success_at) : "Not connected") + "</div></li>").join("") + "</ul>";
+  app.innerHTML = '<div class="stack"><section><h1>Know the real price before you buy.</h1><p class="muted" style="margin:.5rem 0 0">Prices come only from connected, permitted sources. Every price shows when it was last verified.</p>' +
+    '<form id="hf" class="row" style="margin-top:1.25rem"><input name="q" type="search" placeholder="Search a product, brand or model" aria-label="Search products"><button class="btn">Search</button></form>' +
+    '<p class="muted small" style="margin:.5rem 0 0">' + (prods.count ?? 0) + " products tracked</p></section>" +
+    '<section class="stack-md"><h2>Recently verified prices</h2>' + offersHtml + "</section>" +
+    '<section class="stack-md"><h2>Store connections</h2>' + storesHtml + "</section></div>";
+  document.getElementById("hf").addEventListener("submit", e => {
+    e.preventDefault();
+    location.hash = "#/search?q=" + encodeURIComponent(new FormData(e.target).get("q") || "");
+  });
+}
+
+function renderSearch(initialQ, token) {
+  const PAGE = 20;
+  let q = initialQ, page = 0, sort = "recent", rows = [], loading = false, err = null, seq = 0, timer;
+  app.innerHTML = '<div class="stack-md"><input id="q" type="search" placeholder="Product, brand or model" aria-label="Search products" autofocus>' +
+    '<label class="muted small row" style="justify-content:flex-start">Sort (this page) <select id="s"><option value="recent">Recently updated</option><option value="price">Lowest verified price</option></select></label>' +
+    '<div id="out"></div><div class="row"><button id="prev" class="btn-o">Previous</button><button id="next" class="btn-o">Next</button></div></div>';
+  const $q = document.getElementById("q"), $s = document.getElementById("s"), $out = document.getElementById("out");
+  const $prev = document.getElementById("prev"), $next = document.getElementById("next");
+  $q.value = q;
+  function draw() {
+    $prev.disabled = page === 0 || loading; $next.disabled = rows.length < PAGE || loading;
+    if (err) { $out.innerHTML = '<p class="warn">Search failed: ' + esc(err) + "</p>"; return; }
+    if (loading && !rows.length) { $out.innerHTML = '<p class="muted">Searching…</p>'; return; }
+    if (!rows.length) { $out.innerHTML = '<p class="card pad muted">No products found' + (q ? " for “" + esc(q) + "”" : "") + ".</p>"; return; }
+    const shown = sort === "price" ? [...rows].sort((a, b) => (a.lowest_effective_paise ?? Infinity) - (b.lowest_effective_paise ?? Infinity)) : rows;
+    $out.innerHTML = '<ul class="list card">' + shown.map(r =>
+      '<li><a class="row-link" href="#/product/' + esc(r.id) + '"><span class="grow"><span class="trunc">' + esc(r.title) + '</span><span class="muted small">' + esc(r.brand || "—") + " · " + r.offer_count + " listing" + (r.offer_count == 1 ? "" : "s") + '</span></span><span class="price">' + (r.lowest_effective_paise == null ? '<span class="muted small">No verified price</span>' : inr(r.lowest_effective_paise)) + "</span></a></li>").join("") + "</ul>";
+  }
+  async function load() {
+    const my = ++seq; loading = true; err = null; draw();
+    const { data, error } = await db.rpc("search_products", { q, lim: PAGE, skip_n: page * PAGE });
+    if (my !== seq || token !== navToken) return;
+    loading = false; if (error) err = error.message; else rows = data || []; draw();
+  }
+  $q.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(() => { q = $q.value; page = 0; load(); }, 350); });
+  $s.addEventListener("change", () => { sort = $s.value; draw(); });
+  $prev.addEventListener("click", () => { page--; load(); });
+  $next.addEventListener("click", () => { page++; load(); });
+  load();
+}
+
+async function renderProduct(id, token) {
+  const { data: p, error: pe } = await db.from("products").select("id,title,brand,model_number").eq("id", id).eq("is_active", true).maybeSingle();
+  if (token !== navToken) return;
+  if (pe) throw pe;
+  if (!p) { app.innerHTML = '<p class="card pad muted">Product not found. <a class="mint" href="#/search">Back to search</a></p>'; return; }
+  const [vr, or] = await Promise.all([
+    db.from("product_variants").select("id,variant_label").eq("product_id", id),
+    db.from("offers_effective").select("*").eq("product_id", id)
+  ]);
+  if (or.error) throw or.error;
+  const variants = vr.data || [], offers = or.data || [], ids = offers.map(o => o.id);
+  let points = [];
+  if (ids.length) {
+    const since = new Date(Date.now() - 365 * 864e5).toISOString();
+    const r = await db.from("price_history").select("offer_id,price_paise,observed_at").in("offer_id", ids).gte("observed_at", since).order("observed_at", { ascending: true }).limit(5000);
+    if (r.error) throw r.error; points = r.data || [];
+  }
+  if (token !== navToken) return;
+  // Variants are never mixed: each variant is its own comparison group with its own lowest offer.
+  const groups = new Map();
+  offers.forEach(o => { const k = o.variant_id || "none"; groups.set(k, [...(groups.get(k) || []), o]); });
+  const label = k => k === "none" ? "Variant not specified" : (variants.find(v => v.id === k) || {}).variant_label || "Variant";
+  let html = '<div class="stack"><header><h1 style="font-size:1.875rem">' + esc(p.title) + '</h1><p class="muted" style="margin:0">' + esc([p.brand, p.model_number].filter(Boolean).join(" · ")) + "</p></header>";
+  if (!offers.length) html += '<p class="card pad muted">No store listings for this product yet.</p>';
+  groups.forEach((os, k) => {
+    const ok = os.filter(o => o.price_status === "verified" && o.effective_paise != null);
+    const best = ok.length ? Math.min(...ok.map(o => o.effective_paise)) : null;
+    html += '<section class="stack-sm"><h2 style="font-size:1.125rem">' + esc(label(k)) + "</h2>" + os.map(o => {
+      const isBest = best != null && o.price_status === "verified" && o.effective_paise === best;
+      const disc = o.mrp_paise && o.price_paise ? '<div class="muted xs"><s>' + inr(o.mrp_paise) + "</s> · " + Math.round((1 - o.price_paise / o.mrp_paise) * 100) + "% off</div>" : "";
+      return '<article class="card pad' + (isBest ? " best" : "") + '"><div class="row" style="align-items:flex-start"><div><div style="font-weight:500">' + esc(o.store_name) + '</div><div class="muted small">' + STATUS[o.price_status] + " · checked " + ago(o.last_verified_at) + " · " + esc(String(o.source_type).replace("_", " ")) + '</div></div><div style="text-align:right"><div class="price">' + inr(o.price_paise) + "</div>" + disc + "</div></div>" +
+        '<p class="muted small" style="margin:.25rem 0 0">' + (o.shipping_known ? "Shipping " + inr(o.shipping_paise) + " · total " + inr(o.effective_paise) : "Shipping not known; total may be higher") + " · " + esc(String(o.availability).replace("_", " ")) + "</p>" +
+        (isBest ? '<p class="mint small" style="margin:.25rem 0 0;font-weight:600">Lowest verified price for this variant</p>' : "") +
+        '<a class="mint small" style="text-decoration:underline;display:inline-block;margin-top:.5rem" href="' + esc(safeUrl(o.product_url)) + '" target="_blank" rel="noopener noreferrer nofollow">View on ' + esc(o.store_name) + "</a></article>";
+    }).join("") + "</section>";
+  });
+  if (offers.length) html += '<section id="hist" class="stack-md"></section>';
+  html += '<p class="muted xs">Forecasts and buy recommendations arrive in a later phase and will show tested accuracy only.</p></div>';
+  app.innerHTML = html;
+  if (offers.length) initHistory(offers.map(o => ({ id: o.id, label: label(o.variant_id || "none") + " · " + o.store_name })), points);
+}
+
+function initHistory(offerOpts, points) {
+  const RANGES = [["24h", 1], ["7d", 7], ["30d", 30], ["90d", 90], ["180d", 180], ["365d", 365]];
+  let offerId = offerOpts[0].id, days = 30;
+  const el = document.getElementById("hist");
+  el.innerHTML = "<h2>Price history</h2>" +
+    '<select id="ho">' + offerOpts.map(o => '<option value="' + esc(o.id) + '">' + esc(o.label) + "</option>").join("") + "</select>" +
+    '<div class="chips" id="hr">' + RANGES.map(([l, n]) => '<button class="chip" data-d="' + n + '">' + l + "</button>").join("") + "</div>" +
+    '<div id="hb"></div><p class="muted xs">Only prices actually recorded by checks are shown. The average is across observations, not time-weighted.</p>';
+  const body = document.getElementById("hb");
+  function draw() {
+    document.querySelectorAll("#hr .chip").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.d === days)));
+    const since = Date.now() - days * 864e5;
+    const s = points.filter(p => p.offer_id === offerId && new Date(p.observed_at).getTime() >= since).sort((a, b) => new Date(a.observed_at) - new Date(b.observed_at));
+    const v = s.map(p => p.price_paise), last = v[v.length - 1], first = v[0];
+    const min = v.length ? Math.min(...v) : null, max = v.length ? Math.max(...v) : null;
+    const avg = v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null;
+    const change = v.length > 1 && first ? ((last - first) / first) * 100 : null;
+    let chart;
+    if (s.length < 2) chart = '<p class="card pad muted">Not enough recorded observations in this period to draw a chart.' + (s.length === 1 ? " One observation: " + inr(last) + "." : "") + "</p>";
+    else {
+      const W = 600, H = 180, t0 = new Date(s[0].observed_at).getTime(), t1 = new Date(s[s.length - 1].observed_at).getTime();
+      const x = p => t1 === t0 ? W / 2 : ((new Date(p.observed_at).getTime() - t0) / (t1 - t0)) * (W - 20) + 10;
+      const y = n => max === min ? H / 2 : H - 15 - ((n - min) / (max - min)) * (H - 30);
+      let d = ""; s.forEach((p, i) => { d += i ? " H" + x(p).toFixed(1) + " V" + y(p.price_paise).toFixed(1) : "M" + x(p).toFixed(1) + " " + y(p.price_paise).toFixed(1); });
+      chart = '<svg class="chart card" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Observed price history"><path d="' + d + '" fill="none" stroke="#10b981" stroke-width="2.5"/></svg>';
     }
-    const money = (paise) => paise == null ? 'Price unavailable' : new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(paise)/100);
-    const safe = (value) => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    function showMessage(text, error=false){ $('message').innerHTML = text ? `<div class="notice ${error?'error':''}">${safe(text)}</div>` : ''; }
-    function renderProducts(products){
-      const grid = $('productGrid'); grid.innerHTML = '';
-      products.forEach(product => {
-        const offers = [...(product.offers || [])].sort((a,b)=>(a.price_paise ?? Number.MAX_SAFE_INTEGER)-(b.price_paise ?? Number.MAX_SAFE_INTEGER));
-        const best = offers.find(o => o.price_paise != null);
-        const image = product.image_url ? `<img src="${safe(product.image_url)}" alt="${safe(product.title)}" loading="lazy" onerror="this.remove()">` : '◈';
-        const fresh = best ? (best.is_stale ? 'Price may be outdated' : `Checked ${best.last_verified_at ? new Date(best.last_verified_at).toLocaleString('en-IN') : 'recently'}`) : 'No verified price';
-        const card = document.createElement('article'); card.className='card';
-        card.innerHTML = `<div class="photo">${image}</div><div class="info"><div class="tag">${safe(product.brand || product.category || 'PRODUCT')}</div><h3>${safe(product.title)}</h3>${best?`<div class="price">${money(best.price_paise)}</div><div class="fresh ${best.is_stale?'stale':''}">${safe(fresh)}</div><div class="offer"><span>Lowest listed: ${safe(best.stores?.name || 'Store')}</span><a href="${safe(best.product_url)}" target="_blank" rel="noopener noreferrer">View offer ↗</a></div><div class="offer"><span>${offers.length} store listing${offers.length===1?'':'s'}</span><span>${safe(best.availability || 'unknown')}</span></div>`:`<div class="fresh stale">No store offers recorded yet</div>`}</div>`;
-        grid.appendChild(card);
-      });
-      $('empty').hidden = products.length > 0;
-    }
-    async function searchProducts(term){
-      if(!supabaseClient){ showMessage('Supabase is not connected. Add your project URL and publishable/anon key in this file, then upload it again.',true); return; }
-      $('searchButton').disabled=true; $('searchButton').textContent='Searching…'; showMessage(''); $('empty').hidden=true;
-      try {
-        const clean = term.replace(/[,%()]/g,' ').trim();
-        const {data,error} = await supabaseClient.from('products')
-          .select('id,title,brand,category,image_url,offers(id,price_paise,mrp_paise,shipping_paise,product_url,availability,last_verified_at,is_stale,stores(name))')
-          .eq('is_active',true).or(`title.ilike.%${clean}%,brand.ilike.%${clean}%,model_number.ilike.%${clean}%`).limit(30);
-        if(error) throw error;
-        const products=data||[]; $('results').hidden=false; $('results').innerHTML=`<b>${products.length} product${products.length===1?'':'s'} found</b><span>${products.reduce((n,p)=>n+(p.offers?.length||0),0)} store listings</span>`;
-        renderProducts(products);
-        if(!products.length) $('empty').innerHTML='<div style="font-size:28px">⌕</div><b>No matching products yet</b><span>Your catalogue may be empty. Add products and verified offers to Supabase first.</span>';
-      } catch(err){showMessage(err.message || 'Search failed. Check your Supabase connection and table permissions.',true); $('empty').hidden=false;}
-      finally{$('searchButton').disabled=false;$('searchButton').textContent='Search';}
-    }
-    $('searchForm').addEventListener('submit',e=>{e.preventDefault();const term=$('query').value.trim();if(!term){showMessage('Enter a product name to search.',true);return;}searchProducts(term);});
-  </script>
+    const stats = [["Current", inr(last)], ["Previous", inr(v[v.length - 2])], ["Lowest", inr(min)], ["Highest", inr(max)], ["Average", inr(avg)], ["Change", change == null ? "—" : change.toFixed(1) + "%"]];
+    body.innerHTML = '<div class="stack-md">' + chart + '<dl class="grid3" style="margin:0">' + stats.map(([k, val]) => '<div class="card stat"><dt>' + k + "</dt><dd>" + esc(val) + "</dd></div>").join("") + "</dl></div>";
+  }
+  document.getElementById("ho").addEventListener("change", e => { offerId = e.target.value; draw(); });
+  document.getElementById("hr").addEventListener("click", e => { const b = e.target.closest(".chip"); if (b) { days = +b.dataset.d; draw(); } });
+  draw();
+}
+
+window.addEventListener("hashchange", route);
+route();
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
 </body>
 </html>
